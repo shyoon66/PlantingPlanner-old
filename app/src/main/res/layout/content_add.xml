@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".AddActivity"
+    tools:showIn="@layout/activity_add">
+
+    <EditText
+        android:id="@+id/nameEditText"
+        android:layout_width="368dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:ems="10"
+        android:hint="이름을 입력하세요."
+        android:inputType="text"
+        android:maxLength="100"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/kindTextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nameTextView" />
+
+    <TextView
+        android:id="@+id/nameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="71dp"
+        android:layout_marginEnd="346dp"
+        android:text="이름"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/nameEditText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/kindTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="346dp"
+        android:text="종류"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/kindEditText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nameEditText" />
+
+    <EditText
+        android:id="@+id/kindEditText"
+        android:layout_width="368dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:ems="10"
+        android:hint="예) 산세베리아, 선인장 "
+        android:inputType="textPersonName"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/picView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/kindTextView" />
+
+    <TextView
+        android:id="@+id/picView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="346dp"
+        android:layout_marginBottom="240dp"
+        android:text="사진"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/introView4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/kindEditText" />
+
+    <Button
+        android:id="@+id/imgAddButton"
+        android:layout_width="79dp"
+        android:layout_height="40dp"
+        android:text="사진추가"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="25dp"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toTopOf="@+id/imgAddButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/kindEditText"
+        app:srcCompat="@color/colorAccent" />
+
+    <TextView
+        android:id="@+id/introView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="346dp"
+        android:text="소개"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/introEditText4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/picView" />
+
+    <EditText
+        android:id="@+id/introEditText4"
+        android:layout_width="368dp"
+        android:layout_height="47dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="44dp"
+        android:ems="10"
+        android:gravity="top"
+        android:hint="식물에 대한 소개를 적어주세요."
+        android:inputType="textMultiLine"
+        android:lines="3"
+        android:maxLines="3"
+        android:minLines="3"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/introView4" />
+
+    <TextView
+        android:id="@+id/waterTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="물주기 설정"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/introEditText4" />
+
+    <DatePicker
+        android:id="@+id/datepicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:datePickerMode="calendar"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/imgAddButton"
+        app:layout_constraintEnd_toStartOf="@+id/nameEditText"
+        app:layout_constraintHorizontal_bias="0.508"
+        app:layout_constraintStart_toEndOf="@+id/nameEditText"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <EditText
+        android:id="@+id/txtdate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:ems="10"
+        android:inputType="date"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/waterTextView" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

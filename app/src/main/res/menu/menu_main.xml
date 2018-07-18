@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.yoonbae.plantingplanner.MainActivity">
+
+<!--    <item
+        android:id="@+id/action_settings"
+        android:title="환경설정"
+        android:icon="@drawable/ic_launcher_foreground"
+        app:showAsAction="ifRoom"/>-->
+
+    <!-- Settings, should always be in the overflow -->
+    <item android:id="@+id/action_settings"
+        android:title="설정"
+        android:icon="@drawable/ic_launcher_foreground"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/action_settings2"
+        android:title="로그아웃"
+        android:icon="@drawable/ic_launcher_foreground"
+        app:showAsAction="never"/>
+
+</menu>

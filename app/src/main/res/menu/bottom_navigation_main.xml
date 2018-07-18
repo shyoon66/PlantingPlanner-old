@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_diary"
+        android:icon="@drawable/baseline_event_note_black_24"
+        android:title="다이어리"/>
+    <item
+        android:id="@+id/action_add"
+        android:icon="@drawable/baseline_add_black_24"
+        android:title="식물추가"/>
+    <item
+        android:id="@+id/action_list"
+        android:icon="@drawable/baseline_menu_black_24"
+        android:title="식물목록"/>
+
+</menu>

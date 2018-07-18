@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">PlantingPlanner</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main">Menu</string>
+
+    <string name="material_calendar_monday">월</string>
+    <string name="material_calendar_tuesday">화</string>
+    <string name="material_calendar_wednesday">수</string>
+    <string name="material_calendar_thursday">목</string>
+    <string name="material_calendar_friday">금</string>
+    <string name="material_calendar_saturday">토</string>
+    <string name="material_calendar_sunday">일</string>
+
+    <array name="material_calendar_months_array">
+        <item>1월</item>
+        <item>2월</item>
+        <item>3월</item>
+        <item>4월</item>
+        <item>5월</item>
+        <item>6월</item>
+        <item>7월</item>
+        <item>8월</item>
+        <item>9월</item>
+        <item>10월</item>
+        <item>11월</item>
+        <item>12월</item>
+    </array>
+
+    <string name="material_calendar_today_button">Today</string>
+    <string name="material_calendar_positive_button">OK</string>
+    <string name="material_calendar_negative_button">Cancel</string>
+    <string name="title_activity_add">식물등록</string>
+
+    <string name="facebook_app_id">473567153070004</string>
+    <string name="fb_login_protocol_scheme">fb473567153070004</string>
+</resources>

@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "677847193937",
+    "firebase_url": "https://planting-planner.firebaseio.com",
+    "project_id": "planting-planner",
+    "storage_bucket": "planting-planner.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:677847193937:android:5ad750a64729bc51",
+        "android_client_info": {
+          "package_name": "com.yoonbae.plantingplanner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "677847193937-0guev2okitdcbo39qo1se96taafj4oga.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yoonbae.plantingplanner",
+            "certificate_hash": "89ae605cb67cae15aedad2dac0381481dcaa7145"
+          }
+        },
+        {
+          "client_id": "677847193937-qr7av5jubvngm6j73cc5oh6mebp2qcua.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAygUKfnWT3nJ8e5fQUo6yFKit8y-wx_mY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "677847193937-qr7av5jubvngm6j73cc5oh6mebp2qcua.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
