@@ -33,4 +33,11 @@
 
     <string name="facebook_app_id">473567153070004</string>
     <string name="fb_login_protocol_scheme">fb473567153070004</string>
+
+    <array name="water">
+        <item>매일</item>
+        <item>이틀</item>
+        <item>1주일</item>
+        <item>1달</item>
+    </array>
 </resources>

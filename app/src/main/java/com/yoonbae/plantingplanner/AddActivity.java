@@ -19,13 +19,16 @@ import androidx.core.content.FileProvider;
 
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +45,7 @@ public class AddActivity extends AppCompatActivity {
     private String mCurrentPhotoPath;
     DatePicker mDate;
     TextView mTxtDate;
+    Spinner spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +97,7 @@ public class AddActivity extends AppCompatActivity {
                 @Override
                 public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                     //monthOfYear는 0값이 1월을 뜻하므로 1을 더해줌 나머지는 같다.
+                    System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ " + String.format("%d/%d/%d", year, monthOfYear + 1, dayOfMonth));
                     mTxtDate.setText(String.format("%d/%d/%d", year, monthOfYear + 1, dayOfMonth));
                 }
         });
@@ -106,6 +111,15 @@ public class AddActivity extends AppCompatActivity {
                 Toast.makeText(AddActivity.this, result, Toast.LENGTH_SHORT).show();
             }
         });
+
+        onCreateSpinner();
+    }
+
+    private void onCreateSpinner() {
+        spinner = (Spinner)findViewById(R.id.spinner);
+        ArrayAdapter waterAdapter = ArrayAdapter.createFromResource(this, R.array.water, android.R.layout.simple_spinner_item);
+        waterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(waterAdapter);
     }
 
     @Override
