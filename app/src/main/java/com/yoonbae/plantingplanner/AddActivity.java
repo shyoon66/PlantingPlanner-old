@@ -27,15 +27,22 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
+
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 public class AddActivity extends AppCompatActivity {
@@ -43,14 +50,25 @@ public class AddActivity extends AppCompatActivity {
     private static final int CAMERA_CODE = 10;
     private static final int GALLERY_CODE = 100;
     private String mCurrentPhotoPath;
-    DatePicker mDate;
-    TextView mTxtDate;
-    Spinner spinner;
+    private EditText name;
+    private EditText kind;
+    private EditText intro;
+    private DatePicker mDate;
+    private TextView startDate;
+    private Spinner spinner;
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
+        name = findViewById(R.id.name);
+        kind = findViewById(R.id.kind);
+        intro = findViewById(R.id.intro);
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -59,7 +77,6 @@ public class AddActivity extends AppCompatActivity {
         actionBar.setDisplayShowCustomEnabled(true);    // 커스터마이징 하기 위해 필요
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);      // 뒤로가기 버튼, 디폴트로 true만 해도 백버튼이 생김
-        //actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_left);
         requestPermission();
 
         Button button = (Button) findViewById(R.id.imgAddButton);
@@ -87,11 +104,14 @@ public class AddActivity extends AppCompatActivity {
         });
 
         mDate = (DatePicker) findViewById(R.id.datepicker);
-        mTxtDate = (TextView) findViewById(R.id.txtdate);
+        startDate = (TextView) findViewById(R.id.startDate);
+
+        Calendar calendar = Calendar.getInstance();
+        startDate.setText(String.format("%d/%d/%d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)));
 
         //처음 DatePicker를 오늘 날짜로 초기화한다.
         //그리고 리스너를 등록한다.
-        mDate.init(mDate.getYear(), mDate.getMonth(), mDate.getDayOfMonth(),
+/*        mDate.init(mDate.getYear(), mDate.getMonth(), mDate.getDayOfMonth(),
             new DatePicker.OnDateChangedListener() {
                 //값이 바뀔때마다 텍스트뷰의 값을 바꿔준다.
                 @Override
@@ -100,10 +120,10 @@ public class AddActivity extends AppCompatActivity {
                     System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ " + String.format("%d/%d/%d", year, monthOfYear + 1, dayOfMonth));
                     mTxtDate.setText(String.format("%d/%d/%d", year, monthOfYear + 1, dayOfMonth));
                 }
-        });
+        });*/
 
         //선택기로부터 날짜 조사
-        findViewById(R.id.txtdate).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.startDate).setOnClickListener(new View.OnClickListener() {
             //버튼 클릭시 DatePicker로부터 값을 읽어와서 Toast메시지로 보여준다.
             @Override
             public void onClick(View v) {
@@ -124,9 +144,6 @@ public class AddActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        //getMenuInflater().inflate(R.menu.menu_add,menu);
-        //return super.onCreateOptionsMenu(menu);
-
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu_add, menu);
         return true;
@@ -136,8 +153,11 @@ public class AddActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home: {
-                finish();
-                return true;
+                Intent intent = new Intent(AddActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+            case R.id.action_insert: {
+                insert();
             }
         }
 
@@ -207,12 +227,14 @@ public class AddActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         ImageView imageView = findViewById(R.id.imageView);
+        File imageFile = null;
 
         if(resultCode == CAMERA_CODE) {
-           imageView.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
+            imageFile = new File(mCurrentPhotoPath);
+            imageView.setImageURI(Uri.fromFile(imageFile));
+           //imageView.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
         } else if(requestCode == GALLERY_CODE && resultCode == RESULT_OK) {
             Uri uri = data.getData();
-            System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& uri = " + uri);
             imageView.setImageURI(uri);
         }
     }
@@ -229,5 +251,21 @@ public class AddActivity extends AppCompatActivity {
         } catch(IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void insert() {
+        PlantDTO plantDTO = new PlantDTO();
+        plantDTO.name = name.getText().toString();
+        plantDTO.kind = kind.getText().toString();
+        plantDTO.imageUrl = mCurrentPhotoPath;
+        plantDTO.intro = intro.getText().toString();
+        plantDTO.startDate = startDate.getText().toString();
+        plantDTO.period = spinner.getSelectedItem().toString();
+        plantDTO.uid = mFirebaseAuth.getCurrentUser().getUid();
+        plantDTO.userId = mFirebaseAuth.getCurrentUser().getEmail();
+
+        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55");
+
+        database.getReference().child("plant").push().setValue(plantDTO);
     }
 }
