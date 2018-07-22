@@ -82,7 +82,7 @@
         android:id="@+id/imgAddButton"
         android:layout_width="79dp"
         android:layout_height="40dp"
-        android:text="사진추가"
+        android:text="사진등록"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"

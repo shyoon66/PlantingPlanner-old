@@ -29,7 +29,7 @@
     <string name="material_calendar_today_button">Today</string>
     <string name="material_calendar_positive_button">OK</string>
     <string name="material_calendar_negative_button">Cancel</string>
-    <string name="title_activity_add">식물등록</string>
+    <string name="title_activity_add">식물추가</string>
 
     <string name="facebook_app_id">473567153070004</string>
     <string name="fb_login_protocol_scheme">fb473567153070004</string>

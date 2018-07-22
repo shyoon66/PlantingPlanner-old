@@ -5,10 +5,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,10 +18,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.loader.content.CursorLoader;
 
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,10 +35,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
-
-import org.w3c.dom.Text;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,24 +57,27 @@ public class AddActivity extends AppCompatActivity {
     private static final int CAMERA_CODE = 10;
     private static final int GALLERY_CODE = 100;
     private String mCurrentPhotoPath;
-    private EditText name;
-    private EditText kind;
-    private EditText intro;
+    private EditText mName;
+    private EditText mKind;
+    private EditText mIntro;
     private DatePicker mDate;
-    private TextView startDate;
+    private TextView mStartDate;
     private Spinner spinner;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseDatabase database;
+    private FirebaseStorage storage;
+    private String firebaseImagePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
-        name = findViewById(R.id.name);
-        kind = findViewById(R.id.kind);
-        intro = findViewById(R.id.intro);
+        mName = findViewById(R.id.name);
+        mKind = findViewById(R.id.kind);
+        mIntro = findViewById(R.id.intro);
         mFirebaseAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
+        storage = FirebaseStorage.getInstance();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -104,10 +114,10 @@ public class AddActivity extends AppCompatActivity {
         });
 
         mDate = (DatePicker) findViewById(R.id.datepicker);
-        startDate = (TextView) findViewById(R.id.startDate);
+        mStartDate = (TextView) findViewById(R.id.startDate);
 
         Calendar calendar = Calendar.getInstance();
-        startDate.setText(String.format("%d/%d/%d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)));
+        mStartDate.setText(String.format("%d/%d/%d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)));
 
         //처음 DatePicker를 오늘 날짜로 초기화한다.
         //그리고 리스너를 등록한다.
@@ -155,6 +165,7 @@ public class AddActivity extends AppCompatActivity {
             case android.R.id.home: {
                 Intent intent = new Intent(AddActivity.this, MainActivity.class);
                 startActivity(intent);
+                return true;
             }
             case R.id.action_insert: {
                 insert();
@@ -205,7 +216,6 @@ public class AddActivity extends AppCompatActivity {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% storageDir " + storageDir.getAbsolutePath());
         //File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
         if (!storageDir.exists()) {
@@ -220,22 +230,67 @@ public class AddActivity extends AppCompatActivity {
 
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.getAbsolutePath();
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@222 mCurrentPhotoPath = " + mCurrentPhotoPath);
         return image;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        ImageView imageView = findViewById(R.id.imageView);
-        File imageFile = null;
+        String path = null;
 
-        if(resultCode == CAMERA_CODE) {
-            imageFile = new File(mCurrentPhotoPath);
-            imageView.setImageURI(Uri.fromFile(imageFile));
-           //imageView.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
-        } else if(requestCode == GALLERY_CODE && resultCode == RESULT_OK) {
-            Uri uri = data.getData();
-            imageView.setImageURI(uri);
+        if(resultCode == RESULT_OK) {
+            if(requestCode == CAMERA_CODE) {
+                path = mCurrentPhotoPath;
+            } else if(requestCode == GALLERY_CODE) {
+                path = getPath(data.getData());
+            }
+
+            uploadImageByFirebase(path, data.getData(), requestCode);
+        }
+    }
+
+    private String getPath(Uri uri) {
+        String[] proj = {MediaStore.Images.Media.DATA};
+        CursorLoader cursorLoader = new CursorLoader(this, uri, proj, null, null, null);
+        Cursor cursor = cursorLoader.loadInBackground();
+        int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+
+        return cursor.getString(index);
+    }
+
+    private void uploadImageByFirebase(String path, Uri uri, final int requestCode) {
+        // Create a storage reference from our app
+        final StorageReference storageRef = storage.getReferenceFromUrl("gs://planting-planner.appspot.com");
+        final Uri furi = uri;
+        final int frequestCode = requestCode;
+
+        Uri file = Uri.fromFile(new File(path));
+        firebaseImagePath = "images/" + file.getLastPathSegment();
+        StorageReference riversRef = storageRef.child(firebaseImagePath);
+        UploadTask uploadTask = riversRef.putFile(file);
+
+        // Register observers to listen for when the download is done or if it fails
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Toast.makeText(AddActivity.this, "사진 등록이 실패했습니다.", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                imageView(furi, frequestCode);
+                Toast.makeText(AddActivity.this, "사진 등록이 성공했습니다.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void imageView(Uri uri, int frequestCode) {
+        ImageView imageview = findViewById(R.id.imageView);
+
+        if(frequestCode == CAMERA_CODE) {
+            imageview.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
+        } else if(frequestCode == GALLERY_CODE) {
+            imageview.setImageURI(uri);
         }
     }
 
@@ -245,7 +300,6 @@ public class AddActivity extends AppCompatActivity {
         try {
             File photoFile = createImageFile();
             Uri photoUri = FileProvider.getUriForFile(this, "com.yoonbae.plantingplanner.fileprovider", photoFile);
-            System.out.println("######################################3 photoUri = " + photoUri);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
             startActivityForResult(intent, CAMERA_CODE);
         } catch(IOException e) {
@@ -254,18 +308,69 @@ public class AddActivity extends AppCompatActivity {
     }
 
     private void insert() {
-        PlantDTO plantDTO = new PlantDTO();
-        plantDTO.name = name.getText().toString();
-        plantDTO.kind = kind.getText().toString();
-        plantDTO.imageUrl = mCurrentPhotoPath;
-        plantDTO.intro = intro.getText().toString();
-        plantDTO.startDate = startDate.getText().toString();
-        plantDTO.period = spinner.getSelectedItem().toString();
-        plantDTO.uid = mFirebaseAuth.getCurrentUser().getUid();
-        plantDTO.userId = mFirebaseAuth.getCurrentUser().getEmail();
+        StorageReference storageRef = storage.getReferenceFromUrl("gs://planting-planner.appspot.com");
+        Task<Uri> uriTask = storageRef.child(firebaseImagePath).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                String name = mName.getText().toString();
+                String kind = mKind.getText().toString();
+                String intro = mIntro.getText().toString();
+                String startDate = mStartDate.getText().toString();
+                String period = spinner.getSelectedItem().toString();
+                String uid = mFirebaseAuth.getCurrentUser().getUid();
+                String userId = mFirebaseAuth.getCurrentUser().getEmail();
+                String imageUrl = uri.toString();
 
-        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55");
+                AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
+                ab.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
 
-        database.getReference().child("plant").push().setValue(plantDTO);
+                if("".equals(name)) {
+                    ab.setMessage("이름을 입력해주세요.");
+                    ab.show();
+                    return;
+                }
+
+                if("".equals(kind)) {
+                    ab.setMessage("종류를 입력해주세요.");
+                    ab.show();
+                    return;
+                }
+
+                if("".equals(intro)) {
+                    ab.setMessage("소개를 입력해주세요.");
+                    ab.show();
+                    return;
+                }
+
+                Plant plant = new Plant(name, kind, imageUrl, intro, startDate, period, uid, userId);
+                database.getReference().child("plant").push().setValue(plant);
+
+                showDialogAfterinsert();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+
+            }
+        });
+    }
+
+    private void showDialogAfterinsert() {
+        AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
+        ab.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                Intent intent = new Intent(AddActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+        ab.setMessage("등록이 완료됐습니다.");
+        ab.show();
     }
 }

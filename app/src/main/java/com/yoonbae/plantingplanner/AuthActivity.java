@@ -49,6 +49,8 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
+        chkLogin(mFirebaseAuth);
+
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
@@ -87,6 +89,15 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
 
             }
         });
+    }
+
+    private void chkLogin(FirebaseAuth firebaseAuth) {
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+
+        if(firebaseUser != null) {
+            Intent intent = new Intent(AuthActivity.this, MainActivity.class);
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -145,8 +156,8 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
         authResultTask.addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
             public void onSuccess(AuthResult authResult) {
-                startActivity(new Intent(AuthActivity.this, MainActivity.class));
-                finish();
+            startActivity(new Intent(AuthActivity.this, MainActivity.class));
+            finish();
             }
         });
     }
