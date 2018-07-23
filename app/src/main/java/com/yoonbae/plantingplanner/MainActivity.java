@@ -34,14 +34,16 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Intent intent = null;
                 switch (item.getItemId()) {
                     case R.id.action_diary:
                         return true;
                     case R.id.action_add:
-                        Intent intent = new Intent(MainActivity.this,AddActivity.class);
+                        intent = new Intent(MainActivity.this, AddActivity.class);
                         startActivity(intent);
                     case R.id.action_list:
-                        return true;
+                        intent = new Intent(MainActivity.this, ListActivity.class);
+                        startActivity(intent);
                 }
                 return false;
             }
@@ -49,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void calendarView() {
-        CalendarView calendarView = (CalendarView) findViewById(R.id.calendarView);
+        CalendarView calendarView = findViewById(R.id.calendarView);
         Calendar calendar = Calendar.getInstance();
 
         try {
