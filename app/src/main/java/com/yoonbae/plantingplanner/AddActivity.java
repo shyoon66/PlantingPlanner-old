@@ -169,6 +169,7 @@ public class AddActivity extends AppCompatActivity {
             }
             case R.id.action_insert: {
                 insert();
+                return true;
             }
         }
 
@@ -308,54 +309,53 @@ public class AddActivity extends AppCompatActivity {
     }
 
     private void insert() {
+        AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
+        ab.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        final String name = mName.getText().toString();
+        final String kind = mKind.getText().toString();
+        final String intro = mIntro.getText().toString();
+        final String startDate = mStartDate.getText().toString();
+        final String period = spinner.getSelectedItem().toString();
+        final String uid = mFirebaseAuth.getCurrentUser().getUid();
+        final String userId = mFirebaseAuth.getCurrentUser().getEmail();
+
+        if("".equals(name)) {
+            ab.setMessage("이름을 입력해주세요.");
+            ab.show();
+            return;
+        }
+
+        if("".equals(kind)) {
+            ab.setMessage("종류를 입력해주세요.");
+            ab.show();
+            return;
+        }
+
+        if("".equals(intro)) {
+            ab.setMessage("소개를 입력해주세요.");
+            ab.show();
+            return;
+        }
+
         StorageReference storageRef = storage.getReferenceFromUrl("gs://planting-planner.appspot.com");
         Task<Uri> uriTask = storageRef.child(firebaseImagePath).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
-                String name = mName.getText().toString();
-                String kind = mKind.getText().toString();
-                String intro = mIntro.getText().toString();
-                String startDate = mStartDate.getText().toString();
-                String period = spinner.getSelectedItem().toString();
-                String uid = mFirebaseAuth.getCurrentUser().getUid();
-                String userId = mFirebaseAuth.getCurrentUser().getEmail();
                 String imageUrl = uri.toString();
-
-                AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
-                ab.setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
-                if("".equals(name)) {
-                    ab.setMessage("이름을 입력해주세요.");
-                    ab.show();
-                    return;
-                }
-
-                if("".equals(kind)) {
-                    ab.setMessage("종류를 입력해주세요.");
-                    ab.show();
-                    return;
-                }
-
-                if("".equals(intro)) {
-                    ab.setMessage("소개를 입력해주세요.");
-                    ab.show();
-                    return;
-                }
-
                 Plant plant = new Plant(name, kind, imageUrl, intro, startDate, period, uid, userId);
                 database.getReference().child("plant").push().setValue(plant);
-
                 showDialogAfterinsert();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-
+                Toast.makeText(AddActivity.this, "식물 등록이 실패했습니다.", Toast.LENGTH_SHORT).show();
             }
         });
     }

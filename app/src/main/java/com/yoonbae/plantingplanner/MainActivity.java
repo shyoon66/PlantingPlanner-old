@@ -41,9 +41,11 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.action_add:
                         intent = new Intent(MainActivity.this, AddActivity.class);
                         startActivity(intent);
+                        return true;
                     case R.id.action_list:
                         intent = new Intent(MainActivity.this, ListActivity.class);
                         startActivity(intent);
+                        return true;
                 }
                 return false;
             }
