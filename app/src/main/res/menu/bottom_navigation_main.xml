@@ -1,17 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
+<!--    <item
         android:id="@+id/action_diary"
         android:icon="@drawable/baseline_event_note_black_24"
-        android:title="다이어리"/>
+        android:title="다이어리"
+        app:showAsAction="ifRoom"
+        app:labelVisibilityMode="labeled"/>-->
     <item
         android:id="@+id/action_add"
         android:icon="@drawable/baseline_add_black_24"
-        android:title="식물추가"/>
+        android:title="식물추가"
+        app:showAsAction="ifRoom"
+        app:labelVisibilityMode="labeled"/>
     <item
         android:id="@+id/action_list"
         android:icon="@drawable/baseline_menu_black_24"
-        android:title="식물목록"/>
+        android:title="식물목록"
+        app:showAsAction="ifRoom"
+        app:labelVisibilityMode="labeled"/>
+    <item
+        android:id="@+id/action_myInfo"
+        android:icon="@drawable/baseline_person_black_24"
+        android:title="내정보"
+        app:showAsAction="ifRoom"
+        app:labelVisibilityMode="labeled"/>
 
 </menu>
