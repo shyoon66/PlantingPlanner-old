@@ -7,12 +7,12 @@
     android:id="@+id/drawer_layout"
     tools:context=".MainActivity">
 
-    <androidx.appcompat.widget.Toolbar
+<!--    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:background="@color/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize">
-    </androidx.appcompat.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>-->
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:layout_width="match_parent"

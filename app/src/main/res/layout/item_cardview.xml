@@ -38,13 +38,27 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-            <ImageView
-                android:layout_below="@+id/cardview_imageview"
+            <ImageButton
+                android:id="@+id/cardview_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:layout_margin="5dp"
-                android:src="@android:drawable/ic_menu_delete"
-                android:layout_width="20dp"
-                android:layout_height="30dp" />
+                android:layout_below="@+id/cardview_imageview"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="0dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/baseline_more_vert_black_24" />
+
+<!--            <Spinner
+                android:id="@+id/cardview_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/cardview_imageview"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="0dp"
+                android:layout_weight="1"
+                android:src="@drawable/baseline_more_vert_black_24" />-->
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
 </androidx.appcompat.widget.LinearLayoutCompat>
