@@ -14,6 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
 import com.yoonbae.plantingplanner.AddActivity;
 import com.yoonbae.plantingplanner.R;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
@@ -26,10 +28,13 @@ import androidx.recyclerview.widget.RecyclerView;
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Plant> plantList;
+    private List<String> keyList;
     Context context;
+    private FirebaseDatabase database;
 
-    public MyRecyclerViewAdapter(List<Plant> plantList, Context context) {
+    public MyRecyclerViewAdapter(List<Plant> plantList, List<String> keyList, Context context) {
         this.plantList = plantList;
+        this.keyList = keyList;
         this.context = context;
     }
 
@@ -41,7 +46,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         ((RowCell)holder).name.setText(plantList.get(position).getName());
         ((RowCell)holder).intro.setText(plantList.get(position).getIntro());
         Glide.with(((RowCell) holder).imageView.getContext()).load(plantList.get(position).getImageUrl()).into(((RowCell) holder).imageView);
@@ -49,12 +54,20 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         ((RowCell)holder).imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String items[] = {"식물수정", "식물삭제"};
+                String items[] = {"식물수정", "식물삭제", "취소"};
                 AlertDialog.Builder ab = new AlertDialog.Builder(context);
                 ab.setTitle("");
                 ab.setItems(items, new DialogInterface.OnClickListener() {    // 목록 클릭시 설정
                     public void onClick(DialogInterface dialog, int index) {
+                        if(index == 0) {
 
+                        } else if(index == 1) {
+                            deletePlant(position);
+                        } else {
+                            dialog.dismiss();
+                        }
+
+                        dialog.dismiss();
                     }
                 });
                 ab.show();
@@ -86,6 +99,12 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             imageButton = view.findViewById(R.id.cardview_btn);
             //spinner = view.findViewById(R.id.cardview_spinner);
         }
+    }
+
+    private void deletePlant(int position) {
+        database = FirebaseDatabase.getInstance();
+        String key = keyList.get(position);
+        database.getReference().child("plant").child(key).removeValue();
     }
 
     //아이템 중 하나를 선택 했을때 호출되는 콜백 메서드

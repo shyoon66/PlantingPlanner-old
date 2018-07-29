@@ -12,10 +12,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.adapter.MyRecyclerViewAdapter;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
 
@@ -25,7 +28,10 @@ import java.util.List;
 public class ListActivity extends AppCompatActivity {
 
     private FirebaseDatabase firebaseDatabase;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser firebaseUser;
     private List<Plant> plantList;
+    private List<String> keyList = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +39,8 @@ public class ListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list);
         final RecyclerView recyclerView = findViewById(R.id.main_recyclerView);
 
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
         firebaseDatabase = FirebaseDatabase.getInstance();
         firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
             @Override
@@ -41,20 +49,27 @@ public class ListActivity extends AppCompatActivity {
 
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Plant value = snapshot.getValue(Plant.class);
-                    Plant plant = new Plant();
-                    plant.setName(value.getName());
-                    plant.setKind(value.getKind());
-                    plant.setImageUrl(value.getImageUrl());
-                    plant.setIntro(value.getIntro());
-                    plant.setStartDate(value.getStartDate());
-                    plant.setPeriod(value.getPeriod());
-                    plant.setUid(value.getUid());
-                    plant.setUserId(value.getUserId());
-                    plantList.add(plant);
+
+                    String sUid = firebaseUser.getUid();
+                    String fUid = value.getUid();
+
+                    if(sUid.equals(fUid)) {
+                        Plant plant = new Plant();
+                        plant.setName(value.getName());
+                        plant.setKind(value.getKind());
+                        plant.setImageUrl(value.getImageUrl());
+                        plant.setIntro(value.getIntro());
+                        plant.setStartDate(value.getStartDate());
+                        plant.setPeriod(value.getPeriod());
+                        plant.setUid(value.getUid());
+                        plant.setUserId(value.getUserId());
+                        plantList.add(plant);
+                        keyList.add(snapshot.getKey());
+                    }
                 }
 
                 recyclerView.setLayoutManager(new LinearLayoutManager(ListActivity.this));
-                MyRecyclerViewAdapter myRecyclerViewAdapter = new MyRecyclerViewAdapter(plantList, ListActivity.this);
+                MyRecyclerViewAdapter myRecyclerViewAdapter = new MyRecyclerViewAdapter(plantList, keyList,ListActivity.this);
                 recyclerView.setAdapter(myRecyclerViewAdapter);
                 myRecyclerViewAdapter.notifyDataSetChanged();
             }

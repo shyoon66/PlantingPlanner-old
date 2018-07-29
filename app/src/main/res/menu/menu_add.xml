@@ -9,7 +9,6 @@
         android:icon="@drawable/baseline_done_black_24"
         android:layout_gravity="right"
         android:iconTint="@android:color/white"
-        app:itemBackground="@color/colorPrimary"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom"/>
 
 </menu>

@@ -11,8 +11,7 @@
         android:background="@color/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:itemBackground="@color/colorPrimary"
-        app:itemIconTint="@android:color/white">
+        app:itemBackground="@color/colorPrimary">
 
         <TextView
             android:layout_width="wrap_content"

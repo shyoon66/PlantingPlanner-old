@@ -97,18 +97,17 @@ public class AddActivity extends AppCompatActivity {
                 final String items[] = {"카메라로 찍기", "앨범에서 가져오기", "취소"};
                 AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
                 ab.setTitle("사진 선택");
-                ab.setSingleChoiceItems(items, 0,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                if (whichButton == 0) {
-                                    chkCameraPermission(context);
-                                } else if (whichButton == 1) {
-                                    pickUpPicture();
-                                }
+                ab.setItems(items, new DialogInterface.OnClickListener() {    // 목록 클릭시 설정
+                    public void onClick(DialogInterface dialog, int index) {
+                        if(index == 0) {
+                            chkCameraPermission(context);
+                        } else if(index == 1) {
+                            pickUpPicture();
+                        }
 
-                                dialog.dismiss();
-                            }
-                        });
+                        dialog.dismiss();
+                    }
+                });
                 ab.show();
             }
         });
