@@ -14,9 +14,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.yoonbae.plantingplanner.AddActivity;
+import com.yoonbae.plantingplanner.ListActivity;
 import com.yoonbae.plantingplanner.R;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
 import java.util.List;
@@ -31,6 +34,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private List<String> keyList;
     Context context;
     private FirebaseDatabase database;
+    private FirebaseStorage storage;
 
     public MyRecyclerViewAdapter(List<Plant> plantList, List<String> keyList, Context context) {
         this.plantList = plantList;
@@ -101,10 +105,33 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
-    private void deletePlant(int position) {
+    private void deletePlant(final int position) {
         database = FirebaseDatabase.getInstance();
         String key = keyList.get(position);
-        database.getReference().child("plant").child(key).removeValue();
+
+        database.getReference().child("plant").child(key).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                String imageName = plantList.get(position).getImageName();
+                storage = FirebaseStorage.getInstance();
+                storage.getReference().child("images").child(imageName).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(context, "식물이 삭제됐습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(context, "식물 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(context, "식물 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     //아이템 중 하나를 선택 했을때 호출되는 콜백 메서드

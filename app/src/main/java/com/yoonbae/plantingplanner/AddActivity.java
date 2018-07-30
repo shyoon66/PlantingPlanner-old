@@ -347,7 +347,9 @@ public class AddActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Uri uri) {
                 String imageUrl = uri.toString();
-                Plant plant = new Plant(name, kind, imageUrl, intro, startDate, period, uid, userId);
+                String[] pathStrArr = uri.getPath().split("/");
+                String imageName = pathStrArr[pathStrArr.length - 1];
+                Plant plant = new Plant(name, kind, imageName, imageUrl, intro, startDate, period, uid, userId);
                 database.getReference().child("plant").push().setValue(plant);
                 showDialogAfterinsert();
             }

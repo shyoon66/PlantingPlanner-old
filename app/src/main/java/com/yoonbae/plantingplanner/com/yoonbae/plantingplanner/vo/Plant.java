@@ -3,6 +3,7 @@ package com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo;
 public class Plant {
     private String name;
     private String kind;
+    private String imageName;
     private String imageUrl;
     private String intro;
     private String startDate;
@@ -14,9 +15,10 @@ public class Plant {
 
     }
 
-    public Plant(String name, String kind, String imageUrl, String intro, String startDate, String period, String uid, String userId) {
+    public Plant(String name, String kind, String imageName, String imageUrl, String intro, String startDate, String period, String uid, String userId) {
         this.name = name;
         this.kind = kind;
+        this.imageName = imageName;
         this.imageUrl = imageUrl;
         this.intro = intro;
         this.startDate = startDate;
@@ -39,6 +41,14 @@ public class Plant {
 
     public void setKind(String kind) {
         this.kind = kind;
+    }
+
+    public String getImageName() {
+        return this.imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
     }
 
     public String getImageUrl() {

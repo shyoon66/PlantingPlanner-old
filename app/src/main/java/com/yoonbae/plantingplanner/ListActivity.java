@@ -5,13 +5,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -37,6 +40,31 @@ public class ListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
+
+/*        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavView);
+        //BottomNavigationViewHelper.removeShiftMode(bottomNavigationView);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Intent intent = null;
+                switch (item.getItemId()) {
+*//*                    case R.id.action_diary:
+                        break;*//*
+                    case R.id.action_add:
+                        intent = new Intent(ListActivity.this, AddActivity.class);
+                        startActivity(intent);
+                        break;
+                    case R.id.action_list:
+                        intent = new Intent(ListActivity.this, ListActivity.class);
+                        startActivity(intent);
+                        break;
+                    case R.id.action_myInfo:
+                        break;
+                }
+                return false;
+            }
+        });*/
+
         final RecyclerView recyclerView = findViewById(R.id.main_recyclerView);
 
         firebaseAuth = FirebaseAuth.getInstance();
@@ -57,6 +85,7 @@ public class ListActivity extends AppCompatActivity {
                         Plant plant = new Plant();
                         plant.setName(value.getName());
                         plant.setKind(value.getKind());
+                        plant.setImageName(value.getImageName());
                         plant.setImageUrl(value.getImageUrl());
                         plant.setIntro(value.getIntro());
                         plant.setStartDate(value.getStartDate());
