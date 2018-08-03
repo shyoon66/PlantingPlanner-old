@@ -2,14 +2,12 @@ package com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.adapter;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,9 +16,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
-import com.yoonbae.plantingplanner.AddActivity;
-import com.yoonbae.plantingplanner.ListActivity;
 import com.yoonbae.plantingplanner.R;
+import com.yoonbae.plantingplanner.ViewActivity;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
 import java.util.List;
 
@@ -32,7 +29,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private List<Plant> plantList;
     private List<String> keyList;
-    Context context;
+    private Context context;
     private FirebaseDatabase database;
     private FirebaseStorage storage;
 
@@ -54,6 +51,18 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         ((RowCell)holder).name.setText(plantList.get(position).getName());
         ((RowCell)holder).intro.setText(plantList.get(position).getIntro());
         Glide.with(((RowCell) holder).imageView.getContext()).load(plantList.get(position).getImageUrl()).into(((RowCell) holder).imageView);
+
+        ((RowCell)holder).imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, ViewActivity.class);
+                intent.putExtra("name", plantList.get(position).getName());
+                intent.putExtra("kind", plantList.get(position).getKind());
+                intent.putExtra("intro", plantList.get(position).getIntro());
+                intent.putExtra("imageUrl", plantList.get(position).getImageUrl());
+                context.startActivity(intent);
+            }
+        });
 
         ((RowCell)holder).imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,10 +86,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 ab.show();
             }
         });
-/*        ArrayAdapter menuAdapter = ArrayAdapter.createFromResource(context, R.array.list_menu, android.R.layout.simple_spinner_dropdown_item);
-        menuAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        ((RowCell)holder).spinner.setAdapter(menuAdapter);
-        ((RowCell)holder).spinner.setOnItemSelectedListener(this);*/
     }
 
     @Override
@@ -93,7 +98,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         public TextView name;
         public TextView intro;
         ImageButton imageButton;
-        //public Spinner spinner;
 
         public RowCell(View view) {
             super(view);
@@ -101,7 +105,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             name = view.findViewById(R.id.cardview_name);
             intro = view.findViewById(R.id.cardview_intro);
             imageButton = view.findViewById(R.id.cardview_btn);
-            //spinner = view.findViewById(R.id.cardview_spinner);
         }
     }
 
@@ -134,17 +137,4 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         });
     }
 
-    //아이템 중 하나를 선택 했을때 호출되는 콜백 메서드
-/*    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-        if(position != 0) {
-
-        }
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }*/
 }

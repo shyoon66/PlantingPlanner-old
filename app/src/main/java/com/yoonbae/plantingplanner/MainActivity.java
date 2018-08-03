@@ -9,11 +9,16 @@ import android.view.MenuItem;
 
 import com.applandeo.materialcalendarview.CalendarView;
 import com.applandeo.materialcalendarview.DatePicker;
+import com.applandeo.materialcalendarview.EventDay;
 import com.applandeo.materialcalendarview.builders.DatePickerBuilder;
 import com.applandeo.materialcalendarview.exceptions.OutOfDateRangeException;
+import com.applandeo.materialcalendarview.utils.DateUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -70,12 +75,17 @@ public class MainActivity extends AppCompatActivity {
     private void calendarView() {
         CalendarView calendarView = findViewById(R.id.calendarView);
         Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH, 2);
+
+        List<EventDay> mEventDays = new ArrayList<>();
 
         try {
-            calendarView.setDate(calendar.getTime());
+            EventDay eventDay = new EventDay(calendar, R.drawable.baseline_done_black_48);
+            calendarView.setDate(eventDay.getCalendar());
+            mEventDays.add(eventDay);
+            calendarView.setEvents(mEventDays);
         } catch (OutOfDateRangeException e) {
             e.printStackTrace();
         }
     }
-
 }

@@ -48,8 +48,8 @@ public class ListActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Intent intent = null;
                 switch (item.getItemId()) {
-*//*                    case R.id.action_diary:
-                        break;*//*
+                    case R.id.action_diary:
+                        break;
                     case R.id.action_add:
                         intent = new Intent(ListActivity.this, AddActivity.class);
                         startActivity(intent);
