@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(intent);
                         break;
                     case R.id.action_myInfo:
+                        intent = new Intent(MainActivity.this, MyInfoActivity.class);
+                        startActivity(intent);
                         break;
                 }
                 return false;

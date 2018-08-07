@@ -118,4 +118,11 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+
+    <string-array name="plant">
+        <item>식물수정</item>
+        <item>식물삭제</item>
+        <item>취소</item>
+    </string-array>
+
 </resources>
