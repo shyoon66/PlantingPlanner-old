@@ -47,12 +47,6 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Intent intent = null;
                 switch (item.getItemId()) {
-/*                    case R.id.action_diary:
-                        break;*/
-                    case R.id.action_add:
-                        intent = new Intent(MainActivity.this, AddActivity.class);
-                        startActivity(intent);
-                        break;
                     case R.id.action_list:
                         intent = new Intent(MainActivity.this, ListActivity.class);
                         startActivity(intent);
@@ -77,12 +71,10 @@ public class MainActivity extends AppCompatActivity {
     private void calendarView() {
         CalendarView calendarView = findViewById(R.id.calendarView);
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_MONTH, 2);
-
         List<EventDay> mEventDays = new ArrayList<>();
 
         try {
-            EventDay eventDay = new EventDay(calendar, R.drawable.baseline_done_black_48);
+            EventDay eventDay = new EventDay(calendar, R.drawable.ic_sync_black_24dp);
             calendarView.setDate(eventDay.getCalendar());
             mEventDays.add(eventDay);
             calendarView.setEvents(mEventDays);

@@ -9,9 +9,9 @@
         app:showAsAction="ifRoom"
         app:labelVisibilityMode="labeled"/>-->
     <item
-        android:id="@+id/action_add"
-        android:icon="@drawable/baseline_add_black_24"
-        android:title="식물추가"
+        android:id="@+id/action_calendar"
+        android:icon="@drawable/baseline_calendar_today_white_24"
+        android:title="캘린더"
         app:showAsAction="ifRoom"
         app:labelVisibilityMode="labeled"/>
     <item
