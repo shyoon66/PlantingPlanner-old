@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -41,29 +42,26 @@ public class ListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
-/*        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavView);
+        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavView);
         //BottomNavigationViewHelper.removeShiftMode(bottomNavigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Intent intent = null;
                 switch (item.getItemId()) {
-                    case R.id.action_diary:
-                        break;
-                    case R.id.action_add:
-                        intent = new Intent(ListActivity.this, AddActivity.class);
-                        startActivity(intent);
-                        break;
-                    case R.id.action_list:
-                        intent = new Intent(ListActivity.this, ListActivity.class);
+                    case R.id.action_calendar:
+                        intent = new Intent(ListActivity.this, MainActivity.class);
                         startActivity(intent);
                         break;
                     case R.id.action_myInfo:
+                        intent = new Intent(ListActivity.this, MyInfoActivity.class);
+                        startActivity(intent);
                         break;
                 }
+
                 return false;
             }
-        });*/
+        });
 
         final RecyclerView recyclerView = findViewById(R.id.main_recyclerView);
 
@@ -109,5 +107,15 @@ public class ListActivity extends AppCompatActivity {
                 Log.w("Hello", "Failed to read value.", databaseError.toException());
             }
         });
+
+        FloatingActionButton floatingActionButton = findViewById(R.id.floatingActionButton);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ListActivity.this, AddActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 }
