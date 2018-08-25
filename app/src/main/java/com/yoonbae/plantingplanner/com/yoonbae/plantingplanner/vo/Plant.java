@@ -6,8 +6,6 @@ public class Plant {
     private String imageName;
     private String imageUrl;
     private String intro;
-    private String startDate;
-    private String period;
     private String uid;
     private String userId;
 
@@ -15,14 +13,12 @@ public class Plant {
 
     }
 
-    public Plant(String name, String kind, String imageName, String imageUrl, String intro, String startDate, String period, String uid, String userId) {
+    public Plant(String name, String kind, String imageName, String imageUrl, String intro, String uid, String userId) {
         this.name = name;
         this.kind = kind;
         this.imageName = imageName;
         this.imageUrl = imageUrl;
         this.intro = intro;
-        this.startDate = startDate;
-        this.period = period;
         this.uid = uid;
         this.userId = userId;
     }
@@ -65,22 +61,6 @@ public class Plant {
 
     public void setIntro(String intro) {
         this.intro = intro;
-    }
-
-    public String getStartDate() {
-        return this.startDate;
-    }
-
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
-    }
-
-    public String getPeriod() {
-        return this.period;
-    }
-
-    public void setPeriod(String period) {
-        this.period = period;
     }
 
     public String getUid() {

@@ -76,23 +76,17 @@ public class ListActivity extends AppCompatActivity {
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Plant value = snapshot.getValue(Plant.class);
 
-                    String sUid = firebaseUser.getUid();
-                    String fUid = value.getUid();
+                    Plant plant = new Plant();
+                    plant.setName(value.getName());
+                    plant.setKind(value.getKind());
+                    plant.setImageName(value.getImageName());
+                    plant.setImageUrl(value.getImageUrl());
+                    plant.setIntro(value.getIntro());
+                    plant.setUid(value.getUid());
+                    plant.setUserId(value.getUserId());
 
-                    if(sUid.equals(fUid)) {
-                        Plant plant = new Plant();
-                        plant.setName(value.getName());
-                        plant.setKind(value.getKind());
-                        plant.setImageName(value.getImageName());
-                        plant.setImageUrl(value.getImageUrl());
-                        plant.setIntro(value.getIntro());
-                        plant.setStartDate(value.getStartDate());
-                        plant.setPeriod(value.getPeriod());
-                        plant.setUid(value.getUid());
-                        plant.setUserId(value.getUserId());
-                        plantList.add(plant);
-                        keyList.add(snapshot.getKey());
-                    }
+                    plantList.add(plant);
+                    keyList.add(snapshot.getKey());
                 }
 
                 recyclerView.setLayoutManager(new LinearLayoutManager(ListActivity.this));
@@ -116,6 +110,10 @@ public class ListActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
 
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
     }
 }

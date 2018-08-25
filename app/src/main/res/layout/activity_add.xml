@@ -6,6 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".AddActivity">
 
+    <include layout="@layout/content_add" />
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:background="@color/colorPrimary"
@@ -23,7 +25,5 @@
             android:textColor="@android:color/white"
          />
     </androidx.appcompat.widget.Toolbar>
-
-    <include layout="@layout/content_add" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -36,4 +36,9 @@ public class ViewActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         Glide.with(imageView).load(imageUrl).into(imageView);
     }
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+    }
 }

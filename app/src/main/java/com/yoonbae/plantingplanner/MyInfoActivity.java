@@ -122,4 +122,9 @@ public class MyInfoActivity extends AppCompatActivity {
         imageView.setClipToOutline(true);
         Glide.with(imageView.getContext()).load(photoUri).into(imageView);
     }
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+    }
 }

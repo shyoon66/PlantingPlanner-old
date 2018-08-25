@@ -1,6 +1,8 @@
 package com.yoonbae.plantingplanner;
 
 import android.Manifest;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -60,9 +62,7 @@ public class AddActivity extends AppCompatActivity {
     private EditText mName;
     private EditText mKind;
     private EditText mIntro;
-    private DatePicker mDate;
-    private TextView mStartDate;
-    private Spinner spinner;
+    private TextView mDate;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseDatabase database;
     private FirebaseStorage storage;
@@ -75,6 +75,7 @@ public class AddActivity extends AppCompatActivity {
         mName = findViewById(R.id.name);
         mKind = findViewById(R.id.kind);
         mIntro = findViewById(R.id.intro);
+        mDate = findViewById(R.id.date);
         mFirebaseAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
@@ -112,43 +113,24 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
-        mDate = (DatePicker) findViewById(R.id.datepicker);
-        mStartDate = (TextView) findViewById(R.id.startDate);
-
         Calendar calendar = Calendar.getInstance();
-        mStartDate.setText(String.format("%d/%d/%d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)));
-
-        //처음 DatePicker를 오늘 날짜로 초기화한다.
-        //그리고 리스너를 등록한다.
-/*        mDate.init(mDate.getYear(), mDate.getMonth(), mDate.getDayOfMonth(),
-            new DatePicker.OnDateChangedListener() {
-                //값이 바뀔때마다 텍스트뷰의 값을 바꿔준다.
-                @Override
-                public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                    //monthOfYear는 0값이 1월을 뜻하므로 1을 더해줌 나머지는 같다.
-                    System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ " + String.format("%d/%d/%d", year, monthOfYear + 1, dayOfMonth));
-                    mTxtDate.setText(String.format("%d/%d/%d", year, monthOfYear + 1, dayOfMonth));
-                }
-        });*/
-
-        //선택기로부터 날짜 조사
-        findViewById(R.id.startDate).setOnClickListener(new View.OnClickListener() {
-            //버튼 클릭시 DatePicker로부터 값을 읽어와서 Toast메시지로 보여준다.
+        mDate.setText(Calendar.YEAR + "-" + Calendar.MONTH + "-" + Calendar.DATE);
+        mDate.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                String result = String.format("%d년 %d월 %d일", mDate.getYear(), mDate.getMonth() + 1, mDate.getDayOfMonth());
-                Toast.makeText(AddActivity.this, result, Toast.LENGTH_SHORT).show();
+            public void onClick(View view) {
+                showDialog();
             }
         });
-
-        onCreateSpinner();
     }
 
-    private void onCreateSpinner() {
-        spinner = (Spinner)findViewById(R.id.spinner);
-        ArrayAdapter waterAdapter = ArrayAdapter.createFromResource(this, R.array.water, android.R.layout.simple_spinner_item);
-        waterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(waterAdapter);
+    private void showDialog() {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(AddActivity.this, new DatePickerDialog.OnDateSetListener() {
+            public void onDateSet(DatePicker view, int year, int monthOfYear,int dayOfMonth) {
+                mDate.setText(year + "-" + (monthOfYear + 1) + "-" + dayOfMonth);
+            }
+        },2015, 6, 21); // 기본값 연월일
+
+        datePickerDialog.show();
     }
 
     @Override
@@ -162,7 +144,7 @@ public class AddActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home: {
-                Intent intent = new Intent(AddActivity.this, MainActivity.class);
+                Intent intent = new Intent(AddActivity.this, ListActivity.class);
                 startActivity(intent);
                 return true;
             }
@@ -319,8 +301,6 @@ public class AddActivity extends AppCompatActivity {
         final String name = mName.getText().toString();
         final String kind = mKind.getText().toString();
         final String intro = mIntro.getText().toString();
-        final String startDate = mStartDate.getText().toString();
-        final String period = spinner.getSelectedItem().toString();
         final String uid = mFirebaseAuth.getCurrentUser().getUid();
         final String userId = mFirebaseAuth.getCurrentUser().getEmail();
 
@@ -349,7 +329,7 @@ public class AddActivity extends AppCompatActivity {
                 String imageUrl = uri.toString();
                 String[] pathStrArr = uri.getPath().split("/");
                 String imageName = pathStrArr[pathStrArr.length - 1];
-                Plant plant = new Plant(name, kind, imageName, imageUrl, intro, startDate, period, uid, userId);
+                Plant plant = new Plant(name, kind, imageName, imageUrl, intro, uid, userId);
                 database.getReference().child("plant").push().setValue(plant);
                 showDialogAfterinsert();
             }
@@ -373,5 +353,10 @@ public class AddActivity extends AppCompatActivity {
         });
         ab.setMessage("등록이 완료됐습니다.");
         ab.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
     }
 }
