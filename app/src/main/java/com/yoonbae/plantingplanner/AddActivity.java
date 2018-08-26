@@ -3,6 +3,7 @@ package com.yoonbae.plantingplanner;
 import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -34,7 +35,9 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -62,7 +65,11 @@ public class AddActivity extends AppCompatActivity {
     private EditText mName;
     private EditText mKind;
     private EditText mIntro;
-    private TextView mDate;
+    private TextView mAdoptionDate;
+    private Switch mAlarm;
+    private TextView mAlarmDate;
+    private Spinner mPeriodSpinner;
+    private TextView mAlarmTime;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseDatabase database;
     private FirebaseStorage storage;
@@ -75,7 +82,8 @@ public class AddActivity extends AppCompatActivity {
         mName = findViewById(R.id.name);
         mKind = findViewById(R.id.kind);
         mIntro = findViewById(R.id.intro);
-        mDate = findViewById(R.id.date);
+        mAlarm = findViewById(R.id.alarm);
+        mPeriodSpinner = findViewById(R.id.periodSpinner);
         mFirebaseAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
@@ -114,22 +122,62 @@ public class AddActivity extends AppCompatActivity {
         });
 
         Calendar calendar = Calendar.getInstance();
-        mDate.setText(Calendar.YEAR + "-" + Calendar.MONTH + "-" + Calendar.DATE);
-        mDate.setOnClickListener(new View.OnClickListener() {
+        mAdoptionDate = findViewById(R.id.adoptionDate);
+        mAdoptionDate.setText(calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DATE));
+        mAdoptionDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDialog();
+                showDialog(mAdoptionDate);
+            }
+        });
+
+        mAlarmDate = findViewById(R.id.alarmDate);
+        mAlarmDate.setText(calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DATE));
+        mAlarmDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDialog(mAlarmDate);
+            }
+        });
+
+        mAlarmTime = findViewById(R.id.alarmTime);
+        mAlarmTime.setText(calendar.get(Calendar.HOUR_OF_DAY) + "시 " + calendar.get(Calendar.MINUTE) + "분");
+        mAlarmTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showTimePicker();
             }
         });
     }
 
-    private void showDialog() {
+    private void showTimePicker() {
+        Calendar mCurrentTime = Calendar.getInstance();
+        int hour = mCurrentTime.get(Calendar.HOUR_OF_DAY);
+        int minute = mCurrentTime.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(AddActivity.this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int i, int i1) {
+                mAlarmTime.setText(i + "시 " + i1 + "분");
+            }
+        }, hour, minute, true);
+
+        timePickerDialog.show();
+    }
+
+    private void showDialog(final TextView pDate) {
+        String date = pDate.getText().toString();
+        int year = Integer.parseInt(date.substring(0, 4));
+        int month = Integer.parseInt(date.substring(date.indexOf("-") + 1, date.indexOf("-") + 3).replace("-", ""));
+        int day = Integer.parseInt(date.substring(date.length() - 2, date.length()).replace("-", ""));
+
         DatePickerDialog datePickerDialog = new DatePickerDialog(AddActivity.this, new DatePickerDialog.OnDateSetListener() {
             public void onDateSet(DatePicker view, int year, int monthOfYear,int dayOfMonth) {
-                mDate.setText(year + "-" + (monthOfYear + 1) + "-" + dayOfMonth);
+                pDate.setText(year + "-" + (monthOfYear + 1) + "-" + dayOfMonth);
             }
-        },2015, 6, 21); // 기본값 연월일
+        },year, month, day); // 기본값 연월일
 
+        datePickerDialog.getDatePicker().setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         datePickerDialog.show();
     }
 
@@ -329,7 +377,17 @@ public class AddActivity extends AppCompatActivity {
                 String imageUrl = uri.toString();
                 String[] pathStrArr = uri.getPath().split("/");
                 String imageName = pathStrArr[pathStrArr.length - 1];
-                Plant plant = new Plant(name, kind, imageName, imageUrl, intro, uid, userId);
+                String adoptionDate = mAdoptionDate.getText().toString();
+
+                String alarm = "N";
+                if(mAlarm.isChecked()) {
+                    alarm = "Y";
+                }
+
+                String alarmDate = mAlarmDate.getText().toString();
+                String period = mPeriodSpinner.getSelectedItem().toString();
+                String alarmTime = mAlarmTime.getText().toString();
+                Plant plant = new Plant(name, kind, imageName, imageUrl, intro, adoptionDate, alarm, alarmDate, period, alarmTime, uid, userId);
                 database.getReference().child("plant").push().setValue(plant);
                 showDialogAfterinsert();
             }
@@ -347,7 +405,7 @@ public class AddActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                Intent intent = new Intent(AddActivity.this, MainActivity.class);
+                Intent intent = new Intent(AddActivity.this, ListActivity.class);
                 startActivity(intent);
             }
         });

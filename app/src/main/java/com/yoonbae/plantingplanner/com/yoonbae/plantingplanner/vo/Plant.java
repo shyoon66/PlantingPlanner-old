@@ -6,6 +6,11 @@ public class Plant {
     private String imageName;
     private String imageUrl;
     private String intro;
+    private String adoptionDate;
+    private String alarm;
+    private String alarmDate;
+    private String period;
+    private String alarmTime;
     private String uid;
     private String userId;
 
@@ -13,12 +18,17 @@ public class Plant {
 
     }
 
-    public Plant(String name, String kind, String imageName, String imageUrl, String intro, String uid, String userId) {
+    public Plant(String name, String kind, String imageName, String imageUrl, String intro, String adoptionDate, String alarm, String alarmDate, String period, String alarmTime, String uid, String userId) {
         this.name = name;
         this.kind = kind;
         this.imageName = imageName;
         this.imageUrl = imageUrl;
         this.intro = intro;
+        this.adoptionDate = adoptionDate;
+        this.alarm = alarm;
+        this.alarmDate = alarmDate;
+        this.period = period;
+        this.alarmTime = alarmTime;
         this.uid = uid;
         this.userId = userId;
     }
@@ -61,6 +71,46 @@ public class Plant {
 
     public void setIntro(String intro) {
         this.intro = intro;
+    }
+
+    public String getAdoptionDate() {
+        return this.adoptionDate;
+    }
+
+    public void setAdoptionDate(String adoptionDate) {
+        this.adoptionDate = adoptionDate;
+    }
+
+    public String getAlarm() {
+        return this.alarm;
+    }
+
+    public void setAlarm(String alarm) {
+        this.alarm = alarm;
+    }
+
+    public String getAlarmDate() {
+        return this.alarmDate;
+    }
+
+    public void setAlarmDate(String alarmDate) {
+        this.alarmDate = alarmDate;
+    }
+
+    public String getPeriod() {
+        return this.period;
+    }
+
+    public void setPeriod(String period) {
+        this.period = period;
+    }
+
+    public String getAlarmTime() {
+        return this.alarmTime;
+    }
+
+    public void setAlarmTime(String alarmTime) {
+        this.alarmTime = alarmTime;
     }
 
     public String getUid() {

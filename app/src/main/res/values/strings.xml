@@ -125,4 +125,17 @@
         <item>취소</item>
     </string-array>
 
+    <string-array name="waterPeriod">
+        <item>1일</item>
+        <item>2일</item>
+        <item>3일</item>
+        <item>4일</item>
+        <item>5일</item>
+        <item>6일</item>
+        <item>1주일</item>
+        <item>2주일</item>
+        <item>3주일</item>
+        <item>1달</item>
+        <item>2달</item>
+    </string-array>
 </resources>

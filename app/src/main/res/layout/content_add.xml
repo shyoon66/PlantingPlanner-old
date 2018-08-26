@@ -11,7 +11,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:baselineAligned="true">
 
         <ImageView
             android:id="@+id/imageView"
@@ -135,14 +136,10 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:text="우리 집에 온 날짜"
-            android:textSize="12sp"
-            app:layout_constraintBottom_toTopOf="@+id/switch1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/date" />
+            android:textSize="12sp" />
 
         <TextView
-            android:id="@+id/date"
+            android:id="@+id/adoptionDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -152,15 +149,81 @@
             android:inputType="date" />
 
         <Switch
-            android:id="@+id/switch1"
+            android:id="@+id/alarm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:text="물줄기 알람 설정"
-            android:textColor="#A8A8A8"
-            android:textSize="12sp"
-            app:layout_constraintBottom_toTopOf="@+id/intro"/>
+            android:text="물주기 알람 설정"
+            android:textColor="#797979"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/alarmDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="0dp"
+                android:ems="10"
+                android:textSize="12sp"
+                android:inputType="date" />
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="24dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="date"
+                android:text="부터"
+                android:textSize="12sp" />
+
+            <Spinner
+                android:id="@+id/periodSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/waterPeriod"
+                android:ems="10"
+                android:textAlignment="center"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="24dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="date"
+                android:text="마다"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/alarmTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="time"
+            android:layout_marginStart="16dp"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="24dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="date"
+            android:text="알람"
+            android:textSize="12sp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

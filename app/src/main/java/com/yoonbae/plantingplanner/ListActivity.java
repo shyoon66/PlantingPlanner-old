@@ -68,7 +68,7 @@ public class ListActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
         firebaseDatabase = FirebaseDatabase.getInstance();
-        firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
+        firebaseDatabase.getReference("users").child("plant").child(firebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 plantList = new ArrayList<Plant>();

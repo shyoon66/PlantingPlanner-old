@@ -94,6 +94,9 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
     private void chkLogin(FirebaseAuth firebaseAuth) {
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
+        //System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2 firebaseUser = " + firebaseUser);
+        //System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2 firebaseUser.getUid() = " + firebaseUser.getUid());
+
         if(firebaseUser != null) {
             Intent intent = new Intent(AuthActivity.this, MainActivity.class);
             startActivity(intent);
