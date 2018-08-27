@@ -97,13 +97,9 @@ public class Plant {
         this.alarmDate = alarmDate;
     }
 
-    public String getPeriod() {
-        return this.period;
-    }
+    public String getPeriod() { return this.period; }
 
-    public void setPeriod(String period) {
-        this.period = period;
-    }
+    public void setPeriod(String period) { this.period = period; }
 
     public String getAlarmTime() {
         return this.alarmTime;

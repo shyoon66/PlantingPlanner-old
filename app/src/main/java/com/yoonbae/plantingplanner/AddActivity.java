@@ -56,6 +56,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class AddActivity extends AppCompatActivity {
 
@@ -141,6 +142,8 @@ public class AddActivity extends AppCompatActivity {
         });
 
         mAlarmTime = findViewById(R.id.alarmTime);
+        TimeZone jst = TimeZone.getTimeZone ("JST");
+        Calendar cal = Calendar.getInstance (jst); // 주어진 시간대에 맞게 현재 시각으로 초기화된 GregorianCalender 객체를 반환.// 또는 Calendar now = Calendar.getInstance(Locale.KOREA);
         mAlarmTime.setText(calendar.get(Calendar.HOUR_OF_DAY) + "시 " + calendar.get(Calendar.MINUTE) + "분");
         mAlarmTime.setOnClickListener(new View.OnClickListener() {
             @Override

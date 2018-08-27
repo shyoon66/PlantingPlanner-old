@@ -68,25 +68,34 @@ public class ListActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
         firebaseDatabase = FirebaseDatabase.getInstance();
-        firebaseDatabase.getReference("users").child("plant").child(firebaseUser.getUid()).addValueEventListener(new ValueEventListener() {
+        firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 plantList = new ArrayList<Plant>();
+                String fUid = firebaseUser.getUid();
 
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Plant value = snapshot.getValue(Plant.class);
+                    String dUid = value.getUid();
 
-                    Plant plant = new Plant();
-                    plant.setName(value.getName());
-                    plant.setKind(value.getKind());
-                    plant.setImageName(value.getImageName());
-                    plant.setImageUrl(value.getImageUrl());
-                    plant.setIntro(value.getIntro());
-                    plant.setUid(value.getUid());
-                    plant.setUserId(value.getUserId());
+                    if(fUid.equals(dUid)) {
+                        Plant plant = new Plant();
+                        plant.setName(value.getName());
+                        plant.setKind(value.getKind());
+                        plant.setImageName(value.getImageName());
+                        plant.setImageUrl(value.getImageUrl());
+                        plant.setIntro(value.getIntro());
+                        plant.setAdoptionDate(value.getAdoptionDate());
+                        plant.setAlarm(value.getAlarm());
+                        plant.setAlarmDate(value.getAlarmDate());
+                        plant.setPeriod(value.getPeriod());
+                        plant.setAlarmTime(value.getAlarmTime());
+                        plant.setUid(value.getUid());
+                        plant.setUserId(value.getUserId());
 
-                    plantList.add(plant);
-                    keyList.add(snapshot.getKey());
+                        plantList.add(plant);
+                        keyList.add(snapshot.getKey());
+                    }
                 }
 
                 recyclerView.setLayoutManager(new LinearLayoutManager(ListActivity.this));
