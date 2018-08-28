@@ -8,7 +8,7 @@
     tools:context=".MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <com.applandeo.materialcalendarview.CalendarView
+ <!--   <com.applandeo.materialcalendarview.CalendarView
         android:id="@+id/calendarView"
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -22,6 +22,16 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:selectionColor="@color/colorAccent"
-        app:todayLabelColor="@color/colorPrimaryDark"/>
+        app:todayLabelColor="@color/colorPrimaryDark"/>-->
+
+    <com.prolificinteractive.materialcalendarview.MaterialCalendarView xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/calendarView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:mcv_selectionColor="#00F"
+        app:mcv_showOtherDates="all" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

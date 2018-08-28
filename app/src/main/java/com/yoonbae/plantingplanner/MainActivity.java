@@ -14,6 +14,12 @@ import com.applandeo.materialcalendarview.builders.DatePickerBuilder;
 import com.applandeo.materialcalendarview.exceptions.OutOfDateRangeException;
 import com.applandeo.materialcalendarview.utils.DateUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.CalendarMode;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.OneDayDecorator;
+import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.SaturdayDecorator;
+import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.SundayDecorator;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -28,6 +34,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 public class MainActivity extends AppCompatActivity {
+
+    private MaterialCalendarView materialCalendarView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,17 +82,17 @@ public class MainActivity extends AppCompatActivity {
     }*/
 
     private void calendarView() {
-        CalendarView calendarView = findViewById(R.id.calendarView);
-        Calendar calendar = Calendar.getInstance();
-        List<EventDay> mEventDays = new ArrayList<>();
+        materialCalendarView = findViewById(R.id.calendarView);
+        materialCalendarView.state().edit()
+                .setFirstDayOfWeek(Calendar.SUNDAY)
+                .setMinimumDate(CalendarDay.from(2016, 4, 3))
+                .setMaximumDate(CalendarDay.from(2016, 5, 12))
+                .setCalendarDisplayMode(CalendarMode.MONTHS)
+                .commit();
 
-        try {
-            EventDay eventDay = new EventDay(calendar, R.drawable.ic_sync_black_24dp);
-            calendarView.setDate(eventDay.getCalendar());
-            mEventDays.add(eventDay);
-            calendarView.setEvents(mEventDays);
-        } catch (OutOfDateRangeException e) {
-            e.printStackTrace();
-        }
+        materialCalendarView.addDecorators(
+                new SundayDecorator(),
+                new SaturdayDecorator(),
+                new OneDayDecorator());
     }
 }
