@@ -1,6 +1,7 @@
 package com.yoonbae.plantingplanner;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,6 +18,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.format.MonthArrayTitleFormatter;
+import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.EventDecorator;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.OneDayDecorator;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.SaturdayDecorator;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.SundayDecorator;
@@ -41,11 +44,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-/*        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(false);*/
         calendarView();
 
         BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavView);
@@ -74,19 +72,13 @@ public class MainActivity extends AppCompatActivity {
         //super.onBackPressed();
     }
 
-/*    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu_main, menu);
-        return true;
-    }*/
-
     private void calendarView() {
         materialCalendarView = findViewById(R.id.calendarView);
+        materialCalendarView.setTitleFormatter(new MonthArrayTitleFormatter(getResources().getTextArray(R.array.months_array)));
         materialCalendarView.state().edit()
                 .setFirstDayOfWeek(Calendar.SUNDAY)
-                .setMinimumDate(CalendarDay.from(2016, 4, 3))
-                .setMaximumDate(CalendarDay.from(2016, 5, 12))
+                .setMinimumDate(CalendarDay.from(1900, 1, 1))
+                .setMaximumDate(CalendarDay.from(2300, 12, 31))
                 .setCalendarDisplayMode(CalendarMode.MONTHS)
                 .commit();
 
@@ -94,5 +86,16 @@ public class MainActivity extends AppCompatActivity {
                 new SundayDecorator(),
                 new SaturdayDecorator(),
                 new OneDayDecorator());
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MONTH, -2);
+        ArrayList<CalendarDay> eventDayList = new ArrayList<>();
+        for (int i = 0; i < 30; i++) {
+            CalendarDay day = CalendarDay.from(calendar);
+            eventDayList.add(day);
+            calendar.add(Calendar.DATE, 5);
+        }
+
+        materialCalendarView.addDecorator(new EventDecorator(Color.RED, eventDayList, MainActivity.this));
     }
 }

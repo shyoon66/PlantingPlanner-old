@@ -11,7 +11,7 @@
     <string name="material_calendar_saturday">토</string>
     <string name="material_calendar_sunday">일</string>
 
-    <array name="material_calendar_months_array">
+    <array name="months_array">
         <item>1월</item>
         <item>2월</item>
         <item>3월</item>
