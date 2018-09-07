@@ -19,9 +19,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/bottomNavView"
         android:layout_alignParentBottom="true"
-        app:itemBackground="@color/colorPrimary"
-        app:itemTextColor="@android:color/white"
-        app:itemIconTint="@android:color/white"
+        app:itemBackground="@drawable/item_bg"
+        app:itemTextColor="@drawable/bnv_tab_item_foreground"
+        app:itemIconTint="@drawable/bnv_tab_item_foreground"
         app:menu="@menu/bottom_navigation_main"
         app:layout_behavior="tech.thdev.app.view.BottomNavigationBehavior">
     </com.google.android.material.bottomnavigation.BottomNavigationView>

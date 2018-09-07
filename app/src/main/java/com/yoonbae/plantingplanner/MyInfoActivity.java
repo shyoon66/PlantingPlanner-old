@@ -58,6 +58,7 @@ public class MyInfoActivity extends AppCompatActivity {
 
     private void bottomNavigationView() {
         BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavView);
+        bottomNavigationView.setSelectedItemId(R.id.action_myInfo);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {

@@ -10,20 +10,23 @@
         app:labelVisibilityMode="labeled"/>-->
     <item
         android:id="@+id/action_calendar"
-        android:icon="@drawable/baseline_calendar_today_white_24"
+        android:icon="@drawable/baseline_calendar_today_black_24"
         android:title="캘린더"
+        android:background="#00ff0000"
         app:showAsAction="ifRoom"
         app:labelVisibilityMode="labeled"/>
     <item
         android:id="@+id/action_list"
         android:icon="@drawable/baseline_menu_black_24"
         android:title="식물목록"
+        android:background="#00ff0000"
         app:showAsAction="ifRoom"
         app:labelVisibilityMode="labeled"/>
     <item
         android:id="@+id/action_myInfo"
         android:icon="@drawable/baseline_person_black_24"
         android:title="내정보"
+        android:background="#00ff0000"
         app:showAsAction="ifRoom"
         app:labelVisibilityMode="labeled"/>
 
