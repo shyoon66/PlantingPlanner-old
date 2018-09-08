@@ -19,8 +19,8 @@
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:scaleType="centerCrop"
-            android:layout_marginTop="56dp"
-            app:srcCompat="@color/colorAccent" />
+            android:background="@drawable/image_view_frame"
+            android:layout_marginTop="56dp" />
 
         <Button
             android:id="@+id/imgAddButton"

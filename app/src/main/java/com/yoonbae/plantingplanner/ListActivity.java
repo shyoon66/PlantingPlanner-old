@@ -117,6 +117,7 @@ public class ListActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ListActivity.this, AddActivity.class);
+                intent.putExtra("FLAG", "I");
                 startActivity(intent);
             }
         });

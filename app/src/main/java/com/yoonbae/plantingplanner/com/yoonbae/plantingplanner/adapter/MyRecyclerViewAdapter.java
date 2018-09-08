@@ -16,6 +16,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.yoonbae.plantingplanner.AddActivity;
 import com.yoonbae.plantingplanner.R;
 import com.yoonbae.plantingplanner.ViewActivity;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
@@ -72,15 +73,22 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 ab.setTitle("");
                 ab.setItems(items, new DialogInterface.OnClickListener() {    // 목록 클릭시 설정
                     public void onClick(DialogInterface dialog, int index) {
-                        if(index == 0) {
-
-                        } else if(index == 1) {
-                            deletePlant(position);
-                        } else {
-                            dialog.dismiss();
-                        }
-
+                    if(index == 0) {
+                        Intent intent = new Intent(context, AddActivity.class);
+                        intent.putExtra("FLAG", "U");
+                        intent.putExtra("name", plantList.get(position).getName());
+                        intent.putExtra("kind", plantList.get(position).getKind());
+                        intent.putExtra("intro", plantList.get(position).getIntro());
+                        intent.putExtra("imageUrl", plantList.get(position).getImageUrl());
+                        intent.putExtra("uid", plantList.get(position).getUid());
+                        context.startActivity(intent);
+                    } else if(index == 1) {
+                        deletePlant(position);
+                    } else {
                         dialog.dismiss();
+                    }
+
+                    dialog.dismiss();
                     }
                 });
                 ab.show();

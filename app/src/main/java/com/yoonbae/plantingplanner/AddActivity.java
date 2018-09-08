@@ -40,6 +40,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -62,7 +63,11 @@ public class AddActivity extends AppCompatActivity {
 
     private static final int CAMERA_CODE = 10;
     private static final int GALLERY_CODE = 100;
+
     private String mCurrentPhotoPath;
+    private String flag;
+
+    private ImageView imageView;
     private EditText mName;
     private EditText mKind;
     private EditText mIntro;
@@ -71,6 +76,8 @@ public class AddActivity extends AppCompatActivity {
     private TextView mAlarmDate;
     private Spinner mPeriodSpinner;
     private TextView mAlarmTime;
+    private TextView mToolbar_title;
+
     private FirebaseAuth mFirebaseAuth;
     private FirebaseDatabase database;
     private FirebaseStorage storage;
@@ -80,14 +87,20 @@ public class AddActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
+
+        imageView = findViewById(R.id.imageView);
         mName = findViewById(R.id.name);
         mKind = findViewById(R.id.kind);
         mIntro = findViewById(R.id.intro);
         mAlarm = findViewById(R.id.alarm);
         mPeriodSpinner = findViewById(R.id.periodSpinner);
+        mToolbar_title = findViewById(R.id.toolbar_title);
         mFirebaseAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
+
+        Intent intent = getIntent();
+        flag = intent.getExtras().getString("FLAG");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -125,9 +138,23 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
+        if("U".equals(flag)) {
+            mToolbar_title.setText("식물수정");
+            mName.setText(intent.getExtras().getString("name"));
+            mKind.setText(intent.getStringExtra("kind"));
+            mIntro.setText(intent.getStringExtra("intro"));
+            Glide.with(imageView).load(intent.getStringExtra("imageUrl")).into(imageView);
+        }
+
         Calendar calendar = Calendar.getInstance();
         mAdoptionDate = findViewById(R.id.adoptionDate);
-        mAdoptionDate.setText(calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DATE));
+
+        if("I".equals(flag)) {
+            mAdoptionDate.setText(calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DATE));
+        } else {
+
+        }
+
         mAdoptionDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -136,7 +163,13 @@ public class AddActivity extends AppCompatActivity {
         });
 
         mAlarmDate = findViewById(R.id.alarmDate);
-        mAlarmDate.setText(calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DATE));
+
+        if("I".equals(flag)) {
+            mAlarmDate.setText(calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DATE));
+        } else {
+
+        }
+
         mAlarmDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -146,8 +179,13 @@ public class AddActivity extends AppCompatActivity {
 
         mAlarmTime = findViewById(R.id.alarmTime);
         TimeZone jst = TimeZone.getTimeZone ("JST");
-        Calendar cal = Calendar.getInstance (jst); // 주어진 시간대에 맞게 현재 시각으로 초기화된 GregorianCalender 객체를 반환.// 또는 Calendar now = Calendar.getInstance(Locale.KOREA);
-        mAlarmTime.setText(calendar.get(Calendar.HOUR_OF_DAY) + "시 " + calendar.get(Calendar.MINUTE) + "분");
+
+        if("I".equals(flag)) {
+            mAlarmTime.setText(calendar.get(Calendar.HOUR_OF_DAY) + "시 " + calendar.get(Calendar.MINUTE) + "분");
+        } else {
+
+        }
+
         mAlarmTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -203,7 +241,12 @@ public class AddActivity extends AppCompatActivity {
                 return true;
             }
             case R.id.action_insert: {
-                insert();
+                if("I".equals(flag)) {
+                    insert();
+                } else {
+                    update();
+                }
+
                 return true;
             }
         }
@@ -343,7 +386,7 @@ public class AddActivity extends AppCompatActivity {
         }
     }
 
-    private void insert() {
+    private void validate(String name, String kind, String intro) {
         AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
         ab.setPositiveButton("확인", new DialogInterface.OnClickListener() {
             @Override
@@ -352,11 +395,12 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
-        final String name = mName.getText().toString();
-        final String kind = mKind.getText().toString();
-        final String intro = mIntro.getText().toString();
-        final String uid = mFirebaseAuth.getCurrentUser().getUid();
-        final String userId = mFirebaseAuth.getCurrentUser().getEmail();
+        if(imageView.getDrawable() == null) {
+            ab.setMessage("사진을 등록해 주세요.");
+            ab.show();
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ");
+            return;
+        }
 
         if("".equals(name)) {
             ab.setMessage("이름을 입력해주세요.");
@@ -375,6 +419,48 @@ public class AddActivity extends AppCompatActivity {
             ab.show();
             return;
         }
+    }
+
+    private void insert() {
+        final String name = mName.getText().toString();
+        final String kind = mKind.getText().toString();
+        final String intro = mIntro.getText().toString();
+        final String uid = mFirebaseAuth.getCurrentUser().getUid();
+        final String userId = mFirebaseAuth.getCurrentUser().getEmail();
+
+        AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
+        ab.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        if(imageView.getDrawable() == null) {
+            ab.setMessage("사진을 등록해 주세요.");
+            ab.show();
+            return;
+        }
+
+        if("".equals(name)) {
+            ab.setMessage("이름을 입력해주세요.");
+            ab.show();
+            return;
+        }
+
+        if("".equals(kind)) {
+            ab.setMessage("종류를 입력해주세요.");
+            ab.show();
+            return;
+        }
+
+        if("".equals(intro)) {
+            ab.setMessage("소개를 입력해주세요.");
+            ab.show();
+            return;
+        }
+
+        //validate(name, kind, intro);
 
         StorageReference storageRef = storage.getReferenceFromUrl("gs://planting-planner.appspot.com");
         Task<Uri> uriTask = storageRef.child(firebaseImagePath).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -417,6 +503,46 @@ public class AddActivity extends AppCompatActivity {
         });
         ab.setMessage("등록이 완료됐습니다.");
         ab.show();
+    }
+
+    private void update() {
+        final String name = mName.getText().toString();
+        final String kind = mKind.getText().toString();
+        final String intro = mIntro.getText().toString();
+        final String uid = mFirebaseAuth.getCurrentUser().getUid();
+        final String userId = mFirebaseAuth.getCurrentUser().getEmail();
+
+        AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
+        ab.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        if(imageView.getDrawable() == null) {
+            ab.setMessage("사진을 등록해 주세요.");
+            ab.show();
+            return;
+        }
+
+        if("".equals(name)) {
+            ab.setMessage("이름을 입력해주세요.");
+            ab.show();
+            return;
+        }
+
+        if("".equals(kind)) {
+            ab.setMessage("종류를 입력해주세요.");
+            ab.show();
+            return;
+        }
+
+        if("".equals(intro)) {
+            ab.setMessage("소개를 입력해주세요.");
+            ab.show();
+            return;
+        }
     }
 
     @Override
