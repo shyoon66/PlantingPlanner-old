@@ -76,11 +76,18 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     if(index == 0) {
                         Intent intent = new Intent(context, AddActivity.class);
                         intent.putExtra("FLAG", "U");
-                        intent.putExtra("name", plantList.get(position).getName());
-                        intent.putExtra("kind", plantList.get(position).getKind());
-                        intent.putExtra("intro", plantList.get(position).getIntro());
-                        intent.putExtra("imageUrl", plantList.get(position).getImageUrl());
-                        intent.putExtra("uid", plantList.get(position).getUid());
+                        Plant plant = plantList.get(position);
+                        intent.putExtra("name", plant.getName());
+                        intent.putExtra("kind", plant.getKind());
+                        intent.putExtra("intro", plant.getIntro());
+                        intent.putExtra("imageUrl", plant.getImageUrl());
+                        intent.putExtra("uid", plant.getUid());
+                        intent.putExtra("adoptionDate", plant.getAdoptionDate());
+                        intent.putExtra("alarm", plant.getAlarm());
+                        intent.putExtra("alarmDate", plant.getAlarmDate());
+                        intent.putExtra("alarmTime", plant.getAlarmTime());
+                        intent.putExtra("period", plant.getPeriod());
+                        intent.putExtra("key", keyList.get(position));
                         context.startActivity(intent);
                     } else if(index == 1) {
                         deletePlant(position);

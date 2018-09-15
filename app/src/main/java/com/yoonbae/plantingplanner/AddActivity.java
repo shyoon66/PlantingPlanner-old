@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -57,6 +58,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class AddActivity extends AppCompatActivity {
@@ -152,7 +155,8 @@ public class AddActivity extends AppCompatActivity {
         if("I".equals(flag)) {
             mAdoptionDate.setText(calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DATE));
         } else {
-
+            String adoptionDate = intent.getStringExtra("adoptionDate");
+            mAdoptionDate.setText(adoptionDate);
         }
 
         mAdoptionDate.setOnClickListener(new View.OnClickListener() {
@@ -162,12 +166,18 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
+        String alarm = intent.getExtras().getString("alarm");
+        if("U".equals(flag) && "Y".equals(alarm)) {
+            mAlarm.setChecked(true);
+        }
+
         mAlarmDate = findViewById(R.id.alarmDate);
 
         if("I".equals(flag)) {
             mAlarmDate.setText(calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DATE));
         } else {
-
+            String alarmDate = intent.getExtras().getString("alarmDate");
+            mAlarmDate.setText(alarmDate);
         }
 
         mAlarmDate.setOnClickListener(new View.OnClickListener() {
@@ -183,7 +193,18 @@ public class AddActivity extends AppCompatActivity {
         if("I".equals(flag)) {
             mAlarmTime.setText(calendar.get(Calendar.HOUR_OF_DAY) + "시 " + calendar.get(Calendar.MINUTE) + "분");
         } else {
+            String alarmTime = intent.getExtras().getString("alarmTime");
+            mAlarmTime.setText(alarmTime);
+        }
 
+        Resources res = getResources();
+        String[] waterPeriodArr = res.getStringArray(R.array.waterPeriod);
+        String period = intent.getStringExtra("period");
+
+        for(int i = 0; i < waterPeriodArr.length; i++) {
+            if(waterPeriodArr[i].equals(period)) {
+                mPeriodSpinner.setSelection(i);
+            }
         }
 
         mAlarmTime.setOnClickListener(new View.OnClickListener() {
@@ -398,7 +419,6 @@ public class AddActivity extends AppCompatActivity {
         if(imageView.getDrawable() == null) {
             ab.setMessage("사진을 등록해 주세요.");
             ab.show();
-            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ");
             return;
         }
 
@@ -481,7 +501,8 @@ public class AddActivity extends AppCompatActivity {
                 String alarmTime = mAlarmTime.getText().toString();
                 Plant plant = new Plant(name, kind, imageName, imageUrl, intro, adoptionDate, alarm, alarmDate, period, alarmTime, uid, userId);
                 database.getReference().child("plant").push().setValue(plant);
-                showDialogAfterinsert();
+                String msg = "등록이 완료됐습니다.";
+                showDialogAfterWork(msg);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -491,7 +512,7 @@ public class AddActivity extends AppCompatActivity {
         });
     }
 
-    private void showDialogAfterinsert() {
+    private void showDialogAfterWork(String msg) {
         AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
         ab.setPositiveButton("확인", new DialogInterface.OnClickListener() {
             @Override
@@ -501,7 +522,7 @@ public class AddActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        ab.setMessage("등록이 완료됐습니다.");
+        ab.setMessage(msg);
         ab.show();
     }
 
@@ -542,6 +563,76 @@ public class AddActivity extends AppCompatActivity {
             ab.setMessage("소개를 입력해주세요.");
             ab.show();
             return;
+        }
+
+        if(firebaseImagePath != null && !"".equals(firebaseImagePath)) {
+            StorageReference storageRef = storage.getReferenceFromUrl("gs://planting-planner.appspot.com");
+            Task<Uri> uriTask = storageRef.child(firebaseImagePath).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    String imageUrl = uri.toString();
+                    String[] pathStrArr = uri.getPath().split("/");
+                    String imageName = pathStrArr[pathStrArr.length - 1];
+                    String adoptionDate = mAdoptionDate.getText().toString();
+
+                    String alarm = "N";
+                    if(mAlarm.isChecked()) {
+                        alarm = "Y";
+                    }
+
+                    String alarmDate = mAlarmDate.getText().toString();
+                    String period = mPeriodSpinner.getSelectedItem().toString();
+                    String alarmTime = mAlarmTime.getText().toString();
+                    //Plant plant = new Plant(name, kind, imageName, imageUrl, intro, adoptionDate, alarm, alarmDate, period, alarmTime, uid, userId);
+                    Intent intent = getIntent();
+                    String key = intent.getStringExtra("key");
+                    Map<String, Object> updateMap = new HashMap<String, Object>();
+                    updateMap.put("name", name);
+                    updateMap.put("kind", kind);
+                    updateMap.put("imageName", imageName);
+                    updateMap.put("imageUrl", imageUrl);
+                    updateMap.put("intro", intro);
+                    updateMap.put("adoptionDate", adoptionDate);
+                    updateMap.put("alarm", alarm);
+                    updateMap.put("alarmDate", alarmDate);
+                    updateMap.put("period", period);
+                    updateMap.put("alarmTime", alarmTime);
+                    database.getReference().child("plant").child(key).updateChildren(updateMap);
+                    String msg = "수정이 완료됐습니다.";
+                    showDialogAfterWork(msg);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    Toast.makeText(AddActivity.this, "식물 수정이 실패했습니다.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            String adoptionDate = mAdoptionDate.getText().toString();
+
+            String alarm = "N";
+            if(mAlarm.isChecked()) {
+                alarm = "Y";
+            }
+
+            String alarmDate = mAlarmDate.getText().toString();
+            String period = mPeriodSpinner.getSelectedItem().toString();
+            String alarmTime = mAlarmTime.getText().toString();
+            //Plant plant = new Plant(name, kind, imageName, imageUrl, intro, adoptionDate, alarm, alarmDate, period, alarmTime, uid, userId);
+            Intent intent = getIntent();
+            String key = intent.getStringExtra("key");
+            Map<String, Object> updateMap = new HashMap<String, Object>();
+            updateMap.put("name", name);
+            updateMap.put("kind", kind);
+            updateMap.put("intro", intro);
+            updateMap.put("adoptionDate", adoptionDate);
+            updateMap.put("alarm", alarm);
+            updateMap.put("alarmDate", alarmDate);
+            updateMap.put("period", period);
+            updateMap.put("alarmTime", alarmTime);
+            database.getReference().child("plant").child(key).updateChildren(updateMap);
+            String msg = "수정이 완료됐습니다.";
+            showDialogAfterWork(msg);
         }
     }
 
