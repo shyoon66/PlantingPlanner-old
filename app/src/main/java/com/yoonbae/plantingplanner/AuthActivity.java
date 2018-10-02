@@ -25,6 +25,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
@@ -53,6 +54,7 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
 
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
+            //.requestIdToken("677847193937-0guev2okitdcbo39qo1se96taafj4oga.apps.googleusercontent.com")
             .requestEmail()
             .build();
 

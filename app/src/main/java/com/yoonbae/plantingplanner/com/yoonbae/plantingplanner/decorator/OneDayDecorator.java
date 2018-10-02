@@ -10,6 +10,8 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 
+import org.threeten.bp.LocalDate;
+
 import java.util.Date;
 
 public class OneDayDecorator implements DayViewDecorator  {
@@ -29,13 +31,13 @@ public class OneDayDecorator implements DayViewDecorator  {
     public void decorate(DayViewFacade view) {
         view.addSpan(new StyleSpan(Typeface.BOLD));
         view.addSpan(new RelativeSizeSpan(1.4f));
-        view.addSpan(new ForegroundColorSpan(Color.GRAY));
+        view.addSpan(new ForegroundColorSpan(Color.GREEN));
     }
 
     /**
      * We're changing the internals, so make sure to call
      */
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = CalendarDay.from(date);
     }
 }
