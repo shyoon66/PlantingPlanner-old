@@ -18,7 +18,6 @@ import com.prolificinteractive.materialcalendarview.CalendarMode;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 import com.prolificinteractive.materialcalendarview.format.MonthArrayTitleFormatter;
-import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.adapter.MyRecyclerViewAdapter;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.EventDecorator;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.HighlightWeekendsDecorator;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.OneDayDecorator;
@@ -33,7 +32,6 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 public class MainActivity extends AppCompatActivity implements OnDateSelectedListener {
 
@@ -90,8 +88,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 new OneDayDecorator());
 
         materialCalendarView.setOnDateChangedListener(this);
-
-        Calendar calendar = Calendar.getInstance();
+        plantList = new ArrayList<Plant>();
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
@@ -99,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                plantList = new ArrayList<Plant>();
                 String fUid = firebaseUser.getUid();
 
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
@@ -120,10 +116,11 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                         plant.setAlarmTime(value.getAlarmTime());
                         plant.setUid(value.getUid());
                         plant.setUserId(value.getUserId());
-
                         plantList.add(plant);
                     }
                 }
+
+                calendarEvent();
             }
 
             @Override
@@ -132,11 +129,15 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 Log.w("Hello", "Failed to read value.", databaseError.toException());
             }
         });
+    }
 
-        //calendar.add(Calendar.MONTH, -2);
+    private void calendarEvent() {
+        Calendar calendar = Calendar.getInstance();
         ArrayList<CalendarDay> eventDayList = new ArrayList<>();
+        //calendar.add(Calendar.MONTH, -2);
 
-        for(Plant plant : plantList) {
+        for(int i = 0; i < plantList.size(); i++) {
+            Plant plant = plantList.get(i);
             String period = plant.getPeriod();
             int pod = 0;
 
@@ -165,27 +166,33 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
             }
 
             String alarmDate = plant.getAlarmDate();
-            int year = Integer.parseInt(alarmDate.substring(0, 4));
-            int month = Integer.parseInt(alarmDate.substring(6, 8));
-            int dayOfYear = Integer.parseInt(alarmDate.substring(9, 10));
+            String[] alarmDateArr = alarmDate.split("-");
 
-            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@ year = " + year);
-            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@ month = " + month);
-            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@ dayOfYear = " + dayOfYear);
-
+            int year = Integer.parseInt(alarmDateArr[0]);
+            int month = Integer.parseInt(alarmDateArr[1]);
+            int dayOfYear = Integer.parseInt(alarmDateArr[2]);
+            calendar.set(year, month, dayOfYear);
             LocalDate date = LocalDate.of(year, month, dayOfYear);
+            java.time.LocalDate localDate = java.time.LocalDate.of(year, month, dayOfYear);
 
-            for(int i = 0; i < 30; i++) {
+            int max = (2300 - java.time.LocalDate.now().getYear()) * 365 / pod;
+
+            for(int j = 0; j < max; j++) {
                 CalendarDay day = CalendarDay.from(date);
                 eventDayList.add(day);
 
                 if(pod != 30 && pod != 60) {
-                    calendar.add(Calendar.DATE, pod);
+                    localDate = localDate.plusDays(pod);
+                    //calendar.add(Calendar.DATE, pod);
                 } else if(pod == 30) {
-                    calendar.add(Calendar.MONTH, 1);
+                    localDate = localDate.plusMonths(1);
+                    //calendar.add(Calendar.MONTH, 1);
                 } else if(pod == 60) {
-                    calendar.add(Calendar.MONTH, 2);
+                    localDate = localDate.plusMonths(2);
+                    //calendar.add(Calendar.MONTH, 2);
                 }
+
+                date = LocalDate.of(localDate.getYear(), localDate.getMonth().getValue(), localDate.getDayOfMonth());
             }
         }
 

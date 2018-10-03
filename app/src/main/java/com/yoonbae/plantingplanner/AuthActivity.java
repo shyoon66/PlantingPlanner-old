@@ -53,8 +53,8 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
         chkLogin(mFirebaseAuth);
 
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            //.requestIdToken("677847193937-0guev2okitdcbo39qo1se96taafj4oga.apps.googleusercontent.com")
+            //.requestIdToken(getString(R.string.default_web_client_id))
+            .requestIdToken("677847193937-qr7av5jubvngm6j73cc5oh6mebp2qcua.apps.googleusercontent.com")
             .requestEmail()
             .build();
 
