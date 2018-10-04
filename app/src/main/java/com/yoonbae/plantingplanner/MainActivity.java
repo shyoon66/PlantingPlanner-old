@@ -1,5 +1,8 @@
 package com.yoonbae.plantingplanner;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -45,6 +48,11 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+
         calendarView();
 
         BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavView);
@@ -66,6 +74,28 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 return false;
             }
         });
+
+        new AlarmHATT(getApplicationContext()).Alarm();
+    }
+
+    public class AlarmHATT {
+        private Context context;
+
+        public AlarmHATT(Context context) {
+            this.context = context;
+        }
+
+        public void Alarm() {
+            AlarmManager am = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(MainActivity.this, BroadcastD.class);
+
+            PendingIntent sender = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), 0, 12, 0);
+
+            //알람 예약
+            am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
+        }
     }
 
     @Override
@@ -90,9 +120,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         materialCalendarView.setOnDateChangedListener(this);
         plantList = new ArrayList<Plant>();
 
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
-        firebaseDatabase = FirebaseDatabase.getInstance();
         firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -138,33 +165,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
         for(int i = 0; i < plantList.size(); i++) {
             Plant plant = plantList.get(i);
-            String period = plant.getPeriod();
-            int pod = 0;
-
-            if("1일".equals(period)) {
-                pod = 1;
-            } else if("2일".equals(period)) {
-                pod = 2;
-            } else if("3일".equals(period)) {
-                pod = 3;
-            } else if("4일".equals(period)) {
-                pod = 4;
-            } else if("5일".equals(period)) {
-                pod = 5;
-            } else if("6일".equals(period)) {
-                pod = 6;
-            } else if("1주일".equals(period)) {
-                pod = 7;
-            } else if("2주일".equals(period)) {
-                pod = 14;
-            } else if("3주일".equals(period)) {
-                pod = 21;
-            } else if("1달".equals(period)) {
-                pod = 30;
-            } else if("2달".equals(period)) {
-                pod = 60;
-            }
-
             String alarmDate = plant.getAlarmDate();
             String[] alarmDateArr = alarmDate.split("-");
 
@@ -175,6 +175,8 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
             LocalDate date = LocalDate.of(year, month, dayOfYear);
             java.time.LocalDate localDate = java.time.LocalDate.of(year, month, dayOfYear);
 
+            String period = plant.getPeriod();
+            int pod = getPeriod(period);
             int max = (2300 - java.time.LocalDate.now().getYear()) * 365 / pod;
 
             for(int j = 0; j < max; j++) {
@@ -183,13 +185,10 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
                 if(pod != 30 && pod != 60) {
                     localDate = localDate.plusDays(pod);
-                    //calendar.add(Calendar.DATE, pod);
                 } else if(pod == 30) {
                     localDate = localDate.plusMonths(1);
-                    //calendar.add(Calendar.MONTH, 1);
                 } else if(pod == 60) {
                     localDate = localDate.plusMonths(2);
-                    //calendar.add(Calendar.MONTH, 2);
                 }
 
                 date = LocalDate.of(localDate.getYear(), localDate.getMonth().getValue(), localDate.getDayOfMonth());
@@ -197,6 +196,36 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         }
 
         materialCalendarView.addDecorator(new EventDecorator(Color.RED, eventDayList, MainActivity.this));
+    }
+
+    private int getPeriod(String period) {
+        int pod = 0;
+
+        if("1일".equals(period)) {
+            pod = 1;
+        } else if("2일".equals(period)) {
+            pod = 2;
+        } else if("3일".equals(period)) {
+            pod = 3;
+        } else if("4일".equals(period)) {
+            pod = 4;
+        } else if("5일".equals(period)) {
+            pod = 5;
+        } else if("6일".equals(period)) {
+            pod = 6;
+        } else if("1주일".equals(period)) {
+            pod = 7;
+        } else if("2주일".equals(period)) {
+            pod = 14;
+        } else if("3주일".equals(period)) {
+            pod = 21;
+        } else if("1달".equals(period)) {
+            pod = 30;
+        } else if("2달".equals(period)) {
+            pod = 60;
+        }
+
+        return pod;
     }
 
     @Override
