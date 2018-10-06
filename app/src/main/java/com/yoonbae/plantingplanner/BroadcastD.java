@@ -7,8 +7,6 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.os.Build;
@@ -36,7 +34,8 @@ public class BroadcastD extends BroadcastReceiver {
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1");
-        builder.setContentTitle("Title").setContentText("Content").setDefaults(Notification.DEFAULT_ALL).setAutoCancel(true).setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+        String name = intent.getStringExtra("name");
+        builder.setContentTitle("Planting Planner").setContentText(name + " 물주기 알람입니다.").setDefaults(Notification.DEFAULT_ALL).setAutoCancel(true).setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setSmallIcon(android.R.drawable.btn_star).setContentIntent(pendingIntent);
         notificationmanager.notify(0, builder.build());
     }

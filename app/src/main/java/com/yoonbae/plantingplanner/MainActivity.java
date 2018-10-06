@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.MenuItem;
 
@@ -20,6 +22,7 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
+import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 import com.prolificinteractive.materialcalendarview.format.MonthArrayTitleFormatter;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.EventDecorator;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.HighlightWeekendsDecorator;
@@ -28,6 +31,7 @@ import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
 
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -36,13 +40,16 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity implements OnDateSelectedListener {
+public class MainActivity extends AppCompatActivity implements OnDateSelectedListener, OnMonthChangedListener {
 
     private MaterialCalendarView materialCalendarView;
     private FirebaseDatabase firebaseDatabase;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
     private List<Plant> plantList;
+    private LocalDate firstEventDate;
+    private LocalDate lastEventDate;
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("EEE, d MMM yyyy");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,8 +81,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 return false;
             }
         });
-
-        new AlarmHATT(getApplicationContext()).Alarm();
     }
 
     public class AlarmHATT {
@@ -85,16 +90,14 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
             this.context = context;
         }
 
-        public void Alarm() {
+        public void Alarm(Long timeInMillis, Long intervalMillis, String name) {
             AlarmManager am = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
             Intent intent = new Intent(MainActivity.this, BroadcastD.class);
-
+            intent.putExtra("name", name);
             PendingIntent sender = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DATE), 0, 12, 0);
 
             //알람 예약
-            am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
+            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, timeInMillis, intervalMillis, sender);
         }
     }
 
@@ -109,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         materialCalendarView.state().edit()
                 .setFirstDayOfWeek(DayOfWeek.SUNDAY)
                 .setMinimumDate(CalendarDay.from(2000, 1, 1))
-                .setMaximumDate(CalendarDay.from(2300, 12, 31))
+                .setMaximumDate(CalendarDay.from(2100, 12, 31))
                 .setCalendarDisplayMode(CalendarMode.MONTHS)
                 .commit();
 
@@ -118,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 new OneDayDecorator());
 
         materialCalendarView.setOnDateChangedListener(this);
+        materialCalendarView.setOnMonthChangedListener(this);
         plantList = new ArrayList<Plant>();
 
         firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
@@ -161,23 +165,33 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
     private void calendarEvent() {
         Calendar calendar = Calendar.getInstance();
         ArrayList<CalendarDay> eventDayList = new ArrayList<>();
+        AlarmHATT alarmHATT = new AlarmHATT((getApplicationContext()));
         //calendar.add(Calendar.MONTH, -2);
 
         for(int i = 0; i < plantList.size(); i++) {
             Plant plant = plantList.get(i);
+
             String alarmDate = plant.getAlarmDate();
             String[] alarmDateArr = alarmDate.split("-");
-
             int year = Integer.parseInt(alarmDateArr[0]);
             int month = Integer.parseInt(alarmDateArr[1]);
             int dayOfYear = Integer.parseInt(alarmDateArr[2]);
-            calendar.set(year, month, dayOfYear);
+
+            String alarmTime = plant.getAlarmTime();
+            int hourOfDay = Integer.parseInt(alarmTime.substring(0, alarmTime.indexOf("시")));
+            int minute = Integer.parseInt(alarmTime.substring(alarmTime.indexOf("시") + 2, alarmTime.length() - 1));
+
+            calendar.set(year, month, dayOfYear, hourOfDay, minute);
             LocalDate date = LocalDate.of(year, month, dayOfYear);
             java.time.LocalDate localDate = java.time.LocalDate.of(year, month, dayOfYear);
 
             String period = plant.getPeriod();
             int pod = getPeriod(period);
-            int max = (2300 - java.time.LocalDate.now().getYear()) * 365 / pod;
+            int max = (2100 - java.time.LocalDate.now().getYear()) * 365 / pod;
+            String name = plant.getName();
+
+            long intervalMillis = 24 * 60 * 60 * 1000;
+            alarmHATT.Alarm(calendar.getTimeInMillis(), intervalMillis, name);
 
             for(int j = 0; j < max; j++) {
                 CalendarDay day = CalendarDay.from(date);
@@ -191,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                     localDate = localDate.plusMonths(2);
                 }
 
+                calendar.set(localDate.getYear(), localDate.getMonth().getValue(), localDate.getDayOfMonth(), hourOfDay, minute);
                 date = LocalDate.of(localDate.getYear(), localDate.getMonth().getValue(), localDate.getDayOfMonth());
             }
         }
@@ -236,5 +251,80 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         widget.addDecorator(oneDayDecorator);
         widget.invalidateDecorators();*/
     }
+
+    @Override
+    public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
+        //addEventDaysAndAlarm(date);
+
+        //noinspection ConstantConditions
+        //getSupportActionBar().setTitle(FORMATTER.format(date.getDate()));
+    }
+
+/*    private void addEventDaysAndAlarm(CalendarDay monthDate) {
+        Calendar calendar = Calendar.getInstance();
+        ArrayList<CalendarDay> eventDayList = new ArrayList<>();
+        AlarmHATT alarmHATT = new AlarmHATT((getApplicationContext()));
+        //calendar.add(Calendar.MONTH, -2);
+
+        for(int i = 0; i < plantList.size(); i++) {
+            Plant plant = plantList.get(i);
+
+            String alarmDate = plant.getAlarmDate();
+            String[] alarmDateArr = alarmDate.split("-");
+            int year = Integer.parseInt(alarmDateArr[0]);
+            int month = Integer.parseInt(alarmDateArr[1]);
+            int dayOfYear = Integer.parseInt(alarmDateArr[2]);
+
+            CalendarDay alarmDay = CalendarDay.from(year, month, dayOfYear);
+
+            if(monthDate.isAfter(alarmDay)) {
+                year = monthDate.getYear();
+                month = monthDate.getMonth();
+                dayOfYear = monthDate.getDay();
+            }
+
+            String alarmTime = plant.getAlarmTime();
+            int hourOfDay = Integer.parseInt(alarmTime.substring(0, alarmTime.indexOf("시")));
+            int minute = Integer.parseInt(alarmTime.substring(alarmTime.indexOf("시") + 2, alarmTime.length() - 1));
+
+            calendar.set(year, month, dayOfYear, hourOfDay, minute);
+            LocalDate date = LocalDate.of(year, month, dayOfYear);
+            java.time.LocalDate localDate = java.time.LocalDate.of(year, month, dayOfYear);
+
+            String period = plant.getPeriod();
+            int pod = getPeriod(period);
+            String name = plant.getName();
+            int lastDay = localDate.getMonth().maxLength();
+
+            for(int j = 0; j < lastDay; j++) {
+                CalendarDay day = CalendarDay.from(date);
+                //eventDayList.add(day);
+                alarmHATT.Alarm(calendar.getTimeInMillis(), name);
+
+                if(j == 0) {
+                    firstEventDate = date;
+                }
+
+                if(pod != 30 && pod != 60) {
+                    localDate = localDate.plusDays(pod);
+                } else if(pod == 30) {
+                    localDate = localDate.plusMonths(1);
+                } else if(pod == 60) {
+                    localDate = localDate.plusMonths(2);
+                }
+
+                calendar.set(localDate.getYear(), localDate.getMonth().getValue(), localDate.getDayOfMonth(), hourOfDay, minute);
+                date = LocalDate.of(localDate.getYear(), localDate.getMonth().getValue(), localDate.getDayOfMonth());
+
+                eventDayList.add(day);
+
+                if(j == (lastDay - 1)) {
+                    lastEventDate = date;
+                }
+            }
+        }
+
+        materialCalendarView.addDecorator(new EventDecorator(Color.RED, eventDayList, MainActivity.this));
+    }*/
 
 }
