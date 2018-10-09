@@ -2,7 +2,6 @@ package com.yoonbae.plantingplanner;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,7 +29,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -240,7 +238,7 @@ public class AddActivity extends AppCompatActivity {
             public void onDateSet(DatePicker view, int year, int monthOfYear,int dayOfMonth) {
                 pDate.setText(year + "-" + (monthOfYear + 1) + "-" + dayOfMonth);
             }
-        },year, month, day); // 기본값 연월일
+        },year, month - 1, day); // 기본값 연월일
 
         datePickerDialog.getDatePicker().setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         datePickerDialog.show();
