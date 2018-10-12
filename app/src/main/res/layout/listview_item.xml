@@ -7,8 +7,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/name"
-        android:textSize="24dp"
-        android:textColor="#000000"
+        android:textSize="16dp"
+        android:layout_marginRight="10dp"
+        android:textColor="#797979"
         android:gravity="center_vertical"
         android:layout_weight="2" />
 
@@ -17,7 +18,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/alarm"
         android:textSize="16dp"
-        android:textColor="#666666"
+        android:textColor="#797979"
         android:layout_weight="1" />
 
 </LinearLayout>

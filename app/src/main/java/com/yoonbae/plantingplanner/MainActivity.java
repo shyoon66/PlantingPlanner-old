@@ -10,6 +10,7 @@ import android.os.Parcel;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.ListView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,6 +25,7 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 import com.prolificinteractive.materialcalendarview.format.MonthArrayTitleFormatter;
+import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.adapter.ListViewAdapter;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.EventDecorator;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.HighlightWeekendsDecorator;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.OneDayDecorator;
@@ -35,20 +37,22 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity implements OnDateSelectedListener, OnMonthChangedListener {
+public class MainActivity extends AppCompatActivity implements OnDateSelectedListener {
 
     private MaterialCalendarView materialCalendarView;
     private FirebaseDatabase firebaseDatabase;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
     private List<Plant> plantList;
-    private LocalDate firstEventDate;
-    private LocalDate lastEventDate;
+    private ArrayList<CalendarDay> eventDayList;
+    private ArrayList<Map<String, Object>> eventPlantList;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("EEE, d MMM yyyy");
 
     @Override
@@ -121,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 new OneDayDecorator());
 
         materialCalendarView.setOnDateChangedListener(this);
-        materialCalendarView.setOnMonthChangedListener(this);
+        //materialCalendarView.setOnMonthChangedListener(this);
         plantList = new ArrayList<Plant>();
 
         firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
@@ -164,7 +168,8 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
     private void calendarEvent() {
         Calendar calendar = Calendar.getInstance();
-        ArrayList<CalendarDay> eventDayList = new ArrayList<>();
+        eventDayList = new ArrayList<>();
+        eventPlantList = new ArrayList<Map<String, Object>>();
         AlarmHATT alarmHATT = new AlarmHATT((getApplicationContext()));
         //calendar.add(Calendar.MONTH, -2);
 
@@ -193,9 +198,15 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
             long intervalMillis = 24 * 60 * 60 * 1000;
             alarmHATT.Alarm(calendar.getTimeInMillis(), intervalMillis, name);
 
+            String alarm = plant.getAlarmTime() + " 알람";
             for(int j = 0; j < max; j++) {
                 CalendarDay day = CalendarDay.from(date);
                 eventDayList.add(day);
+                Map<String, Object> eventPlantMap = new HashMap<String, Object>();
+                eventPlantMap.put("name", name);
+                eventPlantMap.put("alarm", alarm);
+                eventPlantMap.put("eventDay", day);
+                eventPlantList.add(eventPlantMap);
 
                 if(pod != 30 && pod != 60) {
                     localDate = localDate.plusDays(pod);
@@ -245,6 +256,32 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
     @Override
     public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
+        boolean flag = true;
+        ListView listview = findViewById(R.id.listview);
+
+        for(int i = 0; i < eventDayList.size(); i++) {
+            CalendarDay eventDay = eventDayList.get(i);
+
+            if(eventDay.equals(date)) {
+                ListViewAdapter adapter = new ListViewAdapter();
+                listview.setAdapter(adapter);
+
+                for(int j = 0; j < eventPlantList.size(); j++) {
+                    Map<String, Object> eventPlantMap = eventPlantList.get(j);
+
+                    if(eventDay.equals(eventPlantMap.get("eventDay"))) {
+                        flag = false;
+                        adapter.addItem(eventPlantMap.get("name").toString(), eventPlantMap.get("alarm").toString());
+                        adapter.addItem("선인장", "12시 10분 알람");
+                    }
+                }
+            }
+        }
+
+        if(flag) {
+            listview.setAdapter(null);
+        }
+
         //If you change a decorate, you need to invalidate decorators
 /*        OneDayDecorator oneDayDecorator = new OneDayDecorator();
         oneDayDecorator.setDate(date.getDate());
@@ -252,13 +289,13 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         widget.invalidateDecorators();*/
     }
 
-    @Override
+/*    @Override
     public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
         //addEventDaysAndAlarm(date);
 
         //noinspection ConstantConditions
         //getSupportActionBar().setTitle(FORMATTER.format(date.getDate()));
-    }
+    }*/
 
 /*    private void addEventDaysAndAlarm(CalendarDay monthDate) {
         Calendar calendar = Calendar.getInstance();
