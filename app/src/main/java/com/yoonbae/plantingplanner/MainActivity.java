@@ -10,6 +10,9 @@ import android.os.Parcel;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -53,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
     private List<Plant> plantList;
     private ArrayList<CalendarDay> eventDayList;
     private ArrayList<Map<String, Object>> eventPlantList;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("EEE, d MMM yyyy");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -272,7 +274,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                     if(eventDay.equals(eventPlantMap.get("eventDay"))) {
                         flag = false;
                         adapter.addItem(eventPlantMap.get("name").toString(), eventPlantMap.get("alarm").toString());
-                        adapter.addItem("선인장", "12시 10분 알람");
                     }
                 }
             }

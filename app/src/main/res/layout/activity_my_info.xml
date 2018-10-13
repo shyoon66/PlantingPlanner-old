@@ -49,7 +49,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/bottomNavView"
         android:layout_alignParentBottom="true"
-        app:itemBackground="@android:color/transparent"
+        app:itemBackground="@drawable/item_bg"
         app:itemTextColor="@drawable/bnv_tab_item_foreground"
         app:itemIconTint="@drawable/bnv_tab_item_foreground"
         app:menu="@menu/bottom_navigation_main"

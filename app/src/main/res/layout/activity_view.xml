@@ -8,10 +8,10 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
+        android:background="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
-        app:itemBackground="@color/colorPrimary"
+        app:itemBackground="@android:color/white"
         app:layout_constraintBottom_toTopOf="@+id/imageView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="식물정보"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/black"
             android:textSize="20sp" />
     </androidx.appcompat.widget.Toolbar>
 
@@ -91,7 +91,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="15dp"
-        android:text="내용"
+        android:text="소개"
         app:layout_constraintBottom_toTopOf="@+id/intro"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/kindText" />
@@ -104,5 +104,25 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textIntro" />
+
+    <TextView
+        android:id="@+id/textAdoptionDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="15dp"
+        android:text="우리집에 온 날짜"
+        app:layout_constraintBottom_toTopOf="@+id/adoptionDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/intro" />
+
+    <TextView
+        android:id="@+id/adoptionDate"
+        android:layout_width="0dp"
+        android:layout_height="55dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/intro" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

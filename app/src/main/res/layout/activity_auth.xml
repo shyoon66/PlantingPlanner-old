@@ -16,7 +16,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></com.google.android.gms.common.SignInButton>
+        app:layout_constraintTop_toTopOf="parent"/>
 
 
     <com.facebook.login.widget.LoginButton
@@ -28,6 +28,6 @@
         android:paddingBottom="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signInButton"></com.facebook.login.widget.LoginButton>
+        app:layout_constraintTop_toBottomOf="@+id/signInButton"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
