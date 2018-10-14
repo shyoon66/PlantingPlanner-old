@@ -19,6 +19,8 @@ public class ViewActivity extends AppCompatActivity {
     private TextView mName;
     private TextView mKind;
     private TextView mIntro;
+    private TextView mAdoptionDate;
+    private TextView mAlarmDate;
     private ImageView imageView;
 
     @Override
@@ -43,6 +45,11 @@ public class ViewActivity extends AppCompatActivity {
         String kind = intent.getStringExtra("kind");
         String intro = intent.getStringExtra("intro");
         String imageUrl = intent.getStringExtra("imageUrl");
+        String adoptionDate = intent.getStringExtra("adoptionDate");
+        String alarmDate = intent.getStringExtra("alarmDate");
+
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@ adoptionDate = " + adoptionDate);
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@ alarmDate = " + alarmDate);
 
         mName = findViewById(R.id.name);
         mName.setText(name);
@@ -50,6 +57,10 @@ public class ViewActivity extends AppCompatActivity {
         mKind.setText(kind);
         mIntro = findViewById(R.id.intro);
         mIntro.setText(intro);
+        mAdoptionDate = findViewById(R.id.adoptionDate);
+        mAdoptionDate.setText(adoptionDate);
+        mAlarmDate = findViewById(R.id.alarmDate);
+        mAlarmDate.setText(alarmDate);
         imageView = findViewById(R.id.imageView);
         Glide.with(imageView).load(imageUrl).into(imageView);
     }

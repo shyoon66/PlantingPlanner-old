@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -11,11 +11,7 @@
         android:background="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:itemBackground="@android:color/white"
-        app:layout_constraintBottom_toTopOf="@+id/imageView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:itemBackground="@android:color/white">
 
         <TextView
             android:id="@+id/toolbar_title"
@@ -31,11 +27,8 @@
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:layout_marginTop="56dp"
         android:scaleType="centerCrop"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_below="@+id/toolbar" />
 
     <TextView
         android:id="@+id/nameText"
@@ -46,22 +39,15 @@
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="15dp"
         android:text="이름"
-        app:layout_constraintBottom_toTopOf="@+id/kindText"
-        app:layout_constraintEnd_toStartOf="@+id/name"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        android:layout_below="@+id/imageView"/>
 
     <TextView
         android:id="@+id/name"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="15dp"
-        app:layout_constraintBottom_toTopOf="@+id/kind"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/nameText"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"
-        app:layout_constraintVertical_bias="0.0" />
+        android:layout_toRightOf="@+id/nameText"
+        android:layout_below="@+id/imageView"/>
 
     <TextView
         android:id="@+id/kindText"
@@ -71,19 +57,15 @@
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="15dp"
         android:text="종류"
-        app:layout_constraintBottom_toTopOf="@+id/textIntro"
-        app:layout_constraintEnd_toStartOf="@+id/kind"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nameText" />
+        android:layout_below="@+id/nameText"/>
 
     <TextView
         android:id="@+id/kind"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/kindText"
-        app:layout_constraintTop_toBottomOf="@+id/name" />
+        android:layout_toRightOf="@+id/kindText"
+        android:layout_below="@+id/name" />
 
     <TextView
         android:id="@+id/textIntro"
@@ -92,18 +74,15 @@
         android:layout_marginStart="16dp"
         android:layout_marginBottom="15dp"
         android:text="소개"
-        app:layout_constraintBottom_toTopOf="@+id/intro"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/kindText" />
+        android:layout_below="@+id/kindText" />
 
     <TextView
         android:id="@+id/intro"
-        android:layout_width="0dp"
-        android:layout_height="55dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textIntro" />
+        android:layout_marginBottom="15dp"
+        android:layout_below="@+id/textIntro" />
 
     <TextView
         android:id="@+id/textAdoptionDate"
@@ -112,17 +91,31 @@
         android:layout_marginStart="16dp"
         android:layout_marginBottom="15dp"
         android:text="우리집에 온 날짜"
-        app:layout_constraintBottom_toTopOf="@+id/adoptionDate"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/intro" />
+        android:layout_below="@+id/intro" />
 
     <TextView
         android:id="@+id/adoptionDate"
-        android:layout_width="0dp"
-        android:layout_height="55dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/intro" />
+        android:layout_below="@+id/intro"
+        android:layout_toRightOf="@+id/textAdoptionDate"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/textAlarmDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="15dp"
+        android:text="알람시작일"
+        android:layout_below="@+id/textAdoptionDate" />
+
+    <TextView
+        android:id="@+id/alarmDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_below="@+id/textAdoptionDate"
+        android:layout_toRightOf="@+id/textAlarmDate"/>
+
+</RelativeLayout>

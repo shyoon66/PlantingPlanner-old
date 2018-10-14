@@ -172,58 +172,60 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         Calendar calendar = Calendar.getInstance();
         eventDayList = new ArrayList<>();
         eventPlantList = new ArrayList<Map<String, Object>>();
-        AlarmHATT alarmHATT = new AlarmHATT((getApplicationContext()));
         //calendar.add(Calendar.MONTH, -2);
 
         for(int i = 0; i < plantList.size(); i++) {
             Plant plant = plantList.get(i);
+            String alarmYN = plant.getAlarm();
 
-            String alarmDate = plant.getAlarmDate();
-            String[] alarmDateArr = alarmDate.split("-");
-            int year = Integer.parseInt(alarmDateArr[0]);
-            int month = Integer.parseInt(alarmDateArr[1]);
-            int dayOfYear = Integer.parseInt(alarmDateArr[2]);
+            if("Y".equals(alarmYN)) {
+                String alarmDate = plant.getAlarmDate();
+                String[] alarmDateArr = alarmDate.split("-");
+                int year = Integer.parseInt(alarmDateArr[0]);
+                int month = Integer.parseInt(alarmDateArr[1]);
+                int dayOfYear = Integer.parseInt(alarmDateArr[2]);
 
-            String alarmTime = plant.getAlarmTime();
-            int hourOfDay = Integer.parseInt(alarmTime.substring(0, alarmTime.indexOf("시")));
-            int minute = Integer.parseInt(alarmTime.substring(alarmTime.indexOf("시") + 2, alarmTime.length() - 1));
+                String alarmTime = plant.getAlarmTime();
+                int hourOfDay = Integer.parseInt(alarmTime.substring(0, alarmTime.indexOf("시")));
+                int minute = Integer.parseInt(alarmTime.substring(alarmTime.indexOf("시") + 2, alarmTime.length() - 1));
 
-            calendar.set(year, month, dayOfYear, hourOfDay, minute);
-            LocalDate date = LocalDate.of(year, month, dayOfYear);
-            java.time.LocalDate localDate = java.time.LocalDate.of(year, month, dayOfYear);
+                calendar.set(year, month, dayOfYear, hourOfDay, minute);
+                LocalDate date = LocalDate.of(year, month, dayOfYear);
+                java.time.LocalDate localDate = java.time.LocalDate.of(year, month, dayOfYear);
 
-            String period = plant.getPeriod();
-            int pod = getPeriod(period);
-            int max = (2100 - java.time.LocalDate.now().getYear()) * 365 / pod;
-            String name = plant.getName();
+                String period = plant.getPeriod();
+                int pod = getPeriod(period);
+                int max = (2100 - java.time.LocalDate.now().getYear()) * 365 / pod;
+                String name = plant.getName();
 
-            long intervalMillis = 24 * 60 * 60 * 1000;
-            alarmHATT.Alarm(calendar.getTimeInMillis(), intervalMillis, name);
+                long intervalMillis = 24 * 60 * 60 * 1000;
+                new AlarmHATT((getApplicationContext())).Alarm(calendar.getTimeInMillis(), intervalMillis, name);
 
-            String alarm = plant.getAlarmTime() + " 알람";
-            for(int j = 0; j < max; j++) {
-                CalendarDay day = CalendarDay.from(date);
-                eventDayList.add(day);
-                Map<String, Object> eventPlantMap = new HashMap<String, Object>();
-                eventPlantMap.put("name", name);
-                eventPlantMap.put("alarm", alarm);
-                eventPlantMap.put("eventDay", day);
-                eventPlantList.add(eventPlantMap);
+                String alarm = plant.getAlarmTime() + " 알람";
+                for(int j = 0; j < max; j++) {
+                    CalendarDay day = CalendarDay.from(date);
+                    eventDayList.add(day);
+                    Map<String, Object> eventPlantMap = new HashMap<String, Object>();
+                    eventPlantMap.put("name", name);
+                    eventPlantMap.put("alarm", alarm);
+                    eventPlantMap.put("eventDay", day);
+                    eventPlantList.add(eventPlantMap);
 
-                if(pod != 30 && pod != 60) {
-                    localDate = localDate.plusDays(pod);
-                } else if(pod == 30) {
-                    localDate = localDate.plusMonths(1);
-                } else if(pod == 60) {
-                    localDate = localDate.plusMonths(2);
+                    if(pod != 30 && pod != 60) {
+                        localDate = localDate.plusDays(pod);
+                    } else if(pod == 30) {
+                        localDate = localDate.plusMonths(1);
+                    } else if(pod == 60) {
+                        localDate = localDate.plusMonths(2);
+                    }
+
+                    calendar.set(localDate.getYear(), localDate.getMonth().getValue(), localDate.getDayOfMonth(), hourOfDay, minute);
+                    date = LocalDate.of(localDate.getYear(), localDate.getMonth().getValue(), localDate.getDayOfMonth());
                 }
-
-                calendar.set(localDate.getYear(), localDate.getMonth().getValue(), localDate.getDayOfMonth(), hourOfDay, minute);
-                date = LocalDate.of(localDate.getYear(), localDate.getMonth().getValue(), localDate.getDayOfMonth());
             }
-        }
 
-        materialCalendarView.addDecorator(new EventDecorator(Color.RED, eventDayList, MainActivity.this));
+            materialCalendarView.addDecorator(new EventDecorator(Color.RED, eventDayList, MainActivity.this));
+        }
     }
 
     private int getPeriod(String period) {

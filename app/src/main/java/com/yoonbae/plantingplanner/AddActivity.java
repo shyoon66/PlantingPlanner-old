@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -29,6 +30,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -99,6 +102,18 @@ public class AddActivity extends AppCompatActivity {
         mFirebaseAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
+
+        mPeriodSpinner.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                ((TextView) mPeriodSpinner.getSelectedView()).setTextColor(Color.rgb(79, 79, 79));
+                ((TextView) mPeriodSpinner.getSelectedView()).setTextSize(12);
+                ((TextView) mPeriodSpinner.getSelectedView()).setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            }
+        });
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.waterPeriod));
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         Intent intent = getIntent();
         flag = intent.getExtras().getString("FLAG");

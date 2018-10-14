@@ -124,24 +124,31 @@
             android:minLines="3"
             android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/dateView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:text="우리 집에 온 날짜"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/adoptionDate"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="0dp"
-            android:ems="10"
-            android:textSize="12sp"
-            android:inputType="date" />
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/dateView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="우리 집에 온 날짜"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/adoptionDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:ems="10"
+                android:textSize="12sp"
+                android:inputType="date" />
+
+        </LinearLayout>
 
         <Switch
             android:id="@+id/alarm"
@@ -155,22 +162,24 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/alarmStartDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_weight="1"
-                android:text="알람 시작일" />
+                android:layout_marginTop="16dp"
+                android:text="알람 시작일"
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/alarmDate"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="0dp"
+                android:layout_marginTop="16dp"
                 android:ems="10"
                 android:inputType="date"
                 android:textSize="12sp" />
@@ -178,25 +187,42 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
-            <Spinner
-                android:id="@+id/periodSpinner"
+            <TextView
+                android:id="@+id/textAlarmPeriod"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:ems="10"
+                android:layout_marginTop="16dp"
+                android:text="알람 주기"
+                android:textSize="12sp"/>
+
+            <Spinner
+                android:id="@+id/periodSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="13dp"
                 android:entries="@array/waterPeriod"
-                android:textAlignment="center"
-                android:textSize="12sp" />
+                android:overlapAnchor="false"
+                android:spinnerMode="dropdown"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/textView2"
-                android:layout_width="24dp"
+                android:id="@+id/textAlarmTime"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="date"
-                android:text="마다"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="알람 시각"
                 android:textSize="12sp" />
 
             <TextView
@@ -205,18 +231,13 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="time"
+                android:layout_marginTop="16dp"
                 android:layout_marginStart="16dp"
                 android:textSize="12sp" />
 
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="24dp"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="date"
-                android:text="알람"
-                android:textSize="12sp" />
         </LinearLayout>
+
+
     </LinearLayout>
 
 </ScrollView>

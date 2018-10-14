@@ -61,6 +61,12 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 intent.putExtra("kind", plantList.get(position).getKind());
                 intent.putExtra("intro", plantList.get(position).getIntro());
                 intent.putExtra("imageUrl", plantList.get(position).getImageUrl());
+                intent.putExtra("uid", plantList.get(position).getUid());
+                intent.putExtra("adoptionDate", plantList.get(position).getAdoptionDate());
+                intent.putExtra("alarm", plantList.get(position).getAlarm());
+                intent.putExtra("alarmDate", plantList.get(position).getAlarmDate());
+                intent.putExtra("alarmTime", plantList.get(position).getAlarmTime());
+                intent.putExtra("period", plantList.get(position).getPeriod());
                 context.startActivity(intent);
             }
         });

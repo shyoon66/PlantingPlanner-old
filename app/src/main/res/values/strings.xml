@@ -126,16 +126,35 @@
     </string-array>
 
     <string-array name="waterPeriod">
-        <item>1일</item>
-        <item>2일</item>
+        <item>매일</item>
+        <item>이틀</item>
         <item>3일</item>
         <item>4일</item>
         <item>5일</item>
         <item>6일</item>
-        <item>1주일</item>
-        <item>2주일</item>
-        <item>3주일</item>
-        <item>1달</item>
-        <item>2달</item>
+        <item>7일</item>
+        <item>8일</item>
+        <item>9일</item>
+        <item>10일</item>
+        <item>11일</item>
+        <item>12일</item>
+        <item>13일</item>
+        <item>14일</item>
+        <item>15일</item>
+        <item>16일</item>
+        <item>17일</item>
+        <item>18일</item>
+        <item>19일</item>
+        <item>20일</item>
+        <item>21일</item>
+        <item>22일</item>
+        <item>23일</item>
+        <item>24일</item>
+        <item>25일</item>
+        <item>26일</item>
+        <item>27일</item>
+        <item>28일</item>
+        <item>29일</item>
+        <item>30일</item>
     </string-array>
 </resources>
