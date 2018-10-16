@@ -158,6 +158,8 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 }
 
                 calendarEvent();
+                materialCalendarView.setDateSelected(CalendarDay.today(), true);
+                onDateSelected(materialCalendarView, CalendarDay.today(), true);
             }
 
             @Override
