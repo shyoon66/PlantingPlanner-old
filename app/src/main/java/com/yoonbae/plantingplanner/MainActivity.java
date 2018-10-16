@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
             PendingIntent sender = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
 
             //알람 예약
-            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, timeInMillis, intervalMillis, sender);
+            am.setRepeating(AlarmManager.RTC_WAKEUP, timeInMillis, intervalMillis, sender);
         }
     }
 
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         materialCalendarView.setTitleFormatter(new MonthArrayTitleFormatter(getResources().getTextArray(R.array.months_array)));
         materialCalendarView.state().edit()
                 .setFirstDayOfWeek(DayOfWeek.SUNDAY)
-                .setMinimumDate(CalendarDay.from(2000, 1, 1))
+                .setMinimumDate(CalendarDay.from(1900, 1, 1))
                 .setMaximumDate(CalendarDay.from(2100, 12, 31))
                 .setCalendarDisplayMode(CalendarMode.MONTHS)
                 .commit();
@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 int hourOfDay = Integer.parseInt(alarmTime.substring(0, alarmTime.indexOf("시")));
                 int minute = Integer.parseInt(alarmTime.substring(alarmTime.indexOf("시") + 2, alarmTime.length() - 1));
 
-                calendar.set(year, month, dayOfYear, hourOfDay, minute);
+                calendar.set(year, month - 1, dayOfYear, hourOfDay, minute);
                 LocalDate date = LocalDate.of(year, month, dayOfYear);
                 java.time.LocalDate localDate = java.time.LocalDate.of(year, month, dayOfYear);
 
@@ -198,10 +198,8 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 int max = (2100 - java.time.LocalDate.now().getYear()) * 365 / pod;
                 String name = plant.getName();
 
-                long intervalMillis = 24 * 60 * 60 * 1000;
-                new AlarmHATT((getApplicationContext())).Alarm(calendar.getTimeInMillis(), intervalMillis, name);
-
                 String alarm = plant.getAlarmTime() + " 알람";
+                boolean alarmFlag = true;
                 for(int j = 0; j < max; j++) {
                     CalendarDay day = CalendarDay.from(date);
                     eventDayList.add(day);
@@ -211,15 +209,29 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                     eventPlantMap.put("eventDay", day);
                     eventPlantList.add(eventPlantMap);
 
-                    if(pod != 30 && pod != 60) {
+/*                    System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% calendar = " + calendar.getTime());
+                    System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% now = " + Calendar.getInstance().getTime());*/
+
+                    if(alarmFlag && calendar.getTimeInMillis() > Calendar.getInstance().getTimeInMillis()) {
+/*                        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ now = " + Calendar.getInstance().getTime());
+                        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ localDate = " + localDate);
+                        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ calendar = " + calendar.getTime());*/
+                        long intervalMillis = pod * 24 * 60 * 60 * 1000;
+                        new AlarmHATT((getApplicationContext())).Alarm(calendar.getTimeInMillis(), intervalMillis, name);
+                        alarmFlag = false;
+                    }
+
+                    localDate = localDate.plusDays(pod);
+
+/*                    if(pod != 30 && pod != 60) {
                         localDate = localDate.plusDays(pod);
                     } else if(pod == 30) {
                         localDate = localDate.plusMonths(1);
                     } else if(pod == 60) {
                         localDate = localDate.plusMonths(2);
-                    }
+                    }*/
 
-                    calendar.set(localDate.getYear(), localDate.getMonth().getValue(), localDate.getDayOfMonth(), hourOfDay, minute);
+                    calendar.set(localDate.getYear(), localDate.getMonth().getValue() - 1, localDate.getDayOfMonth(), hourOfDay, minute);
                     date = LocalDate.of(localDate.getYear(), localDate.getMonth().getValue(), localDate.getDayOfMonth());
                 }
             }
@@ -231,28 +243,12 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
     private int getPeriod(String period) {
         int pod = 0;
 
-        if("1일".equals(period)) {
+        if("매일".equals(period)) {
             pod = 1;
-        } else if("2일".equals(period)) {
+        } else if("이틀".equals(period)) {
             pod = 2;
-        } else if("3일".equals(period)) {
-            pod = 3;
-        } else if("4일".equals(period)) {
-            pod = 4;
-        } else if("5일".equals(period)) {
-            pod = 5;
-        } else if("6일".equals(period)) {
-            pod = 6;
-        } else if("1주일".equals(period)) {
-            pod = 7;
-        } else if("2주일".equals(period)) {
-            pod = 14;
-        } else if("3주일".equals(period)) {
-            pod = 21;
-        } else if("1달".equals(period)) {
-            pod = 30;
-        } else if("2달".equals(period)) {
-            pod = 60;
+        } else {
+            pod = Integer.parseInt(period.substring(0, period.length() - 1));
         }
 
         return pod;
