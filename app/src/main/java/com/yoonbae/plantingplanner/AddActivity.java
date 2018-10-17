@@ -353,28 +353,19 @@ public class AddActivity extends AppCompatActivity {
         if(resultCode == RESULT_OK) {
             if(requestCode == CAMERA_CODE) {
                 path = mCurrentPhotoPath;
+                uploadCameraImageByFirebase(path, requestCode);
             } else if(requestCode == GALLERY_CODE) {
                 path = getPath(data.getData());
+                uploadGalleryImageByFirebase(path, data.getData(), requestCode);
             }
 
-            uploadImageByFirebase(path, data.getData(), requestCode);
+            //uploadCameraImageByFirebase(path, data.getData(), requestCode);
         }
     }
 
-    private String getPath(Uri uri) {
-        String[] proj = {MediaStore.Images.Media.DATA};
-        CursorLoader cursorLoader = new CursorLoader(this, uri, proj, null, null, null);
-        Cursor cursor = cursorLoader.loadInBackground();
-        int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-
-        return cursor.getString(index);
-    }
-
-    private void uploadImageByFirebase(String path, Uri uri, final int requestCode) {
+    private void uploadCameraImageByFirebase(String path, final int requestCode) {
         // Create a storage reference from our app
         final StorageReference storageRef = storage.getReferenceFromUrl("gs://planting-planner.appspot.com");
-        final Uri furi = uri;
         final int frequestCode = requestCode;
 
         Uri file = Uri.fromFile(new File(path));
@@ -391,18 +382,60 @@ public class AddActivity extends AppCompatActivity {
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                imageView(furi, frequestCode);
+                cameraImageView(frequestCode);
                 Toast.makeText(AddActivity.this, "사진 등록이 성공했습니다.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void imageView(Uri uri, int frequestCode) {
+    private void uploadGalleryImageByFirebase(String path, Uri uri, final int requestCode) {
+        // Create a storage reference from our app
+        final StorageReference storageRef = storage.getReferenceFromUrl("gs://planting-planner.appspot.com");
+        final int frequestCode = requestCode;
+        final Uri furi = uri;
+
+        Uri file = Uri.fromFile(new File(path));
+        firebaseImagePath = "images/" + file.getLastPathSegment();
+        StorageReference riversRef = storageRef.child(firebaseImagePath);
+        UploadTask uploadTask = riversRef.putFile(file);
+
+        // Register observers to listen for when the download is done or if it fails
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Toast.makeText(AddActivity.this, "사진 등록이 실패했습니다.", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                galleryImageView(furi, frequestCode);
+                Toast.makeText(AddActivity.this, "사진 등록이 성공했습니다.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private String getPath(Uri uri) {
+        String[] proj = {MediaStore.Images.Media.DATA};
+        CursorLoader cursorLoader = new CursorLoader(this, uri, proj, null, null, null);
+        Cursor cursor = cursorLoader.loadInBackground();
+        int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+
+        return cursor.getString(index);
+    }
+
+    private void cameraImageView(int frequestCode) {
         ImageView imageview = findViewById(R.id.imageView);
 
         if(frequestCode == CAMERA_CODE) {
             imageview.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
-        } else if(frequestCode == GALLERY_CODE) {
+        }
+    }
+
+    private void galleryImageView(Uri uri, int frequestCode) {
+        ImageView imageview = findViewById(R.id.imageView);
+
+        if(frequestCode == GALLERY_CODE) {
             imageview.setImageURI(uri);
         }
     }
@@ -649,8 +682,4 @@ public class AddActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        //super.onBackPressed();
-    }
 }

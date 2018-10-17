@@ -167,8 +167,4 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
         });
     }
 
-    @Override
-    public void onBackPressed() {
-        //super.onBackPressed();
-    }
 }

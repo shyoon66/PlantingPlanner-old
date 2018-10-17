@@ -107,11 +107,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        //super.onBackPressed();
-    }
-
     private void calendarView() {
         materialCalendarView = findViewById(R.id.calendarView);
         materialCalendarView.setTitleFormatter(new MonthArrayTitleFormatter(getResources().getTextArray(R.array.months_array)));

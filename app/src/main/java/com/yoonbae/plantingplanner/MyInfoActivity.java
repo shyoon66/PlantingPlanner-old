@@ -124,8 +124,4 @@ public class MyInfoActivity extends AppCompatActivity {
         Glide.with(imageView.getContext()).load(photoUri).into(imageView);
     }
 
-    @Override
-    public void onBackPressed() {
-        //super.onBackPressed();
-    }
 }
