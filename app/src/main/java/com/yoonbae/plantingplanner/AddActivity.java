@@ -106,8 +106,8 @@ public class AddActivity extends AppCompatActivity {
         mPeriodSpinner.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                ((TextView) mPeriodSpinner.getSelectedView()).setTextColor(Color.rgb(79, 79, 79));
-                ((TextView) mPeriodSpinner.getSelectedView()).setTextSize(12);
+                ((TextView) mPeriodSpinner.getSelectedView()).setTextColor(Color.rgb(121, 121, 121));
+                ((TextView) mPeriodSpinner.getSelectedView()).setTextSize(16);
                 ((TextView) mPeriodSpinner.getSelectedView()).setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
             }
         });
@@ -233,13 +233,14 @@ public class AddActivity extends AppCompatActivity {
         int hour = mCurrentTime.get(Calendar.HOUR_OF_DAY);
         int minute = mCurrentTime.get(Calendar.MINUTE);
 
-        TimePickerDialog timePickerDialog = new TimePickerDialog(AddActivity.this, new TimePickerDialog.OnTimeSetListener() {
+        TimePickerDialog timePickerDialog = new TimePickerDialog(AddActivity.this, android.R.style.Theme_Holo_Light_Dialog_NoActionBar, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int i, int i1) {
                 mAlarmTime.setText(i + "시 " + i1 + "분");
             }
         }, hour, minute, true);
 
+        timePickerDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         timePickerDialog.show();
     }
 

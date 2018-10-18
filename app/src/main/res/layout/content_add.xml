@@ -43,7 +43,7 @@
             android:layout_marginTop="20dp"
             android:layout_marginEnd="100dp"
             android:text="이름"
-            android:textSize="12sp"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/name"
             app:layout_constraintStart_toStartOf="parent"
@@ -60,7 +60,8 @@
             android:hint="이름을 입력하세요."
             android:inputType="text"
             android:maxLength="100"
-            android:textSize="12sp"
+            android:textSize="16sp"
+            android:textColor="#797979"
             app:layout_constraintBottom_toTopOf="@+id/kind"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/nameTextView"
@@ -73,7 +74,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:text="종류"
-            android:textSize="12sp"
+            android:textSize="16sp"
             app:layout_constraintBottom_toTopOf="@+id/introView"
             app:layout_constraintEnd_toStartOf="@+id/kind"
             app:layout_constraintHorizontal_bias="0.0"
@@ -87,9 +88,10 @@
             android:layout_marginStart="16dp"
             android:layout_marginBottom="11dp"
             android:ems="10"
+            android:textColor="#797979"
             android:hint="예) 산세베리아, 선인장 "
             android:inputType="textPersonName"
-            android:textSize="12sp"
+            android:textSize="16sp"
             app:layout_constraintBottom_toTopOf="@+id/intro"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -103,7 +105,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:text="소개"
-            android:textSize="12sp"
+            android:textSize="16sp"
             app:layout_constraintBottom_toTopOf="@+id/intro"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -116,13 +118,14 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="0dp"
             android:ems="10"
+            android:textColor="#797979"
             android:gravity="top"
             android:hint="식물에 대한 소개를 적어주세요."
             android:inputType="textMultiLine"
             android:lines="3"
             android:maxLines="3"
             android:minLines="3"
-            android:textSize="12sp" />
+            android:textSize="16sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -136,7 +139,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:text="우리 집에 온 날짜"
-                android:textSize="12sp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/adoptionDate"
@@ -145,7 +148,8 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:ems="10"
-                android:textSize="12sp"
+                android:textColor="#797979"
+                android:textSize="16sp"
                 android:inputType="date" />
 
         </LinearLayout>
@@ -158,7 +162,7 @@
             android:layout_marginTop="16dp"
             android:text="물주기 알람 설정"
             android:textColor="#797979"
-            android:textSize="12sp" />
+            android:textSize="16sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -172,7 +176,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:text="알람 시작일"
-                android:textSize="12sp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/alarmDate"
@@ -181,8 +185,9 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:ems="10"
+                android:textColor="#797979"
                 android:inputType="date"
-                android:textSize="12sp" />
+                android:textSize="16sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -197,16 +202,17 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:text="알람 주기"
-                android:textSize="12sp"/>
+                android:textSize="16sp"/>
 
             <Spinner
                 android:id="@+id/periodSpinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="13dp"
+                android:layout_marginTop="16dp"
                 android:entries="@array/waterPeriod"
                 android:overlapAnchor="false"
+                android:textColor="#797979"
                 android:spinnerMode="dropdown"/>
 
         </LinearLayout>
@@ -223,7 +229,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:text="알람 시각"
-                android:textSize="12sp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/alarmTime"
@@ -231,12 +237,12 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="time"
+                android:textColor="#797979"
                 android:layout_marginTop="16dp"
                 android:layout_marginStart="16dp"
-                android:textSize="12sp" />
+                android:textSize="16sp" />
 
         </LinearLayout>
-
 
     </LinearLayout>
 

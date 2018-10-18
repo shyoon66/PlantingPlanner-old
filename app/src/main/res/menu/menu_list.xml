@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.yoonbae.plantingplanner.AddActivity">
+
+    <!-- Settings, should always be in the overflow -->
+    <item android:id="@+id/action_insert"
+        android:title="저장"
+        android:icon="@drawable/baseline_add_black_24"
+        android:layout_gravity="right"
+        android:iconTint="@android:color/black"
+        app:showAsAction="ifRoom"/>
+
+</menu>

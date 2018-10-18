@@ -1,46 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ListActivity">
 
-    <ScrollView
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:background="@android:color/white"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="?attr/actionBarSize"
+        app:itemBackground="@android:color/white">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/main_recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        </androidx.recyclerview.widget.RecyclerView>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="식물목록"
+            android:layout_gravity="center"
+            android:id="@+id/toolbar_title"
+            android:textSize="20sp"
+            android:textColor="@android:color/black" />
+    </androidx.appcompat.widget.Toolbar>
 
-    </ScrollView>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="25dp"
-        android:layout_marginBottom="84dp"
-        android:clickable="true"
-        app:backgroundTint="@color/browser_actions_bg_grey"
-        app:srcCompat="@drawable/baseline_add_black_24" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/main_recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="56dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    </androidx.recyclerview.widget.RecyclerView>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/bottomNavView"
-        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
         app:itemBackground="@drawable/item_bg"
         app:itemTextColor="@drawable/bnv_tab_item_foreground"
         app:itemIconTint="@drawable/bnv_tab_item_foreground"
         app:menu="@menu/bottom_navigation_main"
-        app:layout_behavior="tech.thdev.app.view.BottomNavigationBehavior">
+        app:layout_behavior=".BottomNavigationViewBehavior">
     </com.google.android.material.bottomnavigation.BottomNavigationView>
 
-</RelativeLayout>
+<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="80dp"
+        android:clickable="true"
+        app:backgroundTint="@color/browser_actions_bg_grey"
+        app:layout_anchor="@+id/main_recyclerView"
+        app:layout_anchorGravity="right|bottom"
+        app:srcCompat="@drawable/baseline_add_black_24" />-->
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

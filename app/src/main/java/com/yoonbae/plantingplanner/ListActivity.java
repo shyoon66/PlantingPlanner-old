@@ -1,13 +1,18 @@
 package com.yoonbae.plantingplanner;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -42,6 +47,19 @@ public class ListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        // Get the ActionBar here to configure the way it behaves.
+        ActionBar actionBar = getSupportActionBar();
+        //actionBar.setIcon(R.drawable.baseline_add_black_24);
+        actionBar.setDisplayUseLogoEnabled(true);
+        actionBar.setDisplayShowCustomEnabled(true);    // 커스터마이징 하기 위해 필요
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(true);      // 뒤로가기 버튼, 디폴트로 true만 해도 백버튼이 생김
+        actionBar.setHomeAsUpIndicator(R.drawable.baseline_keyboard_arrow_left_black_24);
+
+        final RecyclerView recyclerView = findViewById(R.id.main_recyclerView);
         BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavView);
         bottomNavigationView.setSelectedItemId(R.id.action_list);
         //BottomNavigationViewHelper.removeShiftMode(bottomNavigationView);
@@ -63,8 +81,6 @@ public class ListActivity extends AppCompatActivity {
                 return false;
             }
         });
-
-        final RecyclerView recyclerView = findViewById(R.id.main_recyclerView);
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
@@ -112,7 +128,7 @@ public class ListActivity extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton floatingActionButton = findViewById(R.id.floatingActionButton);
+/*        FloatingActionButton floatingActionButton = findViewById(R.id.floatingActionButton);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -120,7 +136,33 @@ public class ListActivity extends AppCompatActivity {
                 intent.putExtra("FLAG", "I");
                 startActivity(intent);
             }
-        });
+        });*/
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home: {
+                Intent intent = new Intent(ListActivity.this, MainActivity.class);
+                startActivity(intent);
+                return true;
+            }
+            case R.id.action_insert: {
+                Intent intent = new Intent(ListActivity.this, AddActivity.class);
+                intent.putExtra("FLAG", "I");
+                startActivity(intent);
+                return true;
+            }
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
 }

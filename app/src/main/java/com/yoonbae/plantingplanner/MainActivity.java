@@ -112,8 +112,8 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         materialCalendarView.setTitleFormatter(new MonthArrayTitleFormatter(getResources().getTextArray(R.array.months_array)));
         materialCalendarView.state().edit()
                 .setFirstDayOfWeek(DayOfWeek.SUNDAY)
-                .setMinimumDate(CalendarDay.from(1900, 1, 1))
-                .setMaximumDate(CalendarDay.from(2100, 12, 31))
+                .setMinimumDate(CalendarDay.from(2018, 1, 1))
+                .setMaximumDate(CalendarDay.from(2030, 12, 31))
                 .setCalendarDisplayMode(CalendarMode.MONTHS)
                 .commit();
 
@@ -192,10 +192,10 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
                 String period = plant.getPeriod();
                 int pod = getPeriod(period);
-                int max = (2100 - java.time.LocalDate.now().getYear()) * 365 / pod;
+                int max = (2030 - java.time.LocalDate.now().getYear()) * 365 / pod;
                 String name = plant.getName();
 
-                String alarm = plant.getAlarmTime() + " 알람";
+                String alarm = plant.getAlarmTime() + " 물주기 알람";
                 boolean alarmFlag = true;
                 for(int j = 0; j < max; j++) {
                     CalendarDay day = CalendarDay.from(date);
