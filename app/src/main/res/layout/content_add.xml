@@ -225,7 +225,7 @@
             <TextView
                 android:id="@+id/textAlarmTime"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:text="알람 시각"
@@ -234,7 +234,7 @@
             <TextView
                 android:id="@+id/alarmTime"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:ems="10"
                 android:inputType="time"
                 android:textColor="#797979"

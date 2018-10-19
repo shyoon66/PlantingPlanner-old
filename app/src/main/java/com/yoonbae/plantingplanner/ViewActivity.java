@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -22,6 +23,9 @@ public class ViewActivity extends AppCompatActivity {
     private TextView mAdoptionDate;
     private TextView mAlarmDate;
     private ImageView imageView;
+    private Switch mAlarm;
+    private TextView mAlarmPeriod;
+    private TextView mAlarmTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +50,10 @@ public class ViewActivity extends AppCompatActivity {
         String intro = intent.getStringExtra("intro");
         String imageUrl = intent.getStringExtra("imageUrl");
         String adoptionDate = intent.getStringExtra("adoptionDate");
+        String alarm = intent.getStringExtra("alarm");
         String alarmDate = intent.getStringExtra("alarmDate");
-
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@ adoptionDate = " + adoptionDate);
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@ alarmDate = " + alarmDate);
+        String period = intent.getStringExtra("period");
+        String alarmTime = intent.getStringExtra("alarmTime");
 
         mName = findViewById(R.id.name);
         mName.setText(name);
@@ -61,8 +65,19 @@ public class ViewActivity extends AppCompatActivity {
         mAdoptionDate.setText(adoptionDate);
         mAlarmDate = findViewById(R.id.alarmDate);
         mAlarmDate.setText(alarmDate);
+        mAlarmPeriod = findViewById(R.id.alarmPeriod);
+        mAlarmPeriod.setText(period);
+        mAlarmTime = findViewById(R.id.alarmTime);
+        mAlarmTime.setText(alarmTime);
         imageView = findViewById(R.id.imageView);
         Glide.with(imageView).load(imageUrl).into(imageView);
+
+        mAlarm = findViewById(R.id.alarm);
+        mAlarm.setClickable(false);
+        if("Y".equals(alarm)) {
+            mAlarm.setChecked(true);
+
+        }
     }
 
     @Override

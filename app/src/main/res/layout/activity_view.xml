@@ -38,6 +38,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="15dp"
+        android:textSize="16sp"
         android:text="이름"
         android:layout_below="@+id/imageView"/>
 
@@ -46,7 +47,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:layout_toRightOf="@+id/nameText"
+        android:textSize="16sp"
+        android:layout_toEndOf="@+id/nameText"
         android:layout_below="@+id/imageView"/>
 
     <TextView
@@ -56,6 +58,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="15dp"
+        android:textSize="16sp"
         android:text="종류"
         android:layout_below="@+id/nameText"/>
 
@@ -64,7 +67,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
-        android:layout_toRightOf="@+id/kindText"
+        android:layout_toEndOf="@+id/kindText"
+        android:textSize="16sp"
         android:layout_below="@+id/name" />
 
     <TextView
@@ -73,6 +77,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="15dp"
+        android:textSize="16sp"
         android:text="소개"
         android:layout_below="@+id/kindText" />
 
@@ -82,6 +87,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="15dp"
+        android:textSize="16sp"
         android:layout_below="@+id/textIntro" />
 
     <TextView
@@ -91,6 +97,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginBottom="15dp"
         android:text="우리집에 온 날짜"
+        android:textSize="16sp"
         android:layout_below="@+id/intro" />
 
     <TextView
@@ -98,8 +105,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:textSize="16sp"
         android:layout_below="@+id/intro"
-        android:layout_toRightOf="@+id/textAdoptionDate"/>
+        android:layout_toEndOf="@+id/textAdoptionDate"/>
+
+    <Switch
+        android:id="@+id/alarm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="15dp"
+        android:text="물주기 알람 설정"
+        android:textColor="#797979"
+        android:textSize="16sp"
+        android:layout_below="@+id/textAdoptionDate"/>
 
     <TextView
         android:id="@+id/textAlarmDate"
@@ -107,15 +126,55 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="15dp"
+        android:textSize="16sp"
         android:text="알람시작일"
-        android:layout_below="@+id/textAdoptionDate" />
+        android:layout_below="@+id/alarm" />
 
     <TextView
         android:id="@+id/alarmDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_below="@+id/textAdoptionDate"
-        android:layout_toRightOf="@+id/textAlarmDate"/>
+        android:textSize="16sp"
+        android:layout_below="@+id/alarm"
+        android:layout_toEndOf="@+id/textAlarmDate"/>
+
+    <TextView
+        android:id="@+id/textAlarmPeriod"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="15dp"
+        android:textSize="16sp"
+        android:text="알람주기"
+        android:layout_below="@+id/textAlarmDate" />
+
+    <TextView
+        android:id="@+id/alarmPeriod"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:textSize="16sp"
+        android:layout_below="@+id/textAlarmDate"
+        android:layout_toEndOf="@+id/textAlarmPeriod"/>
+
+    <TextView
+        android:id="@+id/textAlarmTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="15dp"
+        android:textSize="16sp"
+        android:text="알람시간"
+        android:layout_below="@+id/textAlarmPeriod" />
+
+    <TextView
+        android:id="@+id/alarmTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:textSize="16sp"
+        android:layout_below="@+id/textAlarmPeriod"
+        android:layout_toEndOf="@+id/textAlarmTime"/>
 
 </RelativeLayout>
