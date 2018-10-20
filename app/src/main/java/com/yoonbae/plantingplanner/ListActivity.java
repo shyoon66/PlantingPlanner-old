@@ -107,6 +107,7 @@ public class ListActivity extends AppCompatActivity {
                         plant.setAlarmDate(value.getAlarmDate());
                         plant.setPeriod(value.getPeriod());
                         plant.setAlarmTime(value.getAlarmTime());
+                        plant.setAlarmId(value.getAlarmId());
                         plant.setUid(value.getUid());
                         plant.setUserId(value.getUserId());
 

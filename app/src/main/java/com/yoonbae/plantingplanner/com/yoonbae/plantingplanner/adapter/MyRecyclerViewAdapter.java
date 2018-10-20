@@ -1,5 +1,7 @@
 package com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.adapter;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,6 +19,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.yoonbae.plantingplanner.AddActivity;
+import com.yoonbae.plantingplanner.BroadcastD;
 import com.yoonbae.plantingplanner.R;
 import com.yoonbae.plantingplanner.ViewActivity;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
@@ -49,25 +52,26 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
-        ((RowCell)holder).name.setText(plantList.get(position).getName());
-        ((RowCell)holder).intro.setText(plantList.get(position).getIntro());
-        Glide.with(((RowCell) holder).imageView.getContext()).load(plantList.get(position).getImageUrl()).into(((RowCell) holder).imageView);
+        final Plant plant = plantList.get(position);
+        ((RowCell)holder).name.setText(plant.getName());
+        ((RowCell)holder).kind.setText(plant.getKind());
+        Glide.with(((RowCell) holder).imageView.getContext()).load(plant.getImageUrl()).into(((RowCell) holder).imageView);
 
         ((RowCell)holder).imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, ViewActivity.class);
-                intent.putExtra("name", plantList.get(position).getName());
-                intent.putExtra("kind", plantList.get(position).getKind());
-                intent.putExtra("intro", plantList.get(position).getIntro());
-                intent.putExtra("imageUrl", plantList.get(position).getImageUrl());
-                intent.putExtra("uid", plantList.get(position).getUid());
-                intent.putExtra("adoptionDate", plantList.get(position).getAdoptionDate());
-                intent.putExtra("alarm", plantList.get(position).getAlarm());
-                intent.putExtra("alarmDate", plantList.get(position).getAlarmDate());
-                intent.putExtra("alarmTime", plantList.get(position).getAlarmTime());
-                intent.putExtra("period", plantList.get(position).getPeriod());
-                context.startActivity(intent);
+            Intent intent = new Intent(context, ViewActivity.class);
+            intent.putExtra("name", plant.getName());
+            intent.putExtra("kind", plant.getKind());
+            intent.putExtra("intro", plant.getIntro());
+            intent.putExtra("imageUrl", plant.getImageUrl());
+            intent.putExtra("uid", plant.getUid());
+            intent.putExtra("adoptionDate", plant.getAdoptionDate());
+            intent.putExtra("alarm", plant.getAlarm());
+            intent.putExtra("alarmDate", plant.getAlarmDate());
+            intent.putExtra("alarmTime", plant.getAlarmTime());
+            intent.putExtra("period", plant.getPeriod());
+            context.startActivity(intent);
             }
         });
 
@@ -82,7 +86,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     if(index == 0) {
                         Intent intent = new Intent(context, AddActivity.class);
                         intent.putExtra("FLAG", "U");
-                        Plant plant = plantList.get(position);
                         intent.putExtra("name", plant.getName());
                         intent.putExtra("kind", plant.getKind());
                         intent.putExtra("intro", plant.getIntro());
@@ -93,6 +96,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         intent.putExtra("alarmDate", plant.getAlarmDate());
                         intent.putExtra("alarmTime", plant.getAlarmTime());
                         intent.putExtra("period", plant.getPeriod());
+                        intent.putExtra("alarmId", plant.getAlarmId());
                         intent.putExtra("key", keyList.get(position));
                         context.startActivity(intent);
                     } else if(index == 1) {
@@ -117,14 +121,14 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private class RowCell extends RecyclerView.ViewHolder {
         public ImageView imageView;
         public TextView name;
-        public TextView intro;
+        public TextView kind;
         ImageButton imageButton;
 
         public RowCell(View view) {
             super(view);
             imageView = view.findViewById(R.id.cardview_imageview);
             name = view.findViewById(R.id.cardview_name);
-            intro = view.findViewById(R.id.cardview_intro);
+            kind = view.findViewById(R.id.cardview_kind);
             imageButton = view.findViewById(R.id.cardview_btn);
         }
     }
@@ -142,6 +146,8 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     @Override
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(context, "식물이 삭제됐습니다.", Toast.LENGTH_SHORT).show();
+                        int alarmId = plantList.get(position).getAlarmId();
+                        cancleAlarm(alarmId);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -156,6 +162,17 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 Toast.makeText(context, "식물 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void cancleAlarm(int alarmId) {
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, BroadcastD.class);
+        PendingIntent sender = PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        if(sender != null) {
+            am.cancel(sender);
+            sender.cancel();
+        }
     }
 
 }

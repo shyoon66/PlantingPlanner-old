@@ -35,8 +35,9 @@ public class BroadcastD extends BroadcastReceiver {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "1");
         String name = intent.getStringExtra("name");
+        int alarmId = intent.getExtras().getInt("alarmId");
         builder.setContentTitle("Planting Planner").setContentText(name + " 물주기 알람입니다.").setDefaults(Notification.DEFAULT_ALL).setAutoCancel(true).setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setSmallIcon(android.R.drawable.btn_star).setContentIntent(pendingIntent);
-        notificationmanager.notify(0, builder.build());
+        notificationmanager.notify(alarmId, builder.build());
     }
 }

@@ -1,7 +1,9 @@
 package com.yoonbae.plantingplanner;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -53,9 +55,12 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
 
+import org.threeten.bp.LocalDateTime;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -454,40 +459,6 @@ public class AddActivity extends AppCompatActivity {
         }
     }
 
-    private void validate(String name, String kind, String intro) {
-        AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
-        ab.setPositiveButton("확인", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        if(imageView.getDrawable() == null) {
-            ab.setMessage("사진을 등록해 주세요.");
-            ab.show();
-            return;
-        }
-
-        if("".equals(name)) {
-            ab.setMessage("이름을 입력해주세요.");
-            ab.show();
-            return;
-        }
-
-        if("".equals(kind)) {
-            ab.setMessage("종류를 입력해주세요.");
-            ab.show();
-            return;
-        }
-
-        if("".equals(intro)) {
-            ab.setMessage("소개를 입력해주세요.");
-            ab.show();
-            return;
-        }
-    }
-
     private void insert() {
         final String name = mName.getText().toString();
         final String kind = mKind.getText().toString();
@@ -527,8 +498,8 @@ public class AddActivity extends AppCompatActivity {
             return;
         }
 
-        //validate(name, kind, intro);
-
+        LocalDateTime localDateTime = LocalDateTime.now();
+        final int alarmId = localDateTime.getDayOfYear() + localDateTime.getMonth().getValue() + localDateTime.getDayOfYear() + localDateTime.getHour() + localDateTime.getMinute() + localDateTime.getSecond() + localDateTime.getNano();
         StorageReference storageRef = storage.getReferenceFromUrl("gs://planting-planner.appspot.com");
         Task<Uri> uriTask = storageRef.child(firebaseImagePath).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
@@ -543,13 +514,29 @@ public class AddActivity extends AppCompatActivity {
                     alarm = "Y";
                 }
 
-                String alarmDate = mAlarmDate.getText().toString();
-                String period = mPeriodSpinner.getSelectedItem().toString();
-                String alarmTime = mAlarmTime.getText().toString();
-                Plant plant = new Plant(name, kind, imageName, imageUrl, intro, adoptionDate, alarm, alarmDate, period, alarmTime, uid, userId);
-                database.getReference().child("plant").push().setValue(plant);
-                String msg = "등록이 완료됐습니다.";
-                showDialogAfterWork(msg);
+                final String alarmDate = mAlarmDate.getText().toString();
+                final String period = mPeriodSpinner.getSelectedItem().toString();
+                final String alarmTime = mAlarmTime.getText().toString();
+                Plant plant = new Plant(name, kind, imageName, imageUrl, intro, adoptionDate, alarm, alarmDate, period, alarmTime, alarmId, uid, userId);
+                database.getReference().child("plant").push().setValue(plant).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        if(mAlarm.isChecked()) {
+                            int pod = getPeriod(period);
+                            long intervalMillis = pod * 24 * 60 * 60 * 1000;
+                            long alarmTimeInMillis = getAlarmTimeInMillis(alarmDate, alarmTime, pod);
+                            new AddActivity.AlarmHATT((getApplicationContext())).Alarm(alarmTimeInMillis, intervalMillis, name, alarmId);
+                        }
+
+                        String msg = "등록이 완료됐습니다.";
+                        showDialogAfterWork(msg);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(AddActivity.this, "식물 등록이 실패했습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -612,6 +599,8 @@ public class AddActivity extends AppCompatActivity {
             return;
         }
 
+        Intent intent = getIntent();
+        final int alarmId = intent.getExtras().getInt("alarmId");
         if(firebaseImagePath != null && !"".equals(firebaseImagePath)) {
             StorageReference storageRef = storage.getReferenceFromUrl("gs://planting-planner.appspot.com");
             Task<Uri> uriTask = storageRef.child(firebaseImagePath).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -627,11 +616,11 @@ public class AddActivity extends AppCompatActivity {
                         alarm = "Y";
                     }
 
-                    String alarmDate = mAlarmDate.getText().toString();
-                    String period = mPeriodSpinner.getSelectedItem().toString();
-                    String alarmTime = mAlarmTime.getText().toString();
-                    //Plant plant = new Plant(name, kind, imageName, imageUrl, intro, adoptionDate, alarm, alarmDate, period, alarmTime, uid, userId);
+                    final String alarmDate = mAlarmDate.getText().toString();
+                    final String period = mPeriodSpinner.getSelectedItem().toString();
+                    final String alarmTime = mAlarmTime.getText().toString();
                     Intent intent = getIntent();
+
                     String key = intent.getStringExtra("key");
                     Map<String, Object> updateMap = new HashMap<String, Object>();
                     updateMap.put("name", name);
@@ -644,9 +633,28 @@ public class AddActivity extends AppCompatActivity {
                     updateMap.put("alarmDate", alarmDate);
                     updateMap.put("period", period);
                     updateMap.put("alarmTime", alarmTime);
-                    database.getReference().child("plant").child(key).updateChildren(updateMap);
-                    String msg = "수정이 완료됐습니다.";
-                    showDialogAfterWork(msg);
+                    database.getReference().child("plant").child(key).updateChildren(updateMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            if(mAlarm.isChecked()) {
+                                cancleAlarm(alarmId);
+                                int pod = getPeriod(period);
+                                long intervalMillis = pod * 24 * 60 * 60 * 1000;
+                                long alarmTimeInMillis = getAlarmTimeInMillis(alarmDate, alarmTime, pod);
+                                new AddActivity.AlarmHATT((getApplicationContext())).Alarm(alarmTimeInMillis, intervalMillis, name, alarmId);
+                            } else {
+                                cancleAlarm(alarmId);
+                            }
+
+                            String msg = "수정이 완료됐습니다.";
+                            showDialogAfterWork(msg);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(AddActivity.this, "식물 수정이 실패했습니다.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -662,11 +670,9 @@ public class AddActivity extends AppCompatActivity {
                 alarm = "Y";
             }
 
-            String alarmDate = mAlarmDate.getText().toString();
-            String period = mPeriodSpinner.getSelectedItem().toString();
-            String alarmTime = mAlarmTime.getText().toString();
-            //Plant plant = new Plant(name, kind, imageName, imageUrl, intro, adoptionDate, alarm, alarmDate, period, alarmTime, uid, userId);
-            Intent intent = getIntent();
+            final String alarmDate = mAlarmDate.getText().toString();
+            final String period = mPeriodSpinner.getSelectedItem().toString();
+            final String alarmTime = mAlarmTime.getText().toString();
             String key = intent.getStringExtra("key");
             Map<String, Object> updateMap = new HashMap<String, Object>();
             updateMap.put("name", name);
@@ -677,10 +683,98 @@ public class AddActivity extends AppCompatActivity {
             updateMap.put("alarmDate", alarmDate);
             updateMap.put("period", period);
             updateMap.put("alarmTime", alarmTime);
-            database.getReference().child("plant").child(key).updateChildren(updateMap);
-            String msg = "수정이 완료됐습니다.";
-            showDialogAfterWork(msg);
+            database.getReference().child("plant").child(key).updateChildren(updateMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    if(mAlarm.isChecked()) {
+                        cancleAlarm(alarmId);
+                        int pod = getPeriod(period);
+                        long intervalMillis = pod * 24 * 60 * 60 * 1000;
+                        long alarmTimeInMillis = getAlarmTimeInMillis(alarmDate, alarmTime, pod);
+                        new AddActivity.AlarmHATT((getApplicationContext())).Alarm(alarmTimeInMillis, intervalMillis, name, alarmId);
+                    } else {
+                        System.out.println("***********************************************************");
+                        cancleAlarm(alarmId);
+                    }
+
+                    String msg = "수정이 완료됐습니다.";
+                    showDialogAfterWork(msg);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(AddActivity.this, "식물 수정이 실패했습니다.", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
+    public class AlarmHATT {
+        private Context context;
+
+        public AlarmHATT(Context context) {
+            this.context = context;
+        }
+
+        public void Alarm(Long timeInMillis, Long intervalMillis, String name, int alarmId) {
+            AlarmManager am = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(context, BroadcastD.class);
+            intent.putExtra("name", name);
+            intent.putExtra("alarmId", alarmId);
+            PendingIntent sender = PendingIntent.getBroadcast(AddActivity.this, 0, intent, 0);
+
+            //알람 예약
+            am.setRepeating(AlarmManager.RTC_WAKEUP, timeInMillis, intervalMillis, sender);
+        }
+    }
+
+    private int getPeriod(String period) {
+        int pod = 0;
+
+        if("매일".equals(period)) {
+            pod = 1;
+        } else if("이틀".equals(period)) {
+            pod = 2;
+        } else {
+            pod = Integer.parseInt(period.substring(0, period.length() - 1));
+        }
+
+        return pod;
+    }
+
+    private long getAlarmTimeInMillis(String alarmDate, String alarmTime, int pod) {
+        String[] alarmDateArr = alarmDate.split("-");
+        int year = Integer.parseInt(alarmDateArr[0]);
+        int month = Integer.parseInt(alarmDateArr[1]);
+        int dayOfYear = Integer.parseInt(alarmDateArr[2]);
+
+        int hourOfDay = Integer.parseInt(alarmTime.substring(0, alarmTime.indexOf("시")));
+        int minute = Integer.parseInt(alarmTime.substring(alarmTime.indexOf("시") + 2, alarmTime.length() - 1));
+
+        Calendar alarmCalendar = Calendar.getInstance();
+        alarmCalendar.set(year, month - 1, dayOfYear, hourOfDay, minute);
+        LocalDate localDate = LocalDate.of(year, month, dayOfYear);
+
+        long alarmTimeInMillis = alarmCalendar.getTimeInMillis();
+        long nowTimeInMillis = Calendar.getInstance().getTimeInMillis();
+
+        while(alarmTimeInMillis < nowTimeInMillis) {
+            localDate.plusDays(pod);
+            alarmCalendar.set(localDate.getYear(), localDate.getMonth().getValue() - 1, localDate.getDayOfMonth(), hourOfDay, minute);
+            alarmTimeInMillis = alarmCalendar.getTimeInMillis();
+        }
+
+        return alarmTimeInMillis;
+    }
+
+    private void cancleAlarm(int alarmId) {
+        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(AddActivity.this, BroadcastD.class);
+        PendingIntent sender = PendingIntent.getBroadcast(AddActivity.this, alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        if(sender != null) {
+            am.cancel(sender);
+            sender.cancel();
+        }
+    }
 }

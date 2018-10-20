@@ -185,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         Calendar calendar = Calendar.getInstance();
         eventDayList = new ArrayList<>();
         eventPlantList = new ArrayList<Map<String, Object>>();
-        //calendar.add(Calendar.MONTH, -2);
 
         for(int i = 0; i < plantList.size(); i++) {
             Plant plant = plantList.get(i);
@@ -208,16 +207,12 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
                 String period = plant.getPeriod();
                 int pod = getPeriod(period);
-                int max = (2030 - java.time.LocalDate.now().getYear()) * 365 / pod;
+                int max = (2030 - java.time.LocalDate.now().getYear() + 1) * 365 / pod;
                 String name = plant.getName();
                 String alarm = plant.getAlarmTime() + " 물주기 알람";
-                boolean alarmFlag = true;
-
-                //System.out.println("################################# max = " + max);
 
                 for(int j = 0; j < max; j++) {
                     CalendarDay day = CalendarDay.from(date);
-                    //System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2 day = " + day);
                     eventDayList.add(day);
                     Map<String, Object> eventPlantMap = new HashMap<String, Object>();
                     eventPlantMap.put("name", name);
@@ -225,29 +220,8 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                     eventPlantMap.put("eventDay", day);
                     eventPlantList.add(eventPlantMap);
 
-/*                    System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% calendar = " + calendar.getTime());
-                    System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% now = " + Calendar.getInstance().getTime());*/
-
-                    if(alarmFlag && calendar.getTimeInMillis() >= Calendar.getInstance().getTimeInMillis()) {
-/*                        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ now = " + Calendar.getInstance().getTime());
-                        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ localDate = " + localDate);
-                        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ calendar = " + calendar.getTime());*/
-                        long intervalMillis = pod * 24 * 60 * 60 * 1000;
-                        new AlarmHATT((getApplicationContext())).Alarm(calendar.getTimeInMillis(), intervalMillis, name);
-                        alarmFlag = false;
-                    }
-
                     localDate = localDate.plusDays(pod);
-                    calendar.set(localDate.getYear(), localDate.getMonth().getValue() - 1, localDate.getDayOfMonth(), hourOfDay, minute);
                     date = LocalDate.of(localDate.getYear(), localDate.getMonth().getValue(), localDate.getDayOfMonth());
-
-/*                    if(pod != 30 && pod != 60) {
-                        localDate = localDate.plusDays(pod);
-                    } else if(pod == 30) {
-                        localDate = localDate.plusMonths(1);
-                    } else if(pod == 60) {
-                        localDate = localDate.plusMonths(2);
-                    }*/
                 }
             }
             //System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% eventDayList size = " + eventDayList.size());
@@ -276,15 +250,23 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
     @AddTrace(name = "onDateSelected")
     public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
         ListView listview = findViewById(R.id.listview);
+        ListViewAdapter adapter = new ListViewAdapter();
+        boolean flag = false;
 
         for(int i = 0; i < eventPlantList.size(); i++) {
             Map<String, Object> eventPlantMap = eventPlantList.get(i);
 
-            if(eventPlantMap.get("eventDay").equals(date)) {
-                ListViewAdapter adapter = new ListViewAdapter();
-                listview.setAdapter(adapter);
+            if(date.equals(eventPlantMap.get("eventDay"))) {
+                flag = true;
                 adapter.addItem(eventPlantMap.get("name").toString(), eventPlantMap.get("alarm").toString());
+                //break;
             }
+        }
+
+        if(flag) {
+            listview.setAdapter(adapter);
+        } else {
+            listview.setAdapter(null);
         }
 
         //If you change a decorate, you need to invalidate decorators

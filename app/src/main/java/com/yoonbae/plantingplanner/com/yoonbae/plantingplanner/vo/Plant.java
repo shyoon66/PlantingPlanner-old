@@ -11,6 +11,7 @@ public class Plant {
     private String alarmDate;
     private String period;
     private String alarmTime;
+    private int alarmId;
     private String uid;
     private String userId;
 
@@ -18,7 +19,7 @@ public class Plant {
 
     }
 
-    public Plant(String name, String kind, String imageName, String imageUrl, String intro, String adoptionDate, String alarm, String alarmDate, String period, String alarmTime, String uid, String userId) {
+    public Plant(String name, String kind, String imageName, String imageUrl, String intro, String adoptionDate, String alarm, String alarmDate, String period, String alarmTime, int alarmId, String uid, String userId) {
         this.name = name;
         this.kind = kind;
         this.imageName = imageName;
@@ -29,6 +30,7 @@ public class Plant {
         this.alarmDate = alarmDate;
         this.period = period;
         this.alarmTime = alarmTime;
+        this.alarmId = alarmId;
         this.uid = uid;
         this.userId = userId;
     }
@@ -123,5 +125,13 @@ public class Plant {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public int getAlarmId() {
+        return this.alarmId;
+    }
+
+    public void setAlarmId(int alarmId) {
+        this.alarmId = alarmId;
     }
 }
