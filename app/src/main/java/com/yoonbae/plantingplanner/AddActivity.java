@@ -15,17 +15,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.loader.content.CursorLoader;
-
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.Menu;
@@ -67,6 +56,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.loader.content.CursorLoader;
 
 public class AddActivity extends AppCompatActivity {
 
@@ -693,7 +692,6 @@ public class AddActivity extends AppCompatActivity {
                         long alarmTimeInMillis = getAlarmTimeInMillis(alarmDate, alarmTime, pod);
                         new AddActivity.AlarmHATT((getApplicationContext())).Alarm(alarmTimeInMillis, intervalMillis, name, alarmId);
                     } else {
-                        System.out.println("***********************************************************");
                         cancleAlarm(alarmId);
                     }
 

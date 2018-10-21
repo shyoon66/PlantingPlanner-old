@@ -25,7 +25,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
@@ -46,7 +45,7 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
-        mSigninBtn = (SignInButton) findViewById(R.id.signInButton);
+        mSigninBtn = findViewById(R.id.signInButton);
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
@@ -96,12 +95,10 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
     private void chkLogin(FirebaseAuth firebaseAuth) {
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
-        //System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2 firebaseUser = " + firebaseUser);
-        //System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2 firebaseUser.getUid() = " + firebaseUser.getUid());
-
         if(firebaseUser != null) {
             Intent intent = new Intent(AuthActivity.this, MainActivity.class);
             startActivity(intent);
+            finish();
         }
     }
 

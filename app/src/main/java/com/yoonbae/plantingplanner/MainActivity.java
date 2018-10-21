@@ -6,13 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -27,7 +22,6 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.CalendarMode;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
-import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 import com.prolificinteractive.materialcalendarview.format.MonthArrayTitleFormatter;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.adapter.ListViewAdapter;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator.EventDecorator;
@@ -37,7 +31,6 @@ import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
 
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -146,7 +139,10 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String fUid = firebaseUser.getUid();
+                String fUid = "";
+                if(firebaseUser != null) {
+                    fUid = firebaseUser.getUid();
+                }
 
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Plant value = snapshot.getValue(Plant.class);
