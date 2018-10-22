@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -41,7 +43,7 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity implements OnDateSelectedListener {
+public class MainActivity extends AppCompatActivity implements OnDateSelectedListener, AdapterView.OnItemClickListener {
 
     private MaterialCalendarView materialCalendarView;
     private FirebaseDatabase firebaseDatabase;
@@ -261,6 +263,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
         if(flag) {
             listview.setAdapter(adapter);
+            listview.setOnItemClickListener(this);
         } else {
             listview.setAdapter(null);
         }
@@ -270,6 +273,25 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         oneDayDecorator.setDate(date.getDate());
         widget.addDecorator(oneDayDecorator);
         widget.invalidateDecorators();*/
+    }
+
+    public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+        Plant plant = plantList.get(position);
+        Intent intent = new Intent(MainActivity.this, ViewActivity.class);
+        intent.putExtra("FLAG", "U");
+        intent.putExtra("name", plant.getName());
+        intent.putExtra("kind", plant.getKind());
+        intent.putExtra("intro", plant.getIntro());
+        intent.putExtra("imageUrl", plant.getImageUrl());
+        intent.putExtra("uid", plant.getUid());
+        intent.putExtra("adoptionDate", plant.getAdoptionDate());
+        intent.putExtra("alarm", plant.getAlarm());
+        intent.putExtra("alarmDate", plant.getAlarmDate());
+        intent.putExtra("alarmTime", plant.getAlarmTime());
+        intent.putExtra("period", plant.getPeriod());
+        intent.putExtra("alarmId", plant.getAlarmId());
+
+        startActivity(intent);
     }
 
 /*    @Override
