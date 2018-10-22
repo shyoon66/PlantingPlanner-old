@@ -184,7 +184,9 @@ public class AddActivity extends AppCompatActivity {
         });
 
         String alarm = intent.getExtras().getString("alarm");
-        if("U".equals(flag) && "Y".equals(alarm)) {
+        if("I".equals(flag)) {
+            mAlarm.setChecked(true);
+        } else if("U".equals(flag) && "Y".equals(alarm)) {
             mAlarm.setChecked(true);
         }
 
