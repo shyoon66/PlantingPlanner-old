@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
@@ -47,6 +48,7 @@ import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
 import org.threeten.bp.LocalDateTime;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -71,6 +73,8 @@ public class AddActivity extends AppCompatActivity {
 
     private static final int CAMERA_CODE = 10;
     private static final int GALLERY_CODE = 100;
+    private final int REQUEST_WIDTH = 512;
+    private final int REQUEST_HEIGHT = 512;
 
     private String mCurrentPhotoPath;
     private String flag;
@@ -135,7 +139,7 @@ public class AddActivity extends AppCompatActivity {
         actionBar.setHomeAsUpIndicator(R.drawable.baseline_keyboard_arrow_left_black_24);
         requestPermission();
 
-        Button button = (Button) findViewById(R.id.imgAddButton);
+        Button button = findViewById(R.id.imgAddButton);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -246,6 +250,7 @@ public class AddActivity extends AppCompatActivity {
             }
         }, hour, minute, true);
 
+        
         timePickerDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         timePickerDialog.show();
     }
@@ -262,6 +267,7 @@ public class AddActivity extends AppCompatActivity {
             }
         },year, month - 1, day); // 기본값 연월일
 
+        datePickerDialog.getDatePicker().setMinDate(Calendar.getInstance().getTimeInMillis());
         datePickerDialog.getDatePicker().setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         datePickerDialog.show();
     }
@@ -436,15 +442,76 @@ public class AddActivity extends AppCompatActivity {
 
         if(frequestCode == CAMERA_CODE) {
             imageview.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
+/*            Uri uri = Uri.parse(mCurrentPhotoPath);
+            Bitmap bitmap = resize(AddActivity.this, uri);
+            imageview.setImageBitmap(bitmap);
+*//*            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 2;
+            imageview.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath, options));*/
         }
     }
 
     private void galleryImageView(Uri uri, int frequestCode) {
         ImageView imageview = findViewById(R.id.imageView);
+        imageview.setImageURI(uri);
 
-        if(frequestCode == GALLERY_CODE) {
-            imageview.setImageURI(uri);
+/*        Bitmap bitmap = resize(AddActivity.this, uri);
+        imageview.setImageBitmap(bitmap);*/
+
+/*        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 2;
+            Bitmap bitmap = BitmapFactory.decodeStream(AddActivity.this.getContentResolver().openInputStream(uri), null, options); // 3번
+
+            if(frequestCode == GALLERY_CODE) {
+                imageview.setImageURI(uri);
+                //imageview.setImageBitmap(bitmap);
+            }
+        } catch(FileNotFoundException fne) {
+            fne.printStackTrace();
+        }*/
+    }
+
+    private Bitmap resize(Context context, Uri uri) {
+        Bitmap resizeBitmap = null;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+
+        try {
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri), null, options); // 3번
+
+            // 이미지 사이즈를 필요한 사이즈로 적당히 줄이기위해 계산한 값을
+            // options.inSampleSize 에 2의 배수의 값으로 넣어준다.
+            options.inSampleSize = setSimpleSize(options, REQUEST_WIDTH, REQUEST_HEIGHT);
+
+            // options.inJustDecodeBounds 에 false 로 다시 설정해서 BitmapFactory.decodeResource의 Bitmap을 리턴받을 수 있게한다.
+            options.inJustDecodeBounds = false;
+            resizeBitmap = BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri), null, options); // 3번
+        } catch (FileNotFoundException e) {
+            //e.printStackTrace();
         }
+
+        return resizeBitmap;
+    }
+
+    // 이미지 Resize 함수
+    private int setSimpleSize(BitmapFactory.Options options, int requestWidth, int requestHeight){
+        // 이미지 사이즈를 체크할 원본 이미지 가로/세로 사이즈를 임시 변수에 대입.
+        int originalWidth = options.outWidth;
+        int originalHeight = options.outHeight;
+
+        // 원본 이미지 비율인 1로 초기화
+        int size = 1;
+
+        // 해상도가 깨지지 않을만한 요구되는 사이즈까지 2의 배수의 값으로 원본 이미지를 나눈다.
+        while(requestWidth < originalWidth || requestHeight < originalHeight){
+            originalWidth = originalWidth / 2;
+            originalHeight = originalHeight / 2;
+
+            size = size * 2;
+        }
+
+        return size;
     }
 
     void takePicture() {
@@ -496,6 +563,24 @@ public class AddActivity extends AppCompatActivity {
         if("".equals(intro)) {
             ab.setMessage("소개를 입력해주세요.");
             ab.show();
+            return;
+        }
+
+        Calendar nowCal = Calendar.getInstance();
+        String alarmDate = mAlarmDate.getText().toString();
+        String[] alarmDateArr = alarmDate.split("-");
+        int year = Integer.parseInt(alarmDateArr[0]);
+        int month = Integer.parseInt(alarmDateArr[1]) - 1;
+        int day = Integer.parseInt(alarmDateArr[2]);
+        String alarmTime = mAlarmTime.getText().toString();
+        int hour = Integer.parseInt(alarmTime.substring(0, alarmTime.indexOf("시") - 1));
+        int minute = Integer.parseInt(alarmTime.substring(alarmTime.indexOf("시") + 2, alarmTime.length() - 1));
+        Calendar alarmCal = Calendar.getInstance();
+        alarmCal.set(year, month, day, hour, minute);
+
+        if(alarmCal.before(nowCal)) {
+            ab.setMessage("알람시작일시는 현재시간 이후로 설정해 주세요.");
+           ab.show();
             return;
         }
 
@@ -555,6 +640,7 @@ public class AddActivity extends AppCompatActivity {
                 dialog.dismiss();
                 Intent intent = new Intent(AddActivity.this, ListActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
         ab.setMessage(msg);
@@ -596,6 +682,24 @@ public class AddActivity extends AppCompatActivity {
 
         if("".equals(intro)) {
             ab.setMessage("소개를 입력해주세요.");
+            ab.show();
+            return;
+        }
+
+        Calendar nowCal = Calendar.getInstance();
+        final String alarmDate = mAlarmDate.getText().toString();
+        String[] alarmDateArr = alarmDate.split("-");
+        int year = Integer.parseInt(alarmDateArr[0]);
+        int month = Integer.parseInt(alarmDateArr[1]) - 1;
+        int day = Integer.parseInt(alarmDateArr[2]);
+        final String alarmTime = mAlarmTime.getText().toString();
+        int hour = Integer.parseInt(alarmTime.substring(0, alarmTime.indexOf("시") - 1));
+        int minute = Integer.parseInt(alarmTime.substring(alarmTime.indexOf("시") + 2, alarmTime.length() - 1));
+        Calendar alarmCal = Calendar.getInstance();
+        alarmCal.set(year, month, day, hour, minute);
+
+        if(alarmCal.before(nowCal)) {
+            ab.setMessage("알람시작일시는 현재시간 이후로 설정해 주세요.");
             ab.show();
             return;
         }
@@ -671,9 +775,9 @@ public class AddActivity extends AppCompatActivity {
                 alarm = "Y";
             }
 
-            final String alarmDate = mAlarmDate.getText().toString();
+            //final String alarmDate = mAlarmDate.getText().toString();
             final String period = mPeriodSpinner.getSelectedItem().toString();
-            final String alarmTime = mAlarmTime.getText().toString();
+            //final String alarmTime = mAlarmTime.getText().toString();
             String key = intent.getStringExtra("key");
             Map<String, Object> updateMap = new HashMap<String, Object>();
             updateMap.put("name", name);
