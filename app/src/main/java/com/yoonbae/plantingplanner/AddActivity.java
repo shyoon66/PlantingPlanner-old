@@ -250,7 +250,7 @@ public class AddActivity extends AppCompatActivity {
             }
         }, hour, minute, true);
 
-        
+
         timePickerDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         timePickerDialog.show();
     }
@@ -575,6 +575,8 @@ public class AddActivity extends AppCompatActivity {
         String alarmTime = mAlarmTime.getText().toString();
         int hour = Integer.parseInt(alarmTime.substring(0, alarmTime.indexOf("시") - 1));
         int minute = Integer.parseInt(alarmTime.substring(alarmTime.indexOf("시") + 2, alarmTime.length() - 1));
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ hour = " + hour);
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ minute = " + minute);
         Calendar alarmCal = Calendar.getInstance();
         alarmCal.set(year, month, day, hour, minute);
 

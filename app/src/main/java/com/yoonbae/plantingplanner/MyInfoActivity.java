@@ -7,6 +7,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,6 +20,8 @@ import com.bumptech.glide.Glide;
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.AuthCredential;
@@ -26,6 +29,13 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +50,8 @@ public class MyInfoActivity extends AppCompatActivity {
     private TextView id;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
+    private FirebaseDatabase firebaseDatabase;
+    private FirebaseStorage firebaseStorage;
     private ListView listView;
     private ArrayList<HashMap<String,String>> Data = new ArrayList<HashMap<String, String>>();
     private HashMap<String,String> InputData1 = new HashMap<>();
@@ -188,6 +200,9 @@ public class MyInfoActivity extends AppCompatActivity {
                                                         mFirebaseAuth.signOut();
                                                     }
 
+/*                                                    deleteFirebaseStoarge();
+                                                    deleteFirebaseDataBase();*/
+
                                                     startActivity(new Intent(MyInfoActivity.this, AuthActivity.class));
                                                     finish();
                                                 }
@@ -205,6 +220,72 @@ public class MyInfoActivity extends AppCompatActivity {
 
                     ab.show();
                 }
+            }
+        });
+    }
+
+    private void deleteFirebaseStoarge() {
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        firebaseStorage = FirebaseStorage.getInstance();
+        final StorageReference storageRef = firebaseStorage.getReferenceFromUrl("gs://planting-planner.appspot.com");
+
+        firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String fUid = mFirebaseUser.getUid();
+
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Plant plant = snapshot.getValue(Plant.class);
+                    String dUid = plant.getUid();
+
+                    if(fUid.equals(dUid)) {
+                        String imageUrl = plant.getImageUrl();
+                        StorageReference desertRef = storageRef.child(imageUrl);
+                        desertRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                // Uh-oh, an error occurred!
+                                Log.w("Hello", "Failed to delete value.");
+                                exception.printStackTrace();
+                            }
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Failed to read value
+                Log.w("Hello", "Failed to read value.", databaseError.toException());
+            }
+        });
+    }
+
+    private void deleteFirebaseDataBase() {
+        firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String fUid = mFirebaseUser.getUid();
+
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Plant plant = snapshot.getValue(Plant.class);
+                    String dUid = plant.getUid();
+
+                    if(fUid.equals(dUid)) {
+                        firebaseDatabase.getReference().child("plant").child(dUid).removeValue();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Failed to read value
+                Log.w("Hello", "Failed to read value.", databaseError.toException());
             }
         });
     }
