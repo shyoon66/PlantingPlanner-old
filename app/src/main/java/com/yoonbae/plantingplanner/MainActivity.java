@@ -53,7 +53,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
     private List<Plant> plantList;
     private ArrayList<CalendarDay> eventDayList;
     private ArrayList<Map<String, Object>> eventPlantList;
-    private int pod;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -207,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 nextMonth = nextMonth.plusMonths(1);
 
                 String period = plant.getPeriod();
-                pod = getPeriod(period);
+                int pod = getPeriod(period);
                 String name = plant.getName();
                 String alarm = plant.getAlarmTime() + " 물주기 알람";
 
@@ -298,17 +297,34 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
     @Override
     public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
-        if(eventDayList.size() > 0) {
-            LocalDate lastEventDay = eventDayList.get(eventDayList.size() - 1).getDate();
+        if (eventDayList.size() > 0) {
             LocalDate eventDay = null;
+            ArrayList<CalendarDay> compareEventDayList = new ArrayList<CalendarDay>();
+            compareEventDayList.addAll(eventDayList);
+            ArrayList<Map<String, Object>> compareEventPlantList = new ArrayList<Map<String, Object>>();
+            compareEventPlantList.addAll(eventPlantList);
+            eventDayList.clear();
+            eventPlantList.clear();
+            LocalDate nextMonth = date.getDate().plusMonths(1);
+            Calendar cal = Calendar.getInstance();
+            cal.set(date.getYear(), date.getMonth() - 1, date.getDay());
+            int lastDay = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+            LocalDate lastDate = LocalDate.of(date.getYear(), date.getMonth(), lastDay);
 
-            if(date.getDate().isAfter(lastEventDay)) {
-                eventDay = lastEventDay;
-                eventDay = eventDay.plusDays(pod);
-                LocalDate nextMonth = date.getDate().plusMonths(1);
+            for (int i = 0; i < plantList.size(); i++) {
+                Plant plant = plantList.get(i);
+                String name = plant.getName();
+                LocalDate lastEventDay = LocalDate.of(1900, 1, 1);
 
-                for(int i = 0; i < plantList.size(); i++) {
-                    Plant plant = plantList.get(i);
+                for (int j = 0; j < compareEventPlantList.size(); j++) {
+                    Map<String, Object> eventPlantMap = compareEventPlantList.get(j);
+                    CalendarDay plantEventDay = (CalendarDay) eventPlantMap.get("eventDay");
+                    if (name.equals(eventPlantMap.get("name")) && plantEventDay.getDate().isAfter(lastEventDay)) {
+                        lastEventDay = plantEventDay.getDate();
+                    }
+                }
+
+                if (date.getDate().isAfter(lastEventDay)) {
                     String alarmDate = plant.getAlarmDate();
                     String[] alarmDateArr = alarmDate.split("-");
                     int year = Integer.parseInt(alarmDateArr[0]);
@@ -317,19 +333,15 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
                     LocalDate alarmDt = LocalDate.of(year, month, dayOfYear);
 
-                    if(date.getDate().isBefore(alarmDt)) {
+                    if (lastDate.isBefore(alarmDt)) {
                         continue;
                     }
 
-                    if(eventDay.isBefore(nextMonth)) {
-                        eventDayList.clear();
-                        eventPlantList.clear();
-                    }
-
-                    String name = plant.getName();
+                    int pod = getPeriod(plant.getPeriod());
+                    eventDay = lastEventDay.plusDays(pod);
                     String alarm = plant.getAlarmTime() + " 물주기 알람";
 
-                    while(eventDay.isBefore(nextMonth)) {
+                    while (eventDay.isBefore(nextMonth)) {
                         CalendarDay day = CalendarDay.from(eventDay);
                         eventDayList.add(day);
                         Map<String, Object> eventPlantMap = new HashMap<String, Object>();
@@ -339,14 +351,8 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                         eventPlantList.add(eventPlantMap);
                         eventDay = eventDay.plusDays(pod);
                     }
-                }
-            } else {
-                eventDay = eventDayList.get(0).getDate();
-                eventDay = eventDay.minusDays(pod);
-                LocalDate monthDate = date.getDate();
-
-                for(int i = 0; i < plantList.size(); i++) {
-                    Plant plant = plantList.get(i);
+                } else {
+                    LocalDate monthDate = date.getDate();
                     String alarmDate = plant.getAlarmDate();
                     String[] alarmDateArr = alarmDate.split("-");
                     int year = Integer.parseInt(alarmDateArr[0]);
@@ -355,19 +361,24 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
                     LocalDate alarmDt = LocalDate.of(year, month, dayOfYear);
 
-                    if(date.getDate().isBefore(alarmDt)) {
+                    if (lastDate.isBefore(alarmDt)) {
                         continue;
                     }
 
-                    if(eventDay.isAfter(monthDate)) {
-                        eventDayList.clear();
-                        eventPlantList.clear();
+                    LocalDate firstEventDay = LocalDate.of(2300, 1, 1);
+                    for (int j = 0; j < compareEventPlantList.size(); j++) {
+                        Map<String, Object> eventPlantMap = compareEventPlantList.get(j);
+                        CalendarDay plantEventDay = (CalendarDay) eventPlantMap.get("eventDay");
+                        if (name.equals(eventPlantMap.get("name")) && plantEventDay.getDate().isBefore(firstEventDay)) {
+                            firstEventDay = plantEventDay.getDate();
+                        }
                     }
 
-                    String name = plant.getName();
+                    int pod = getPeriod(plant.getPeriod());
+                    eventDay = firstEventDay.minusDays(pod);
                     String alarm = plant.getAlarmTime() + " 물주기 알람";
 
-                    while(eventDay.isAfter(monthDate)) {
+                    while (eventDay.isAfter(monthDate) && (eventDay.isEqual(alarmDt) || eventDay.isAfter(alarmDt))) {
                         CalendarDay day = CalendarDay.from(eventDay);
                         eventDayList.add(day);
                         Map<String, Object> eventPlantMap = new HashMap<String, Object>();

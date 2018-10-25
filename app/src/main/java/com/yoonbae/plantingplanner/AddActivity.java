@@ -573,10 +573,8 @@ public class AddActivity extends AppCompatActivity {
         int month = Integer.parseInt(alarmDateArr[1]) - 1;
         int day = Integer.parseInt(alarmDateArr[2]);
         String alarmTime = mAlarmTime.getText().toString();
-        int hour = Integer.parseInt(alarmTime.substring(0, alarmTime.indexOf("시") - 1));
+        int hour = Integer.parseInt(alarmTime.substring(0, alarmTime.indexOf("시")));
         int minute = Integer.parseInt(alarmTime.substring(alarmTime.indexOf("시") + 2, alarmTime.length() - 1));
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ hour = " + hour);
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ minute = " + minute);
         Calendar alarmCal = Calendar.getInstance();
         alarmCal.set(year, month, day, hour, minute);
 
@@ -695,7 +693,7 @@ public class AddActivity extends AppCompatActivity {
         int month = Integer.parseInt(alarmDateArr[1]) - 1;
         int day = Integer.parseInt(alarmDateArr[2]);
         final String alarmTime = mAlarmTime.getText().toString();
-        int hour = Integer.parseInt(alarmTime.substring(0, alarmTime.indexOf("시") - 1));
+        int hour = Integer.parseInt(alarmTime.substring(0, alarmTime.indexOf("시")));
         int minute = Integer.parseInt(alarmTime.substring(alarmTime.indexOf("시") + 2, alarmTime.length() - 1));
         Calendar alarmCal = Calendar.getInstance();
         alarmCal.set(year, month, day, hour, minute);
