@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "677847193937-0guev2okitdcbo39qo1se96taafj4oga.apps.googleusercontent.com",
+          "client_id": "677847193937-90f7cmq9pcrfqicsm8k9oh7tc8cgskbb.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.yoonbae.plantingplanner",
-            "certificate_hash": "89ae605cb67cae15aedad2dac0381481dcaa7145"
+            "certificate_hash": "d60f90a748944f472421dec44ee33cccf097a9f2"
           }
         },
         {

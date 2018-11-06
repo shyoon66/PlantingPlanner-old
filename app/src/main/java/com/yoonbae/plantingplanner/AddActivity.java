@@ -43,12 +43,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.adapter.MyRecyclerViewAdapter;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
 
 import org.threeten.bp.LocalDateTime;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -376,12 +379,30 @@ public class AddActivity extends AppCompatActivity {
         }
     }
 
+    private Uri getImageUri(Context context, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+
+    private Bitmap resizeImage(String imgPath) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 2;
+        Bitmap orgImage = BitmapFactory.decodeFile(imgPath, options);
+        Bitmap resizeBitmap = Bitmap.createScaledBitmap(orgImage, REQUEST_WIDTH, REQUEST_HEIGHT, true);
+        return resizeBitmap;
+    }
+
     private void uploadCameraImageByFirebase(String path, final int requestCode) {
         // Create a storage reference from our app
         final StorageReference storageRef = storage.getReferenceFromUrl("gs://planting-planner.appspot.com");
         final int frequestCode = requestCode;
 
-        Uri file = Uri.fromFile(new File(path));
+        Bitmap resizeBitmap = resizeImage(path);
+        final Uri file = getImageUri(this, resizeBitmap);
+
+        //Uri file = Uri.fromFile(new File(mCurrentPhotoPath));
         firebaseImagePath = "images/" + file.getLastPathSegment();
         StorageReference riversRef = storageRef.child(firebaseImagePath);
         UploadTask uploadTask = riversRef.putFile(file);
@@ -395,7 +416,7 @@ public class AddActivity extends AppCompatActivity {
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                cameraImageView(frequestCode);
+                cameraImageView(file, frequestCode);
                 Toast.makeText(AddActivity.this, "사진 등록이 성공했습니다.", Toast.LENGTH_SHORT).show();
             }
         });
@@ -407,7 +428,10 @@ public class AddActivity extends AppCompatActivity {
         final int frequestCode = requestCode;
         final Uri furi = uri;
 
-        Uri file = Uri.fromFile(new File(path));
+        Bitmap resizeBitmap = resizeImage(path);
+        Uri file = getImageUri(this, resizeBitmap);
+
+        //Uri file = Uri.fromFile(new File(path));
         firebaseImagePath = "images/" + file.getLastPathSegment();
         StorageReference riversRef = storageRef.child(firebaseImagePath);
         UploadTask uploadTask = riversRef.putFile(file);
@@ -437,81 +461,20 @@ public class AddActivity extends AppCompatActivity {
         return cursor.getString(index);
     }
 
-    private void cameraImageView(int frequestCode) {
+    private void cameraImageView(Uri uri, int frequestCode) {
         ImageView imageview = findViewById(R.id.imageView);
 
         if(frequestCode == CAMERA_CODE) {
-            imageview.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath));
-/*            Uri uri = Uri.parse(mCurrentPhotoPath);
-            Bitmap bitmap = resize(AddActivity.this, uri);
-            imageview.setImageBitmap(bitmap);
-*//*            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 2;
-            imageview.setImageBitmap(BitmapFactory.decodeFile(mCurrentPhotoPath, options));*/
+            Glide.with(imageView.getContext()).load(uri).into(imageview);
         }
     }
 
     private void galleryImageView(Uri uri, int frequestCode) {
         ImageView imageview = findViewById(R.id.imageView);
-        imageview.setImageURI(uri);
 
-/*        Bitmap bitmap = resize(AddActivity.this, uri);
-        imageview.setImageBitmap(bitmap);*/
-
-/*        try {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 2;
-            Bitmap bitmap = BitmapFactory.decodeStream(AddActivity.this.getContentResolver().openInputStream(uri), null, options); // 3번
-
-            if(frequestCode == GALLERY_CODE) {
-                imageview.setImageURI(uri);
-                //imageview.setImageBitmap(bitmap);
-            }
-        } catch(FileNotFoundException fne) {
-            fne.printStackTrace();
-        }*/
-    }
-
-    private Bitmap resize(Context context, Uri uri) {
-        Bitmap resizeBitmap = null;
-        BitmapFactory.Options options = new BitmapFactory.Options();
-
-        try {
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri), null, options); // 3번
-
-            // 이미지 사이즈를 필요한 사이즈로 적당히 줄이기위해 계산한 값을
-            // options.inSampleSize 에 2의 배수의 값으로 넣어준다.
-            options.inSampleSize = setSimpleSize(options, REQUEST_WIDTH, REQUEST_HEIGHT);
-
-            // options.inJustDecodeBounds 에 false 로 다시 설정해서 BitmapFactory.decodeResource의 Bitmap을 리턴받을 수 있게한다.
-            options.inJustDecodeBounds = false;
-            resizeBitmap = BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri), null, options); // 3번
-        } catch (FileNotFoundException e) {
-            //e.printStackTrace();
+        if(frequestCode == GALLERY_CODE) {
+            Glide.with(imageView.getContext()).load(uri).into(imageview);
         }
-
-        return resizeBitmap;
-    }
-
-    // 이미지 Resize 함수
-    private int setSimpleSize(BitmapFactory.Options options, int requestWidth, int requestHeight){
-        // 이미지 사이즈를 체크할 원본 이미지 가로/세로 사이즈를 임시 변수에 대입.
-        int originalWidth = options.outWidth;
-        int originalHeight = options.outHeight;
-
-        // 원본 이미지 비율인 1로 초기화
-        int size = 1;
-
-        // 해상도가 깨지지 않을만한 요구되는 사이즈까지 2의 배수의 값으로 원본 이미지를 나눈다.
-        while(requestWidth < originalWidth || requestHeight < originalHeight){
-            originalWidth = originalWidth / 2;
-            originalHeight = originalHeight / 2;
-
-            size = size * 2;
-        }
-
-        return size;
     }
 
     void takePicture() {

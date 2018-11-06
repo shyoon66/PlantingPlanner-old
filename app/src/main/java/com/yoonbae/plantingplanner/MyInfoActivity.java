@@ -177,6 +177,7 @@ public class MyInfoActivity extends AppCompatActivity {
                                     }
                                 }
 
+                                final String uid = mFirebaseUser.getUid();
                                 mFirebaseUser.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
@@ -200,8 +201,8 @@ public class MyInfoActivity extends AppCompatActivity {
                                                         mFirebaseAuth.signOut();
                                                     }
 
-/*                                                    deleteFirebaseStoarge();
-                                                    deleteFirebaseDataBase();*/
+                                                    //deleteFirebaseStoarge(uid);
+                                                    //deleteFirebaseDataBase(uid);
 
                                                     startActivity(new Intent(MyInfoActivity.this, AuthActivity.class));
                                                     finish();
@@ -224,7 +225,7 @@ public class MyInfoActivity extends AppCompatActivity {
         });
     }
 
-    private void deleteFirebaseStoarge() {
+    private void deleteFirebaseStoarge(final String uid) {
         firebaseDatabase = FirebaseDatabase.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
         final StorageReference storageRef = firebaseStorage.getReferenceFromUrl("gs://planting-planner.appspot.com");
@@ -232,13 +233,11 @@ public class MyInfoActivity extends AppCompatActivity {
         firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String fUid = mFirebaseUser.getUid();
-
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Plant plant = snapshot.getValue(Plant.class);
                     String dUid = plant.getUid();
 
-                    if(fUid.equals(dUid)) {
+                    if(uid.equals(dUid)) {
                         String imageUrl = plant.getImageUrl();
                         StorageReference desertRef = storageRef.child(imageUrl);
                         desertRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -266,17 +265,15 @@ public class MyInfoActivity extends AppCompatActivity {
         });
     }
 
-    private void deleteFirebaseDataBase() {
+    private void deleteFirebaseDataBase(final String uid) {
         firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String fUid = mFirebaseUser.getUid();
-
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Plant plant = snapshot.getValue(Plant.class);
                     String dUid = plant.getUid();
 
-                    if(fUid.equals(dUid)) {
+                    if(uid.equals(dUid)) {
                         firebaseDatabase.getReference().child("plant").child(dUid).removeValue();
                     }
                 }
