@@ -1,8 +1,5 @@
 package com.yoonbae.plantingplanner;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -62,8 +59,8 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
         firebaseDatabase = FirebaseDatabase.getInstance();
-        calendarView();
 
+        calendarView();
         CalendarThread calendarThread = new CalendarThread();
         calendarThread.start();
 
@@ -86,25 +83,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 return false;
             }
         });
-    }
-
-    public class AlarmHATT {
-        private Context context;
-
-        public AlarmHATT(Context context) {
-            this.context = context;
-        }
-
-        public void Alarm(Long timeInMillis, Long intervalMillis, String name) {
-            AlarmManager am = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-            Intent intent = new Intent(MainActivity.this, BroadcastD.class);
-            intent.putExtra("name", name);
-            PendingIntent sender = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
-
-            //알람 예약
-            //am.set(AlarmManager.RTC_WAKEUP, timeInMillis, sender);
-            am.setRepeating(AlarmManager.RTC_WAKEUP, timeInMillis, intervalMillis, sender);
-        }
     }
 
     private class CalendarThread extends Thread {
@@ -148,23 +126,11 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 }
 
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Plant value = snapshot.getValue(Plant.class);
-                    String dUid = value.getUid();
+                    Plant plant = snapshot.getValue(Plant.class);
+                    plant.setKey(snapshot.getKey());
+                    String dUid = plant.getUid();
 
                     if(fUid.equals(dUid)) {
-                        Plant plant = new Plant();
-                        plant.setName(value.getName());
-                        plant.setKind(value.getKind());
-                        plant.setImageName(value.getImageName());
-                        plant.setImageUrl(value.getImageUrl());
-                        plant.setIntro(value.getIntro());
-                        plant.setAdoptionDate(value.getAdoptionDate());
-                        plant.setAlarm(value.getAlarm());
-                        plant.setAlarmDate(value.getAlarmDate());
-                        plant.setPeriod(value.getPeriod());
-                        plant.setAlarmTime(value.getAlarmTime());
-                        plant.setUid(value.getUid());
-                        plant.setUserId(value.getUserId());
                         plantList.add(plant);
                     }
                 }
@@ -217,13 +183,22 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                     eventPlantMap.put("name", name);
                     eventPlantMap.put("alarm", alarm);
                     eventPlantMap.put("eventDay", day);
+                    eventPlantMap.put("key", plant.getKey());
                     eventPlantList.add(eventPlantMap);
 
                     eventDay = eventDay.plusDays(pod);
                 }
             }
-            //System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% eventDayList size = " + eventDayList.size());
+
             materialCalendarView.addDecorator(new EventDecorator(Color.RED, eventDayList, MainActivity.this));
+        }
+
+        for(int i = 0; i < plantList.size(); i++) {
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2 plant = " + plantList.get(i));
+        }
+
+        for(int i = 0; i < eventPlantList.size(); i++) {
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2 eventPlant = " + eventPlantList.get(i));
         }
 
         materialCalendarView.setDateSelected(CalendarDay.today(), true);
@@ -245,23 +220,31 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
     }
 
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-        Plant plant = plantList.get(position);
-        Intent intent = new Intent(MainActivity.this, ViewActivity.class);
-        intent.putExtra("FLAG", "U");
-        intent.putExtra("name", plant.getName());
-        intent.putExtra("kind", plant.getKind());
-        intent.putExtra("intro", plant.getIntro());
-        intent.putExtra("imageUrl", plant.getImageUrl());
-        intent.putExtra("uid", plant.getUid());
-        intent.putExtra("adoptionDate", plant.getAdoptionDate());
-        intent.putExtra("alarm", plant.getAlarm());
-        intent.putExtra("alarmDate", plant.getAlarmDate());
-        intent.putExtra("alarmTime", plant.getAlarmTime());
-        intent.putExtra("period", plant.getPeriod());
-        intent.putExtra("alarmId", plant.getAlarmId());
+        Map<String, String> eventPlantMap = (Map<String, String>) parent.getItemAtPosition(position);
+        String key = eventPlantMap.get("key");
 
-        startActivity(intent);
-        finish();
+        for(int i = 0; i < plantList.size(); i++) {
+            Plant plant = plantList.get(i);
+
+            if(key.equals(plant.getKey())) {
+                Intent intent = new Intent(MainActivity.this, ViewActivity.class);
+                intent.putExtra("FLAG", "U");
+                intent.putExtra("name", plant.getName());
+                intent.putExtra("kind", plant.getKind());
+                intent.putExtra("intro", plant.getIntro());
+                intent.putExtra("imageUrl", plant.getImageUrl());
+                intent.putExtra("uid", plant.getUid());
+                intent.putExtra("adoptionDate", plant.getAdoptionDate());
+                intent.putExtra("alarm", plant.getAlarm());
+                intent.putExtra("alarmDate", plant.getAlarmDate());
+                intent.putExtra("alarmTime", plant.getAlarmTime());
+                intent.putExtra("period", plant.getPeriod());
+                intent.putExtra("alarmId", plant.getAlarmId());
+
+                startActivity(intent);
+                break;
+            }
+        }
     }
 
     @Override
@@ -276,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
             if(date.equals(eventPlantMap.get("eventDay"))) {
                 flag = true;
-                adapter.addItem(eventPlantMap.get("name").toString(), eventPlantMap.get("alarm").toString());
+                adapter.addItem(eventPlantMap.get("name").toString(), eventPlantMap.get("alarm").toString(), eventPlantMap.get("key").toString());
                 //break;
             }
         }

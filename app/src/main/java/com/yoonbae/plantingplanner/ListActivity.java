@@ -40,7 +40,6 @@ public class ListActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
     private List<Plant> plantList;
-    private List<String> keyList = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,14 +109,13 @@ public class ListActivity extends AppCompatActivity {
                         plant.setAlarmId(value.getAlarmId());
                         plant.setUid(value.getUid());
                         plant.setUserId(value.getUserId());
-
+                        plant.setKey(snapshot.getKey());
                         plantList.add(plant);
-                        keyList.add(snapshot.getKey());
                     }
                 }
 
                 recyclerView.setLayoutManager(new LinearLayoutManager(ListActivity.this));
-                MyRecyclerViewAdapter myRecyclerViewAdapter = new MyRecyclerViewAdapter(plantList, keyList,ListActivity.this);
+                MyRecyclerViewAdapter myRecyclerViewAdapter = new MyRecyclerViewAdapter(plantList,ListActivity.this);
                 recyclerView.setAdapter(myRecyclerViewAdapter);
                 myRecyclerViewAdapter.notifyDataSetChanged();
             }
@@ -128,16 +126,6 @@ public class ListActivity extends AppCompatActivity {
                 Log.w("Hello", "Failed to read value.", databaseError.toException());
             }
         });
-
-/*        FloatingActionButton floatingActionButton = findViewById(R.id.floatingActionButton);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ListActivity.this, AddActivity.class);
-                intent.putExtra("FLAG", "I");
-                startActivity(intent);
-            }
-        });*/
     }
 
     @Override

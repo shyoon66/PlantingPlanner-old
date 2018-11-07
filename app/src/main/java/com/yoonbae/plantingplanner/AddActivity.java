@@ -566,7 +566,7 @@ public class AddActivity extends AppCompatActivity {
                 final String alarmDate = mAlarmDate.getText().toString();
                 final String period = mPeriodSpinner.getSelectedItem().toString();
                 final String alarmTime = mAlarmTime.getText().toString();
-                Plant plant = new Plant(name, kind, imageName, imageUrl, intro, adoptionDate, alarm, alarmDate, period, alarmTime, alarmId, uid, userId);
+                Plant plant = new Plant(name, kind, imageName, imageUrl, intro, adoptionDate, alarm, alarmDate, period, alarmTime, alarmId, uid, userId, "");
                 database.getReference().child("plant").push().setValue(plant).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

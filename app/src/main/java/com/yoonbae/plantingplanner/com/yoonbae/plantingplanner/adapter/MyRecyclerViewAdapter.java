@@ -32,14 +32,12 @@ import androidx.recyclerview.widget.RecyclerView;
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Plant> plantList;
-    private List<String> keyList;
     private Context context;
     private FirebaseDatabase database;
     private FirebaseStorage storage;
 
-    public MyRecyclerViewAdapter(List<Plant> plantList, List<String> keyList, Context context) {
+    public MyRecyclerViewAdapter(List<Plant> plantList, Context context) {
         this.plantList = plantList;
-        this.keyList = keyList;
         this.context = context;
     }
 
@@ -71,6 +69,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             intent.putExtra("alarmDate", plant.getAlarmDate());
             intent.putExtra("alarmTime", plant.getAlarmTime());
             intent.putExtra("period", plant.getPeriod());
+            intent.putExtra("key", plant.getKey());
             context.startActivity(intent);
             }
         });
@@ -97,7 +96,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         intent.putExtra("alarmTime", plant.getAlarmTime());
                         intent.putExtra("period", plant.getPeriod());
                         intent.putExtra("alarmId", plant.getAlarmId());
-                        intent.putExtra("key", keyList.get(position));
+                        intent.putExtra("key", plant.getKey());
                         context.startActivity(intent);
                     } else if(index == 1) {
                         deletePlant(position);
@@ -108,6 +107,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     dialog.dismiss();
                     }
                 });
+
                 ab.show();
             }
         });
@@ -135,7 +135,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private void deletePlant(final int position) {
         database = FirebaseDatabase.getInstance();
-        String key = keyList.get(position);
+        String key = plantList.get(position).getKey();
 
         database.getReference().child("plant").child(key).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override

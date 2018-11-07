@@ -14,12 +14,13 @@ public class Plant {
     private int alarmId;
     private String uid;
     private String userId;
+    private String key;
 
     public Plant() {
 
     }
 
-    public Plant(String name, String kind, String imageName, String imageUrl, String intro, String adoptionDate, String alarm, String alarmDate, String period, String alarmTime, int alarmId, String uid, String userId) {
+    public Plant(String name, String kind, String imageName, String imageUrl, String intro, String adoptionDate, String alarm, String alarmDate, String period, String alarmTime, int alarmId, String uid, String userId, String key) {
         this.name = name;
         this.kind = kind;
         this.imageName = imageName;
@@ -33,6 +34,7 @@ public class Plant {
         this.alarmId = alarmId;
         this.uid = uid;
         this.userId = userId;
+        this.key = key;
     }
 
     public String getName() {
@@ -134,4 +136,8 @@ public class Plant {
     public void setAlarmId(int alarmId) {
         this.alarmId = alarmId;
     }
+
+    public String getKey() { return this.key; }
+
+    public void setKey(String key) { this.key = key; }
 }

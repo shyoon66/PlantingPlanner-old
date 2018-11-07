@@ -41,8 +41,8 @@ public class ListViewAdapter extends BaseAdapter {
         }
 
         // 화면에 표시될 View(Layout이 inflate된)으로부터 위젯에 대한 참조 획득
-        TextView nameTextView = convertView.findViewById(R.id.name) ;
-        TextView alarmTextView = convertView.findViewById(R.id.alarm) ;
+        TextView nameTextView = convertView.findViewById(R.id.name);
+        TextView alarmTextView = convertView.findViewById(R.id.alarm);
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
         Map<String, String> listViewItem = listViewItemList.get(position);
@@ -67,10 +67,11 @@ public class ListViewAdapter extends BaseAdapter {
     }
 
     // 아이템 데이터 추가를 위한 함수. 개발자가 원하는대로 작성 가능.
-    public void addItem(String name, String alarm) {
+    public void addItem(String name, String alarm, String key) {
         Map<String, String> item = new HashMap<String, String>();
         item.put("name", name);
         item.put("alarm", alarm);
+        item.put("key", key);
         listViewItemList.add(item);
     }
 
