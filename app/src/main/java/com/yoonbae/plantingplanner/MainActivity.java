@@ -193,14 +193,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
             materialCalendarView.addDecorator(new EventDecorator(Color.RED, eventDayList, MainActivity.this));
         }
 
-        for(int i = 0; i < plantList.size(); i++) {
-            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2 plant = " + plantList.get(i));
-        }
-
-        for(int i = 0; i < eventPlantList.size(); i++) {
-            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2 eventPlant = " + eventPlantList.get(i));
-        }
-
         materialCalendarView.setDateSelected(CalendarDay.today(), true);
         onDateSelected(materialCalendarView, CalendarDay.today(), true);
     }
@@ -260,7 +252,10 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
             if(date.equals(eventPlantMap.get("eventDay"))) {
                 flag = true;
                 adapter.addItem(eventPlantMap.get("name").toString(), eventPlantMap.get("alarm").toString(), eventPlantMap.get("key").toString());
-                //break;
+            }
+
+            if(flag) {
+                break;
             }
         }
 
@@ -296,13 +291,13 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
             for (int i = 0; i < plantList.size(); i++) {
                 Plant plant = plantList.get(i);
-                String name = plant.getName();
                 LocalDate lastEventDay = LocalDate.of(1900, 1, 1);
+                String key = plant.getKey();
 
                 for (int j = 0; j < compareEventPlantList.size(); j++) {
                     Map<String, Object> eventPlantMap = compareEventPlantList.get(j);
                     CalendarDay plantEventDay = (CalendarDay) eventPlantMap.get("eventDay");
-                    if (name.equals(eventPlantMap.get("name")) && plantEventDay.getDate().isAfter(lastEventDay)) {
+                    if (key.equals(eventPlantMap.get("key")) && plantEventDay.getDate().isAfter(lastEventDay)) {
                         lastEventDay = plantEventDay.getDate();
                     }
                 }
@@ -322,6 +317,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
                     int pod = getPeriod(plant.getPeriod());
                     eventDay = lastEventDay.plusDays(pod);
+                    String name = plant.getName();
                     String alarm = plant.getAlarmTime() + " 물주기 알람";
 
                     while (eventDay.isBefore(nextMonth)) {
@@ -331,6 +327,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                         eventPlantMap.put("name", name);
                         eventPlantMap.put("alarm", alarm);
                         eventPlantMap.put("eventDay", day);
+                        eventPlantMap.put("key", key);
                         eventPlantList.add(eventPlantMap);
                         eventDay = eventDay.plusDays(pod);
                     }
@@ -352,13 +349,14 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                     for (int j = 0; j < compareEventPlantList.size(); j++) {
                         Map<String, Object> eventPlantMap = compareEventPlantList.get(j);
                         CalendarDay plantEventDay = (CalendarDay) eventPlantMap.get("eventDay");
-                        if (name.equals(eventPlantMap.get("name")) && plantEventDay.getDate().isBefore(firstEventDay)) {
+                        if (key.equals(eventPlantMap.get("key")) && plantEventDay.getDate().isBefore(firstEventDay)) {
                             firstEventDay = plantEventDay.getDate();
                         }
                     }
 
                     int pod = getPeriod(plant.getPeriod());
                     eventDay = firstEventDay.minusDays(pod);
+                    String name = plant.getName();
                     String alarm = plant.getAlarmTime() + " 물주기 알람";
 
                     while (eventDay.isAfter(monthDate) && (eventDay.isEqual(alarmDt) || eventDay.isAfter(alarmDt))) {
@@ -368,6 +366,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                         eventPlantMap.put("name", name);
                         eventPlantMap.put("alarm", alarm);
                         eventPlantMap.put("eventDay", day);
+                        eventPlantMap.put("key", key);
                         eventPlantList.add(eventPlantMap);
                         eventDay = eventDay.minusDays(pod);
                     }

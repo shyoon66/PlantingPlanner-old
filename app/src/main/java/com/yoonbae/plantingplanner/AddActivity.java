@@ -43,15 +43,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.adapter.MyRecyclerViewAdapter;
 import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
 
 import org.threeten.bp.LocalDateTime;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -76,8 +73,8 @@ public class AddActivity extends AppCompatActivity {
 
     private static final int CAMERA_CODE = 10;
     private static final int GALLERY_CODE = 100;
-    private final int REQUEST_WIDTH = 512;
-    private final int REQUEST_HEIGHT = 512;
+    private final int REQUEST_WIDTH = 1024;
+    private final int REQUEST_HEIGHT = 1024;
 
     private String mCurrentPhotoPath;
     private String flag;
@@ -161,6 +158,7 @@ public class AddActivity extends AppCompatActivity {
                         dialog.dismiss();
                     }
                 });
+
                 ab.show();
             }
         });
@@ -776,14 +774,14 @@ public class AddActivity extends AppCompatActivity {
         }
     }
 
-    public class AlarmHATT {
+    private class AlarmHATT {
         private Context context;
 
-        public AlarmHATT(Context context) {
+        private AlarmHATT(Context context) {
             this.context = context;
         }
 
-        public void Alarm(Long timeInMillis, Long intervalMillis, String name, int alarmId) {
+        private void Alarm(Long timeInMillis, Long intervalMillis, String name, int alarmId) {
             AlarmManager am = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
             Intent intent = new Intent(context, BroadcastD.class);
             intent.putExtra("name", name);
