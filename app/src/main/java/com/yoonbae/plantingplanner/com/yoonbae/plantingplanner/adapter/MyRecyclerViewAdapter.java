@@ -33,7 +33,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private List<Plant> plantList;
     private Context context;
-    private FirebaseDatabase database;
     private FirebaseStorage storage;
 
     public MyRecyclerViewAdapter(List<Plant> plantList, Context context) {
@@ -134,7 +133,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     private void deletePlant(final int position) {
-        database = FirebaseDatabase.getInstance();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
         String key = plantList.get(position).getKey();
 
         database.getReference().child("plant").child(key).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {

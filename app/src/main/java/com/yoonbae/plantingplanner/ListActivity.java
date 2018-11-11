@@ -59,7 +59,7 @@ public class ListActivity extends AppCompatActivity {
         //actionBar.setHomeAsUpIndicator(R.drawable.baseline_keyboard_arrow_left_black_24);
 
         final RecyclerView recyclerView = findViewById(R.id.main_recyclerView);
-        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavView);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavView);
         bottomNavigationView.setSelectedItemId(R.id.action_list);
         //BottomNavigationViewHelper.removeShiftMode(bottomNavigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {

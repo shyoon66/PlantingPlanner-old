@@ -253,10 +253,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 flag = true;
                 adapter.addItem(eventPlantMap.get("name").toString(), eventPlantMap.get("alarm").toString(), eventPlantMap.get("key").toString());
             }
-
-            if(flag) {
-                break;
-            }
         }
 
         if(flag) {
@@ -370,6 +366,38 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                         eventPlantList.add(eventPlantMap);
                         eventDay = eventDay.minusDays(pod);
                     }
+                }
+            }
+
+            materialCalendarView.addDecorator(new EventDecorator(Color.RED, eventDayList, MainActivity.this));
+        } else {
+            for(int i = 0; i < plantList.size(); i++) {
+                Plant plant = plantList.get(i);
+                LocalDate nextMonth = date.getDate().plusMonths(1);
+
+                String alarmDate = plant.getAlarmDate();
+                String[] alarmDateArr = alarmDate.split("-");
+                int year = Integer.parseInt(alarmDateArr[0]);
+                int month = Integer.parseInt(alarmDateArr[1]);
+                int dayOfYear = Integer.parseInt(alarmDateArr[2]);
+                LocalDate eventDay = LocalDate.of(year, month, dayOfYear);
+
+                LocalDate monthDate = date.getDate();
+                int pod = getPeriod(plant.getPeriod());
+                String name = plant.getName();
+                String alarm = plant.getAlarmTime() + " 물주기 알람";
+                String key = plant.getKey();
+
+                while((eventDay.isEqual(monthDate) || eventDay.isAfter(monthDate)) && eventDay.isBefore(nextMonth)) {
+                    CalendarDay day = CalendarDay.from(eventDay);
+                    eventDayList.add(day);
+                    Map<String, Object> eventPlantMap = new HashMap<String, Object>();
+                    eventPlantMap.put("name", name);
+                    eventPlantMap.put("alarm", alarm);
+                    eventPlantMap.put("eventDay", day);
+                    eventPlantMap.put("key", key);
+                    eventPlantList.add(eventPlantMap);
+                    eventDay = eventDay.plusDays(pod);
                 }
             }
 

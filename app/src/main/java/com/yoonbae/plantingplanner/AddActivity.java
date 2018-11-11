@@ -612,8 +612,6 @@ public class AddActivity extends AppCompatActivity {
         final String name = mName.getText().toString();
         final String kind = mKind.getText().toString();
         final String intro = mIntro.getText().toString();
-        final String uid = mFirebaseAuth.getCurrentUser().getUid();
-        final String userId = mFirebaseAuth.getCurrentUser().getEmail();
 
         AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
         ab.setPositiveButton("확인", new DialogInterface.OnClickListener() {
@@ -782,11 +780,11 @@ public class AddActivity extends AppCompatActivity {
         }
 
         private void Alarm(Long timeInMillis, Long intervalMillis, String name, int alarmId) {
-            AlarmManager am = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             Intent intent = new Intent(context, BroadcastD.class);
             intent.putExtra("name", name);
             intent.putExtra("alarmId", alarmId);
-            PendingIntent sender = PendingIntent.getBroadcast(AddActivity.this, 0, intent, 0);
+            PendingIntent sender = PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             //알람 예약
             am.setRepeating(AlarmManager.RTC_WAKEUP, timeInMillis, intervalMillis, sender);
@@ -833,9 +831,9 @@ public class AddActivity extends AppCompatActivity {
     }
 
     private void cancleAlarm(int alarmId) {
-        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(AddActivity.this, BroadcastD.class);
-        PendingIntent sender = PendingIntent.getBroadcast(AddActivity.this, alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(getApplicationContext(), BroadcastD.class);
+        PendingIntent sender = PendingIntent.getBroadcast(getApplicationContext(), alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if(sender != null) {
             am.cancel(sender);
