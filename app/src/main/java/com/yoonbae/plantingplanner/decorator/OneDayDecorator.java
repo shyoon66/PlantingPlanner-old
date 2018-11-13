@@ -1,4 +1,4 @@
-package com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator;
+package com.yoonbae.plantingplanner.decorator;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -11,8 +11,6 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 
 import org.threeten.bp.LocalDate;
-
-import java.util.Date;
 
 public class OneDayDecorator implements DayViewDecorator  {
 

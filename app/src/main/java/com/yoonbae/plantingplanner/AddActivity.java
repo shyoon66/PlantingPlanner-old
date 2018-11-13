@@ -43,7 +43,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
+import com.yoonbae.plantingplanner.vo.Plant;
 
 import org.threeten.bp.LocalDateTime;
 

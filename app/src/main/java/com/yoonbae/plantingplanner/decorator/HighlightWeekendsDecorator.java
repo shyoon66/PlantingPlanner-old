@@ -1,4 +1,4 @@
-package com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.decorator;
+package com.yoonbae.plantingplanner.decorator;
 
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;

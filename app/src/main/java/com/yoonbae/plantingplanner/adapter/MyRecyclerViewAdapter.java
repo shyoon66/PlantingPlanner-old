@@ -1,4 +1,4 @@
-package com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.adapter;
+package com.yoonbae.plantingplanner.adapter;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -22,7 +22,7 @@ import com.yoonbae.plantingplanner.AddActivity;
 import com.yoonbae.plantingplanner.BroadcastD;
 import com.yoonbae.plantingplanner.R;
 import com.yoonbae.plantingplanner.ViewActivity;
-import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
+import com.yoonbae.plantingplanner.vo.Plant;
 import java.util.List;
 
 import androidx.annotation.NonNull;

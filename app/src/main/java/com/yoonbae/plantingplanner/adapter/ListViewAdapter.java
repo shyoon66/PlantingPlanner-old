@@ -1,4 +1,4 @@
-package com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.adapter;
+package com.yoonbae.plantingplanner.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;

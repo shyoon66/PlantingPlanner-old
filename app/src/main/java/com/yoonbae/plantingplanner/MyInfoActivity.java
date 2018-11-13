@@ -35,10 +35,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo.Plant;
+import com.yoonbae.plantingplanner.service.AlarmService;
+import com.yoonbae.plantingplanner.vo.Plant;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -118,13 +120,14 @@ public class MyInfoActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if(position == 0) {
-                    String items[] = {"예", "아니오"};
+                    String[] items = {"예", "아니오"};
                     Context context = view.getContext();
                     AlertDialog.Builder ab = new AlertDialog.Builder(context);
-                    ab.setTitle("로그아웃 하시겠습니까?");
+                    ab.setTitle("로그아웃 하면 알람이 울리지 않습니다.\n로그아웃 하시겠습니까?");
                     ab.setItems(items, new DialogInterface.OnClickListener() {    // 목록 클릭시 설정
                         public void onClick(DialogInterface dialog, int index) {
                             if(index == 0) {
+                                cancleAlarm();
                                 mFirebaseAuth.signOut();
 
                                 LoginManager loginManager = LoginManager.getInstance();
@@ -141,6 +144,7 @@ public class MyInfoActivity extends AppCompatActivity {
                             dialog.dismiss();
                         }
                     });
+
                     ab.show();
                 } else if(position == 1) {
                     String items[] = {"예", "아니오"};
@@ -221,6 +225,33 @@ public class MyInfoActivity extends AppCompatActivity {
 
                     ab.show();
                 }
+            }
+        });
+    }
+
+    private void cancleAlarm() {
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<Plant> plantList = new ArrayList<Plant>();
+                String fUid = mFirebaseUser.getUid();
+
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Plant plant = snapshot.getValue(Plant.class);
+                    String dUid = plant.getUid();
+
+                    if(fUid.equals(dUid)) {
+                        int alarmId = plant.getAlarmId();
+                        AlarmService.INSTANCE.cancleAlarm(MyInfoActivity.this, alarmId);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Failed to read value
+                Log.w("Hello", "Failed to read value.", databaseError.toException());
             }
         });
     }

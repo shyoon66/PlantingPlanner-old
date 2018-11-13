@@ -1,4 +1,4 @@
-package com.yoonbae.plantingplanner.com.yoonbae.plantingplanner.vo;
+package com.yoonbae.plantingplanner.vo;
 
 public class Plant {
     private String name;
