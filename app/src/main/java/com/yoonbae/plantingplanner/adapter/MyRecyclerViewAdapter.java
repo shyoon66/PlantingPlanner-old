@@ -133,6 +133,26 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     private void deletePlant(final int position) {
+        AlertDialog.Builder ab = new AlertDialog.Builder(context);
+        String name = plantList.get(position).getName();
+        ab.setTitle(name + "을(를) 삭제하시겠습니까?");
+        String[] items = {"예", "아니오"};
+        ab.setItems(items, new DialogInterface.OnClickListener() {    // 목록 클릭시 설정
+            public void onClick(DialogInterface dialog, int index) {
+                if(index == 0) {
+                    deletePlantProc(position);
+                } else if(index == 1) {
+                    dialog.dismiss();
+                }
+
+                dialog.dismiss();
+            }
+        });
+
+        ab.show();
+    }
+
+    private void deletePlantProc(final int position) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         String key = plantList.get(position).getKey();
 

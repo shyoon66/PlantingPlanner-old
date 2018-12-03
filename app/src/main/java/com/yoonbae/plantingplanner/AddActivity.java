@@ -58,6 +58,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.locks.ReentrantLock;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -309,6 +310,23 @@ public class AddActivity extends AppCompatActivity {
         startActivityForResult(intent, GALLERY_CODE);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        String path = null;
+
+        if(resultCode == RESULT_OK) {
+            if(requestCode == CAMERA_CODE) {
+                path = mCurrentPhotoPath;
+                uploadCameraImageByFirebase(path, requestCode);
+            } else if(requestCode == GALLERY_CODE) {
+                path = getPath(data.getData());
+                uploadGalleryImageByFirebase(path, data.getData(), requestCode);
+            }
+
+            //uploadCameraImageByFirebase(path, data.getData(), requestCode);
+        }
+    }
+
     void chkCameraPermission(Context context) {
         boolean camera = (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED);
         boolean write = (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
@@ -360,23 +378,6 @@ public class AddActivity extends AppCompatActivity {
         return image;
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        String path = null;
-
-        if(resultCode == RESULT_OK) {
-            if(requestCode == CAMERA_CODE) {
-                path = mCurrentPhotoPath;
-                uploadCameraImageByFirebase(path, requestCode);
-            } else if(requestCode == GALLERY_CODE) {
-                path = getPath(data.getData());
-                uploadGalleryImageByFirebase(path, data.getData(), requestCode);
-            }
-
-            //uploadCameraImageByFirebase(path, data.getData(), requestCode);
-        }
-    }
-
     private Uri getImageUri(Context context, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
@@ -401,7 +402,16 @@ public class AddActivity extends AppCompatActivity {
         final Uri file = getImageUri(this, resizeBitmap);
 
         //Uri file = Uri.fromFile(new File(mCurrentPhotoPath));
-        firebaseImagePath = "images/" + file.getLastPathSegment();
+
+        // Create an image file name
+        ReentrantLock criticObj = new ReentrantLock();
+        criticObj.lock();
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        criticObj.unlock();
+
+        //firebaseImagePath = "images/" + file.getLastPathSegment();
+        firebaseImagePath = "images/" + imageFileName;
         StorageReference riversRef = storageRef.child(firebaseImagePath);
         UploadTask uploadTask = riversRef.putFile(file);
 
@@ -430,7 +440,16 @@ public class AddActivity extends AppCompatActivity {
         Uri file = getImageUri(this, resizeBitmap);
 
         //Uri file = Uri.fromFile(new File(path));
-        firebaseImagePath = "images/" + file.getLastPathSegment();
+        //firebaseImagePath = "images/" + file.getLastPathSegment();
+
+        // Create an image file name
+        ReentrantLock criticObj = new ReentrantLock();
+        criticObj.lock();
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp;
+        criticObj.unlock();
+
+        firebaseImagePath = "images/" + imageFileName;
         StorageReference riversRef = storageRef.child(firebaseImagePath);
         UploadTask uploadTask = riversRef.putFile(file);
 
