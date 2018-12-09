@@ -407,7 +407,7 @@ public class AddActivity extends AppCompatActivity {
         ReentrantLock criticObj = new ReentrantLock();
         criticObj.lock();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String imageFileName = "JPEG_" + timeStamp;
         criticObj.unlock();
 
         //firebaseImagePath = "images/" + file.getLastPathSegment();

@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
     private List<Plant> plantList;
     private ArrayList<CalendarDay> eventDayList;
     private ArrayList<Map<String, Object>> eventPlantList;
+    private boolean isFirst = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         eventDayList = new ArrayList<>();
         eventPlantList = new ArrayList<Map<String, Object>>();
 
+/*
         for(int i = 0; i < plantList.size(); i++) {
             Plant plant = plantList.get(i);
             String alarmYN = plant.getAlarm();
@@ -192,8 +194,10 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
             materialCalendarView.addDecorator(new EventDecorator(Color.RED, eventDayList, MainActivity.this));
         }
+*/
 
         materialCalendarView.setDateSelected(CalendarDay.today(), true);
+        onMonthChanged(materialCalendarView, CalendarDay.today());
         onDateSelected(materialCalendarView, CalendarDay.today(), true);
     }
 
@@ -388,6 +392,10 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 String alarm = plant.getAlarmTime() + " 물주기 알람";
                 String key = plant.getKey();
 
+                while(isFirst && eventDay.isBefore(monthDate)) {
+                    eventDay = eventDay.plusDays(pod);
+                }
+
                 while((eventDay.isEqual(monthDate) || eventDay.isAfter(monthDate)) && eventDay.isBefore(nextMonth)) {
                     CalendarDay day = CalendarDay.from(eventDay);
                     eventDayList.add(day);
@@ -401,6 +409,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 }
             }
 
+            isFirst = false;
             materialCalendarView.addDecorator(new EventDecorator(Color.RED, eventDayList, MainActivity.this));
         }
     }
