@@ -29,8 +29,6 @@ import java.util.List;
 
 public class ListActivity extends AppCompatActivity {
 
-    private FirebaseDatabase firebaseDatabase;
-    private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
     private List<Plant> plantList;
 
@@ -44,12 +42,14 @@ public class ListActivity extends AppCompatActivity {
 
         // Get the ActionBar here to configure the way it behaves.
         ActionBar actionBar = getSupportActionBar();
-        //actionBar.setIcon(R.drawable.baseline_add_black_24);
-        actionBar.setDisplayUseLogoEnabled(true);
-        actionBar.setDisplayShowCustomEnabled(true);    // 커스터마이징 하기 위해 필요
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayHomeAsUpEnabled(false);      // 뒤로가기 버튼, 디폴트로 true만 해도 백버튼이 생김
-        //actionBar.setHomeAsUpIndicator(R.drawable.baseline_keyboard_arrow_left_black_24);
+        if(actionBar != null) {
+            //actionBar.setIcon(R.drawable.baseline_add_black_24);
+            actionBar.setDisplayUseLogoEnabled(true);
+            actionBar.setDisplayShowCustomEnabled(true);    // 커스터마이징 하기 위해 필요
+            actionBar.setDisplayShowTitleEnabled(false);
+            actionBar.setDisplayHomeAsUpEnabled(false);      // 뒤로가기 버튼, 디폴트로 true만 해도 백버튼이 생김
+            //actionBar.setHomeAsUpIndicator(R.drawable.baseline_keyboard_arrow_left_black_24);
+        }
 
         final RecyclerView recyclerView = findViewById(R.id.main_recyclerView);
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavView);
@@ -74,36 +74,39 @@ public class ListActivity extends AppCompatActivity {
             }
         });
 
-        firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
-        firebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                plantList = new ArrayList<Plant>();
+                plantList = new ArrayList<>();
                 String fUid = firebaseUser.getUid();
 
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Plant value = snapshot.getValue(Plant.class);
-                    String dUid = value.getUid();
 
-                    if(fUid.equals(dUid)) {
-                        Plant plant = new Plant();
-                        plant.setName(value.getName());
-                        plant.setKind(value.getKind());
-                        plant.setImageName(value.getImageName());
-                        plant.setImageUrl(value.getImageUrl());
-                        plant.setIntro(value.getIntro());
-                        plant.setAdoptionDate(value.getAdoptionDate());
-                        plant.setAlarm(value.getAlarm());
-                        plant.setAlarmDate(value.getAlarmDate());
-                        plant.setPeriod(value.getPeriod());
-                        plant.setAlarmTime(value.getAlarmTime());
-                        plant.setAlarmId(value.getAlarmId());
-                        plant.setUid(value.getUid());
-                        plant.setUserId(value.getUserId());
-                        plant.setKey(snapshot.getKey());
-                        plantList.add(plant);
+                    if(value != null) {
+                        String dUid = value.getUid();
+
+                        if(fUid.equals(dUid)) {
+/*                            Plant plant = new Plant();
+                            plant.setName(value.getName());
+                            plant.setKind(value.getKind());
+                            plant.setImageName(value.getImageName());
+                            plant.setImageUrl(value.getImageUrl());
+                            plant.setIntro(value.getIntro());
+                            plant.setAdoptionDate(value.getAdoptionDate());
+                            plant.setAlarm(value.getAlarm());
+                            plant.setAlarmDate(value.getAlarmDate());
+                            plant.setPeriod(value.getPeriod());
+                            plant.setAlarmTime(value.getAlarmTime());
+                            plant.setAlarmId(value.getAlarmId());
+                            plant.setUid(value.getUid());
+                            plant.setUserId(value.getUserId());
+                            plant.setKey(snapshot.getKey());*/
+                            plantList.add(value);
+                        }
                     }
                 }
 

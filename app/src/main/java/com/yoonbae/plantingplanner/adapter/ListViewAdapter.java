@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class ListViewAdapter extends BaseAdapter {
     // Adapter에 추가된 데이터를 저장하기 위한 ArrayList
-    private ArrayList<Map<String, String>> listViewItemList = new ArrayList<Map<String, String>>() ;
+    private ArrayList<Map<String, String>> listViewItemList = new ArrayList<>() ;
 
     // ListViewAdapter의 생성자
     public ListViewAdapter() {
@@ -31,7 +31,7 @@ public class ListViewAdapter extends BaseAdapter {
     // position에 위치한 데이터를 화면에 출력하는데 사용될 View를 리턴. : 필수 구현
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final int pos = position;
+        //final int pos = position;
         final Context context = parent.getContext();
 
         // "listview_item" Layout을 inflate하여 convertView 참조 획득.
@@ -68,7 +68,7 @@ public class ListViewAdapter extends BaseAdapter {
 
     // 아이템 데이터 추가를 위한 함수. 개발자가 원하는대로 작성 가능.
     public void addItem(String name, String alarm, String key) {
-        Map<String, String> item = new HashMap<String, String>();
+        Map<String, String> item = new HashMap<>();
         item.put("name", name);
         item.put("alarm", alarm);
         item.put("key", key);

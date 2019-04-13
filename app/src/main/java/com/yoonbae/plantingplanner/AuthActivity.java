@@ -34,9 +34,8 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 public class AuthActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
-    private SignInButton mSigninBtn;
-    private GoogleApiClient mGoogleApiClient;
     private FirebaseAuth mFirebaseAuth;
+    private GoogleApiClient mGoogleApiClient;
     private FirebaseAuth mAuth;
     private final int SUCCESS = 100;
     private CallbackManager mCallbackManager;
@@ -45,10 +44,9 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
-        mSigninBtn = findViewById(R.id.signInButton);
+        SignInButton mSignInBtn = findViewById(R.id.signInButton);
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuth = FirebaseAuth.getInstance();
-
         chkLogin(mFirebaseAuth);
 
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -62,7 +60,7 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
             .addApi(Auth.GOOGLE_SIGN_IN_API, googleSignInOptions)
             .build();
 
-        mSigninBtn.setOnClickListener(new View.OnClickListener() {
+        mSignInBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
@@ -106,7 +104,7 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        //FirebaseUser currentUser = mAuth.getCurrentUser();
         //updateUI(currentUser);
     }
 
@@ -117,7 +115,7 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
+                        //FirebaseUser user = mAuth.getCurrentUser();
                         //updateUI(user);
                         startActivity(new Intent(AuthActivity.this, MainActivity.class));
                         finish();
@@ -138,7 +136,7 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
         if(requestCode == SUCCESS) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             GoogleSignInAccount account = result.getSignInAccount();
-            if(result.isSuccess()) {
+            if(result.isSuccess() && account != null) {
                 firebaseWithGoogle(account);
             } else {
                 Toast.makeText(this, "인증에 실패하였습니다.", Toast.LENGTH_SHORT);
@@ -158,8 +156,8 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
         authResultTask.addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
             public void onSuccess(AuthResult authResult) {
-            startActivity(new Intent(AuthActivity.this, MainActivity.class));
-            finish();
+                startActivity(new Intent(AuthActivity.this, MainActivity.class));
+                finish();
             }
         });
     }

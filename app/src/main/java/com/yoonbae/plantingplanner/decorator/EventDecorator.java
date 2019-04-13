@@ -16,12 +16,12 @@ import java.util.HashSet;
  */
 public class EventDecorator implements DayViewDecorator {
 
-    private final Drawable drawable;
+    //private Drawable drawable;
     private int color;
     private HashSet<CalendarDay> dates;
 
     public EventDecorator(int color, Collection<CalendarDay> dates, Activity context) {
-        drawable = context.getResources().getDrawable(com.prolificinteractive.materialcalendarview.R.drawable.abc_ab_share_pack_mtrl_alpha);
+        //this.drawable = context.getResources().getDrawable(com.prolificinteractive.materialcalendarview.R.drawable.abc_ab_share_pack_mtrl_alpha);
         this.color = color;
         this.dates = new HashSet<>(dates);
     }

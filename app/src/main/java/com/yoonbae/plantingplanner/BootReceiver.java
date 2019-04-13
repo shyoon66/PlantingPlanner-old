@@ -8,8 +8,7 @@ public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-
-        if(action.equals("android.intent.action.BOOT_COMPLETED")) {
+        if("android.intent.action.BOOT_COMPLETED".equals(action)) {
             Intent i = new Intent(context, SetWaterAlarm.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);

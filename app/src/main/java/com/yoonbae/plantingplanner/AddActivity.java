@@ -1,9 +1,7 @@
 package com.yoonbae.plantingplanner;
 
 import android.Manifest;
-import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -43,6 +41,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.yoonbae.plantingplanner.service.AlarmService;
 import com.yoonbae.plantingplanner.vo.Plant;
 
 import org.threeten.bp.LocalDateTime;
@@ -74,12 +73,9 @@ public class AddActivity extends AppCompatActivity {
 
     private static final int CAMERA_CODE = 10;
     private static final int GALLERY_CODE = 100;
-    private final int REQUEST_WIDTH = 1024;
-    private final int REQUEST_HEIGHT = 1024;
 
     private String mCurrentPhotoPath;
     private String flag;
-
     private ImageView imageView;
     private EditText mName;
     private EditText mKind;
@@ -89,8 +85,6 @@ public class AddActivity extends AppCompatActivity {
     private TextView mAlarmDate;
     private Spinner mPeriodSpinner;
     private TextView mAlarmTime;
-    private TextView mToolbar_title;
-
     private FirebaseAuth mFirebaseAuth;
     private FirebaseDatabase database;
     private FirebaseStorage storage;
@@ -107,7 +101,7 @@ public class AddActivity extends AppCompatActivity {
         mIntro = findViewById(R.id.intro);
         mAlarm = findViewById(R.id.alarm);
         mPeriodSpinner = findViewById(R.id.periodSpinner);
-        mToolbar_title = findViewById(R.id.toolbar_title);
+        TextView mToolbar_title = findViewById(R.id.toolbar_title);
         mFirebaseAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
@@ -117,27 +111,33 @@ public class AddActivity extends AppCompatActivity {
             public void onGlobalLayout() {
                 ((TextView) mPeriodSpinner.getSelectedView()).setTextColor(Color.rgb(121, 121, 121));
                 ((TextView) mPeriodSpinner.getSelectedView()).setTextSize(16);
-                ((TextView) mPeriodSpinner.getSelectedView()).setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+                (mPeriodSpinner.getSelectedView()).setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
             }
         });
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.waterPeriod));
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.waterPeriod));
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         Intent intent = getIntent();
-        flag = intent.getExtras().getString("FLAG");
+        Bundle bundle = intent.getExtras();
+        if(bundle != null)
+            flag = intent.getExtras().getString("FLAG");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // Get the ActionBar here to configure the way it behaves.
         ActionBar actionBar = getSupportActionBar();
-        //actionBar.setIcon(R.drawable.baseline_keyboard_arrow_left_black_24);
-        actionBar.setDisplayUseLogoEnabled(true);
-        actionBar.setDisplayShowCustomEnabled(true);    // 커스터마이징 하기 위해 필요
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayHomeAsUpEnabled(true);      // 뒤로가기 버튼, 디폴트로 true만 해도 백버튼이 생김
-        actionBar.setHomeAsUpIndicator(R.drawable.baseline_keyboard_arrow_left_black_24);
+
+        if(actionBar != null) {
+            //actionBar.setIcon(R.drawable.baseline_keyboard_arrow_left_black_24);
+            actionBar.setDisplayUseLogoEnabled(true);
+            actionBar.setDisplayShowCustomEnabled(true);    // 커스터마이징 하기 위해 필요
+            actionBar.setDisplayShowTitleEnabled(false);
+            actionBar.setDisplayHomeAsUpEnabled(true);      // 뒤로가기 버튼, 디폴트로 true만 해도 백버튼이 생김
+            actionBar.setHomeAsUpIndicator(R.drawable.baseline_keyboard_arrow_left_black_24);
+        }
+
         requestPermission();
 
         Button button = findViewById(R.id.imgAddButton);
@@ -150,11 +150,10 @@ public class AddActivity extends AppCompatActivity {
                 ab.setTitle("사진 선택");
                 ab.setItems(items, new DialogInterface.OnClickListener() {    // 목록 클릭시 설정
                     public void onClick(DialogInterface dialog, int index) {
-                        if(index == 0) {
+                        if(index == 0)
                             chkCameraPermission(context);
-                        } else if(index == 1) {
+                        else if(index == 1)
                             pickUpPicture();
-                        }
 
                         dialog.dismiss();
                     }
@@ -252,7 +251,6 @@ public class AddActivity extends AppCompatActivity {
             }
         }, hour, minute, true);
 
-
         timePickerDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         timePickerDialog.show();
     }
@@ -287,16 +285,15 @@ public class AddActivity extends AppCompatActivity {
             case android.R.id.home: {
                 Intent intent = new Intent(AddActivity.this, ListActivity.class);
                 startActivity(intent);
-                return true;
+                break;
             }
             case R.id.action_insert: {
-                if("I".equals(flag)) {
+                if("I".equals(flag))
                     insert();
-                } else {
+                else
                     update();
-                }
 
-                return true;
+                break;
             }
         }
 
@@ -312,8 +309,7 @@ public class AddActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        String path = null;
-
+        String path;
         if(resultCode == RESULT_OK) {
             if(requestCode == CAMERA_CODE) {
                 path = mCurrentPhotoPath;
@@ -331,12 +327,10 @@ public class AddActivity extends AppCompatActivity {
         boolean camera = (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED);
         boolean write = (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
 
-        if(camera && write) {
-            // 사진찍는 인텐트 코드 넣기
-            takePicture();
-        } else {
+        if(camera && write)
+            takePicture();  // 사진찍는 인텐트 코드 넣기
+        else
             Toast.makeText(AddActivity.this, "카메라 권한 및 쓰기 권한이 없습니다.", Toast.LENGTH_SHORT).show();
-        }
     }
 
     void requestPermission() {
@@ -344,16 +338,12 @@ public class AddActivity extends AppCompatActivity {
         ArrayList<String> listPermissionNeeded = new ArrayList<>();
 
         for(String permission : permissions) {
-            if(ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_DENIED) {
-                // 권한이 허가가 안됐을 경우 요청할 권한을 찾는 부분
-                listPermissionNeeded.add(permission);
-            }
+            if(ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_DENIED)
+                listPermissionNeeded.add(permission);   // 권한이 허가가 안됐을 경우 요청할 권한을 찾는 부분
         }
 
-        if(!listPermissionNeeded.isEmpty()) {
-            // 권한 요청 하는 부분
-            ActivityCompat.requestPermissions(this, listPermissionNeeded.toArray(new String[listPermissionNeeded.size()]), 1);
-        }
+        if(!listPermissionNeeded.isEmpty())
+            ActivityCompat.requestPermissions(this, listPermissionNeeded.toArray(new String[listPermissionNeeded.size()]), 1);  // 권한 요청 하는 부분
     }
 
     private File createImageFile() throws IOException {
@@ -363,9 +353,8 @@ public class AddActivity extends AppCompatActivity {
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
         //File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
-        if (!storageDir.exists()) {
+        if (!storageDir.exists())
             storageDir.mkdirs();
-        }
 
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
@@ -389,14 +378,14 @@ public class AddActivity extends AppCompatActivity {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 2;
         Bitmap orgImage = BitmapFactory.decodeFile(imgPath, options);
-        Bitmap resizeBitmap = Bitmap.createScaledBitmap(orgImage, REQUEST_WIDTH, REQUEST_HEIGHT, true);
-        return resizeBitmap;
+        int requestWidth = 1024;
+        int requestHeight = 1024;
+        return Bitmap.createScaledBitmap(orgImage, requestWidth, requestHeight, true);
     }
 
     private void uploadCameraImageByFirebase(String path, final int requestCode) {
         // Create a storage reference from our app
         final StorageReference storageRef = storage.getReferenceFromUrl("gs://planting-planner.appspot.com");
-        final int frequestCode = requestCode;
 
         Bitmap resizeBitmap = resizeImage(path);
         final Uri file = getImageUri(this, resizeBitmap);
@@ -424,17 +413,15 @@ public class AddActivity extends AppCompatActivity {
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                cameraImageView(file, frequestCode);
+                cameraImageView(file, requestCode);
                 Toast.makeText(AddActivity.this, "사진 등록이 성공했습니다.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void uploadGalleryImageByFirebase(String path, Uri uri, final int requestCode) {
+    private void uploadGalleryImageByFirebase(String path, final Uri uri, final int requestCode) {
         // Create a storage reference from our app
         final StorageReference storageRef = storage.getReferenceFromUrl("gs://planting-planner.appspot.com");
-        final int frequestCode = requestCode;
-        final Uri furi = uri;
 
         Bitmap resizeBitmap = resizeImage(path);
         Uri file = getImageUri(this, resizeBitmap);
@@ -462,7 +449,7 @@ public class AddActivity extends AppCompatActivity {
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                galleryImageView(furi, frequestCode);
+                galleryImageView(uri, requestCode);
                 Toast.makeText(AddActivity.this, "사진 등록이 성공했습니다.", Toast.LENGTH_SHORT).show();
             }
         });
@@ -478,20 +465,16 @@ public class AddActivity extends AppCompatActivity {
         return cursor.getString(index);
     }
 
-    private void cameraImageView(Uri uri, int frequestCode) {
+    private void cameraImageView(Uri uri, int requestCode) {
         ImageView imageview = findViewById(R.id.imageView);
-
-        if(frequestCode == CAMERA_CODE) {
+        if(requestCode == CAMERA_CODE)
             Glide.with(imageView.getContext()).load(uri).into(imageview);
-        }
     }
 
-    private void galleryImageView(Uri uri, int frequestCode) {
+    private void galleryImageView(Uri uri, int requestCode) {
         ImageView imageview = findViewById(R.id.imageView);
-
-        if(frequestCode == GALLERY_CODE) {
+        if(requestCode == GALLERY_CODE)
             Glide.with(imageView.getContext()).load(uri).into(imageview);
-        }
     }
 
     void takePicture() {
@@ -503,7 +486,7 @@ public class AddActivity extends AppCompatActivity {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
             startActivityForResult(intent, CAMERA_CODE);
         } catch(IOException e) {
-            e.printStackTrace();
+            e.getMessage();
         }
     }
 
@@ -591,7 +574,7 @@ public class AddActivity extends AppCompatActivity {
                             int pod = getPeriod(period);
                             long intervalMillis = pod * 24 * 60 * 60 * 1000;
                             long alarmTimeInMillis = getAlarmTimeInMillis(alarmDate, alarmTime, pod);
-                            new AddActivity.AlarmHATT((getApplicationContext())).Alarm(alarmTimeInMillis, intervalMillis, name, alarmId);
+                            AlarmService.INSTANCE.setAlarm(getApplicationContext(), alarmTimeInMillis, intervalMillis, name, alarmId);
                         }
 
                         String msg = "등록이 완료됐습니다.";
@@ -719,14 +702,12 @@ public class AddActivity extends AppCompatActivity {
                     database.getReference().child("plant").child(key).updateChildren(updateMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
+                            AlarmService.INSTANCE.cancelAlarm(getApplicationContext(), alarmId);
                             if(mAlarm.isChecked()) {
-                                cancleAlarm(alarmId);
                                 int pod = getPeriod(period);
                                 long intervalMillis = pod * 24 * 60 * 60 * 1000;
                                 long alarmTimeInMillis = getAlarmTimeInMillis(alarmDate, alarmTime, pod);
-                                new AddActivity.AlarmHATT((getApplicationContext())).Alarm(alarmTimeInMillis, intervalMillis, name, alarmId);
-                            } else {
-                                cancleAlarm(alarmId);
+                                AlarmService.INSTANCE.setAlarm(getApplicationContext(), alarmTimeInMillis, intervalMillis, name, alarmId);
                             }
 
                             String msg = "수정이 완료됐습니다.";
@@ -769,14 +750,12 @@ public class AddActivity extends AppCompatActivity {
             database.getReference().child("plant").child(key).updateChildren(updateMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
+                    AlarmService.INSTANCE.cancelAlarm(getApplicationContext(), alarmId);
                     if(mAlarm.isChecked()) {
-                        cancleAlarm(alarmId);
                         int pod = getPeriod(period);
                         long intervalMillis = pod * 24 * 60 * 60 * 1000;
                         long alarmTimeInMillis = getAlarmTimeInMillis(alarmDate, alarmTime, pod);
-                        new AddActivity.AlarmHATT((getApplicationContext())).Alarm(alarmTimeInMillis, intervalMillis, name, alarmId);
-                    } else {
-                        cancleAlarm(alarmId);
+                        AlarmService.INSTANCE.setAlarm(getApplicationContext(), alarmTimeInMillis, intervalMillis, name, alarmId);
                     }
 
                     String msg = "수정이 완료됐습니다.";
@@ -788,25 +767,6 @@ public class AddActivity extends AppCompatActivity {
                     Toast.makeText(AddActivity.this, "식물 수정이 실패했습니다.", Toast.LENGTH_SHORT).show();
                 }
             });
-        }
-    }
-
-    private class AlarmHATT {
-        private Context context;
-
-        private AlarmHATT(Context context) {
-            this.context = context;
-        }
-
-        private void Alarm(Long timeInMillis, Long intervalMillis, String name, int alarmId) {
-            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            Intent intent = new Intent(context, BroadcastD.class);
-            intent.putExtra("name", name);
-            intent.putExtra("alarmId", alarmId);
-            PendingIntent sender = PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-            //알람 예약
-            am.setRepeating(AlarmManager.RTC_WAKEUP, timeInMillis, intervalMillis, sender);
         }
     }
 
@@ -847,16 +807,5 @@ public class AddActivity extends AppCompatActivity {
         }
 
         return alarmTimeInMillis;
-    }
-
-    private void cancleAlarm(int alarmId) {
-        AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(getApplicationContext(), BroadcastD.class);
-        PendingIntent sender = PendingIntent.getBroadcast(getApplicationContext(), alarmId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        if(sender != null) {
-            am.cancel(sender);
-            sender.cancel();
-        }
     }
 }

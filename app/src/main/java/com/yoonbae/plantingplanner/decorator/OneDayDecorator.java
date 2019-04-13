@@ -12,7 +12,7 @@ import com.prolificinteractive.materialcalendarview.DayViewFacade;
 
 import org.threeten.bp.LocalDate;
 
-public class OneDayDecorator implements DayViewDecorator  {
+public class OneDayDecorator implements DayViewDecorator {
 
     private CalendarDay date;
 
@@ -22,7 +22,7 @@ public class OneDayDecorator implements DayViewDecorator  {
 
     @Override
     public boolean shouldDecorate(CalendarDay day) {
-        return date != null && day.equals(date);
+        return day.equals(date);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class OneDayDecorator implements DayViewDecorator  {
     /**
      * We're changing the internals, so make sure to call
      */
-    public void setDate(LocalDate date) {
+/*    public void setDate(LocalDate date) {
         this.date = CalendarDay.from(date);
-    }
+    }*/
 }

@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
     @AddTrace(name = "calendarEvent")
     private void getPlantList() {
-        plantList = new ArrayList<Plant>();
+        plantList = new ArrayList<>();
         firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
