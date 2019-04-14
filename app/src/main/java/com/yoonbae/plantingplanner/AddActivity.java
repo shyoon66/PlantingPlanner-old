@@ -21,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -37,6 +38,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -55,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.locks.ReentrantLock;
@@ -94,31 +97,41 @@ public class AddActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
+        init();
+    }
 
-        imageView = findViewById(R.id.imageView);
-        mName = findViewById(R.id.name);
-        mKind = findViewById(R.id.kind);
-        mIntro = findViewById(R.id.intro);
-        mAlarm = findViewById(R.id.alarm);
-        mPeriodSpinner = findViewById(R.id.periodSpinner);
-        TextView mToolbar_title = findViewById(R.id.toolbar_title);
+    private void init() {
         mFirebaseAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
+        requestPermission();
 
-        mPeriodSpinner.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                ((TextView) mPeriodSpinner.getSelectedView()).setTextColor(Color.rgb(121, 121, 121));
-                ((TextView) mPeriodSpinner.getSelectedView()).setTextSize(16);
-                (mPeriodSpinner.getSelectedView()).setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
-            }
+        mIntro = findViewById(R.id.intro);
+        mAlarm = findViewById(R.id.alarm);
+        imageView = findViewById(R.id.imageView);
+        mName = findViewById(R.id.name);
+        mKind = findViewById(R.id.kind);
+        TextView mToolbar_title = findViewById(R.id.toolbar_title);
+        Intent intent = getIntent();
+
+        if("U".equals(flag)) {
+            mToolbar_title.setText("식물수정");
+            mName.setText(intent.getStringExtra("name"));
+            mKind.setText(intent.getStringExtra("kind"));
+            mIntro.setText(intent.getStringExtra("intro"));
+            Glide.with(imageView).load(intent.getStringExtra("imageUrl")).into(imageView);
+        }
+
+        mPeriodSpinner = findViewById(R.id.periodSpinner);
+        mPeriodSpinner.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            ((TextView) mPeriodSpinner.getSelectedView()).setTextColor(Color.rgb(121, 121, 121));
+            ((TextView) mPeriodSpinner.getSelectedView()).setTextSize(16);
+            (mPeriodSpinner.getSelectedView()).setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
         });
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.waterPeriod));
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         if(bundle != null)
             flag = intent.getExtras().getString("FLAG");
@@ -128,7 +141,6 @@ public class AddActivity extends AppCompatActivity {
 
         // Get the ActionBar here to configure the way it behaves.
         ActionBar actionBar = getSupportActionBar();
-
         if(actionBar != null) {
             //actionBar.setIcon(R.drawable.baseline_keyboard_arrow_left_black_24);
             actionBar.setDisplayUseLogoEnabled(true);
@@ -138,105 +150,74 @@ public class AddActivity extends AppCompatActivity {
             actionBar.setHomeAsUpIndicator(R.drawable.baseline_keyboard_arrow_left_black_24);
         }
 
-        requestPermission();
-
         Button button = findViewById(R.id.imgAddButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final Context context = view.getContext();
-                final String items[] = {"카메라로 찍기", "앨범에서 가져오기", "취소"};
-                AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
-                ab.setTitle("사진 선택");
-                ab.setItems(items, new DialogInterface.OnClickListener() {    // 목록 클릭시 설정
-                    public void onClick(DialogInterface dialog, int index) {
-                        if(index == 0)
-                            chkCameraPermission(context);
-                        else if(index == 1)
-                            pickUpPicture();
+        button.setOnClickListener(view -> {
+            final Context context = view.getContext();
+            final String items[] = {"카메라로 찍기", "앨범에서 가져오기", "취소"};
+            AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
+            ab.setTitle("사진 선택");
+            // 목록 클릭시 설정
+            ab.setItems(items, (dialog, index) -> {
+                if(index == 0)
+                    chkCameraPermission(context);
+                else if(index == 1)
+                    pickUpPicture();
 
-                        dialog.dismiss();
-                    }
-                });
+                dialog.dismiss();
+            });
 
-                ab.show();
-            }
+            ab.show();
         });
 
-        if("U".equals(flag)) {
-            mToolbar_title.setText("식물수정");
-            mName.setText(intent.getExtras().getString("name"));
-            mKind.setText(intent.getStringExtra("kind"));
-            mIntro.setText(intent.getStringExtra("intro"));
-            Glide.with(imageView).load(intent.getStringExtra("imageUrl")).into(imageView);
-        }
-
-        Calendar calendar = Calendar.getInstance();
         mAdoptionDate = findViewById(R.id.adoptionDate);
-
+        String adoptionDate;
         if("I".equals(flag)) {
-            mAdoptionDate.setText(calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DATE));
+            Calendar calendar = Calendar.getInstance();
+            adoptionDate = calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DATE);
         } else {
-            String adoptionDate = intent.getStringExtra("adoptionDate");
-            mAdoptionDate.setText(adoptionDate);
+            adoptionDate = intent.getStringExtra("adoptionDate");
         }
 
-        mAdoptionDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDialog(mAdoptionDate);
-            }
-        });
+        mAdoptionDate.setText(adoptionDate);
+        mAdoptionDate.setOnClickListener(view -> showDialog(mAdoptionDate));
 
         String alarm = intent.getExtras().getString("alarm");
-        if("I".equals(flag)) {
+        if("I".equals(flag) || ("U".equals(flag) && "Y".equals(alarm)))
             mAlarm.setChecked(true);
-        } else if("U".equals(flag) && "Y".equals(alarm)) {
-            mAlarm.setChecked(true);
-        }
 
         mAlarmDate = findViewById(R.id.alarmDate);
-
+        String alarmDate;
         if("I".equals(flag)) {
-            mAlarmDate.setText(calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DATE));
+            Calendar calendar = Calendar.getInstance();
+            alarmDate = calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DATE);
         } else {
-            String alarmDate = intent.getExtras().getString("alarmDate");
-            mAlarmDate.setText(alarmDate);
+            alarmDate = intent.getExtras().getString("alarmDate");
         }
 
-        mAlarmDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDialog(mAlarmDate);
-            }
-        });
+        mAlarmDate.setText(alarmDate);
+        mAlarmDate.setOnClickListener(view -> showDialog(mAlarmDate));
 
         mAlarmTime = findViewById(R.id.alarmTime);
-        TimeZone jst = TimeZone.getTimeZone ("JST");
-
+        String alarmTime;
         if("I".equals(flag)) {
-            mAlarmTime.setText(calendar.get(Calendar.HOUR_OF_DAY) + "시 " + calendar.get(Calendar.MINUTE) + "분");
+            Calendar calendar = Calendar.getInstance();
+            alarmTime = calendar.get(Calendar.HOUR_OF_DAY) + "시 " + calendar.get(Calendar.MINUTE) + "분";
         } else {
-            String alarmTime = intent.getExtras().getString("alarmTime");
-            mAlarmTime.setText(alarmTime);
+            alarmTime = intent.getExtras().getString("alarmTime");
         }
+
+        mAlarmTime.setText(alarmTime);
 
         Resources res = getResources();
         String[] waterPeriodArr = res.getStringArray(R.array.waterPeriod);
         String period = intent.getStringExtra("period");
 
         for(int i = 0; i < waterPeriodArr.length; i++) {
-            if(waterPeriodArr[i].equals(period)) {
+            if(waterPeriodArr[i].equals(period))
                 mPeriodSpinner.setSelection(i);
-            }
         }
 
-        mAlarmTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showTimePicker();
-            }
-        });
+        mAlarmTime.setOnClickListener(view -> showTimePicker());
     }
 
     private void showTimePicker() {
@@ -244,31 +225,32 @@ public class AddActivity extends AppCompatActivity {
         int hour = mCurrentTime.get(Calendar.HOUR_OF_DAY);
         int minute = mCurrentTime.get(Calendar.MINUTE);
 
-        TimePickerDialog timePickerDialog = new TimePickerDialog(AddActivity.this, android.R.style.Theme_Holo_Light_Dialog_NoActionBar, new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker timePicker, int i, int i1) {
-                mAlarmTime.setText(i + "시 " + i1 + "분");
-            }
+        TimePickerDialog timePickerDialog = new TimePickerDialog(AddActivity.this, android.R.style.Theme_Holo_Light_Dialog_NoActionBar, (timePicker, i, i1) -> {
+            String text = i + "시 " + i1 + "분";
+            mAlarmTime.setText(text);
         }, hour, minute, true);
 
-        timePickerDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        timePickerDialog.show();
+        Window window = timePickerDialog.getWindow();
+        if(window != null) {
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+            timePickerDialog.show();
+        }
     }
 
     private void showDialog(final TextView pDate) {
         String date = pDate.getText().toString();
         int year = Integer.parseInt(date.substring(0, 4));
         int month = Integer.parseInt(date.substring(date.indexOf("-") + 1, date.indexOf("-") + 3).replace("-", ""));
-        int day = Integer.parseInt(date.substring(date.length() - 2, date.length()).replace("-", ""));
+        int day = Integer.parseInt(date.substring(date.length() - 2).replace("-", ""));
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(AddActivity.this, new DatePickerDialog.OnDateSetListener() {
-            public void onDateSet(DatePicker view, int year, int monthOfYear,int dayOfMonth) {
-                pDate.setText(year + "-" + (monthOfYear + 1) + "-" + dayOfMonth);
-            }
-        },year, month - 1, day); // 기본값 연월일
+        DatePickerDialog datePickerDialog = new DatePickerDialog(AddActivity.this, (view, year1, monthOfYear, dayOfMonth) -> {
+            String date1 = year1 + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
+            pDate.setText(date1);
+        }, year, month - 1, day); // 기본값 연월일
 
-        datePickerDialog.getDatePicker().setMinDate(Calendar.getInstance().getTimeInMillis());
-        datePickerDialog.getDatePicker().setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        DatePicker datePicker = datePickerDialog.getDatePicker();
+        datePicker.setMinDate(Calendar.getInstance().getTimeInMillis());
+        datePicker.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         datePickerDialog.show();
     }
 
@@ -300,7 +282,7 @@ public class AddActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    void pickUpPicture() {
+    private void pickUpPicture() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
         intent.setType("image/*");
@@ -323,7 +305,7 @@ public class AddActivity extends AppCompatActivity {
         }
     }
 
-    void chkCameraPermission(Context context) {
+    private void chkCameraPermission(Context context) {
         boolean camera = (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED);
         boolean write = (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
 
@@ -333,7 +315,7 @@ public class AddActivity extends AppCompatActivity {
             Toast.makeText(AddActivity.this, "카메라 권한 및 쓰기 권한이 없습니다.", Toast.LENGTH_SHORT).show();
     }
 
-    void requestPermission() {
+    private void requestPermission() {
         String[] permissions = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         ArrayList<String> listPermissionNeeded = new ArrayList<>();
 
@@ -343,23 +325,25 @@ public class AddActivity extends AppCompatActivity {
         }
 
         if(!listPermissionNeeded.isEmpty())
-            ActivityCompat.requestPermissions(this, listPermissionNeeded.toArray(new String[listPermissionNeeded.size()]), 1);  // 권한 요청 하는 부분
+            ActivityCompat.requestPermissions(this, listPermissionNeeded.toArray(new String[]{}), 1);  // 권한 요청 하는 부분
     }
 
     private File createImageFile() throws IOException {
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.KOREA).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
         //File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
-        if (!storageDir.exists())
-            storageDir.mkdirs();
+        if (!storageDir.exists()) {
+            if(!storageDir.mkdirs())
+                Toast.makeText(this, "이미지를 저장할 폴더를 생성하지 못했습니다.", Toast.LENGTH_SHORT);
+        }
 
         File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg", /* suffix */
-                storageDir      /* directory */
+            imageFileName,  /* prefix */
+            ".jpg", /* suffix */
+            storageDir      /* directory */
         );
 
         // Save a file: path for use with ACTION_VIEW intents
@@ -395,7 +379,7 @@ public class AddActivity extends AppCompatActivity {
         // Create an image file name
         ReentrantLock criticObj = new ReentrantLock();
         criticObj.lock();
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.KOREA).format(new Date());
         String imageFileName = "JPEG_" + timeStamp;
         criticObj.unlock();
 
@@ -459,10 +443,15 @@ public class AddActivity extends AppCompatActivity {
         String[] proj = {MediaStore.Images.Media.DATA};
         CursorLoader cursorLoader = new CursorLoader(this, uri, proj, null, null, null);
         Cursor cursor = cursorLoader.loadInBackground();
-        int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
+        String path = "";
 
-        return cursor.getString(index);
+        if(cursor != null) {
+            int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            path = cursor.getString(index);
+        }
+
+        return path;
     }
 
     private void cameraImageView(Uri uri, int requestCode) {
@@ -494,16 +483,20 @@ public class AddActivity extends AppCompatActivity {
         final String name = mName.getText().toString();
         final String kind = mKind.getText().toString();
         final String intro = mIntro.getText().toString();
-        final String uid = mFirebaseAuth.getCurrentUser().getUid();
-        final String userId = mFirebaseAuth.getCurrentUser().getEmail();
+
+        FirebaseUser firebaseUser = mFirebaseAuth.getCurrentUser();
+        final String uid;
+        final String userId;
+        if(firebaseUser != null) {
+            uid = firebaseUser.getUid();
+            userId = firebaseUser.getEmail();
+        } else {
+            uid = "";
+            userId = "";
+        }
 
         AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
-        ab.setPositiveButton("확인", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        ab.setPositiveButton("확인", (dialog, which) -> dialog.dismiss());
 
         if(imageView.getDrawable() == null) {
             ab.setMessage("사진을 등록해 주세요.");
@@ -543,69 +536,55 @@ public class AddActivity extends AppCompatActivity {
 
         if(alarmCal.before(nowCal)) {
             ab.setMessage("알람시작일시는 현재시간 이후로 설정해 주세요.");
-           ab.show();
+            ab.show();
             return;
         }
 
         LocalDateTime localDateTime = LocalDateTime.now();
         final int alarmId = localDateTime.getDayOfYear() + localDateTime.getMonth().getValue() + localDateTime.getDayOfYear() + localDateTime.getHour() + localDateTime.getMinute() + localDateTime.getSecond() + localDateTime.getNano();
         StorageReference storageRef = storage.getReferenceFromUrl("gs://planting-planner.appspot.com");
-        Task<Uri> uriTask = storageRef.child(firebaseImagePath).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                String imageUrl = uri.toString();
-                String[] pathStrArr = uri.getPath().split("/");
-                String imageName = pathStrArr[pathStrArr.length - 1];
-                String adoptionDate = mAdoptionDate.getText().toString();
+        storageRef.child(firebaseImagePath).getDownloadUrl().addOnSuccessListener(uri -> {
+            String adoptionDate = mAdoptionDate.getText().toString();
+            String alarm = "N";
+            if (mAlarm.isChecked())
+                alarm = "Y";
 
-                String alarm = "N";
-                if(mAlarm.isChecked()) {
-                    alarm = "Y";
+            final String alarmDate1 = mAlarmDate.getText().toString();
+            final String period = mPeriodSpinner.getSelectedItem().toString();
+            final String alarmTime1 = mAlarmTime.getText().toString();
+
+            String imageUrl = uri.toString();
+            String path = uri.getPath();
+            String imageName = "";
+            if(path != null) {
+                String[] pathStrArr = uri.getPath().split("/");
+                imageName = pathStrArr[pathStrArr.length - 1];
+            }
+
+            Plant plant = new Plant(name, kind, imageName, imageUrl, intro, adoptionDate, alarm, alarmDate1, period, alarmTime1, alarmId, uid, userId, "");
+            database.getReference().child("plant").push().setValue(plant).addOnSuccessListener(aVoid -> {
+                if (mAlarm.isChecked()) {
+                    int pod = getPeriod(period);
+                    long intervalMillis = pod * 24 * 60 * 60 * 1000;
+                    long alarmTimeInMillis = getAlarmTimeInMillis(alarmDate1, alarmTime1, pod);
+                    AlarmService.INSTANCE.setAlarm(getApplicationContext(), alarmTimeInMillis, intervalMillis, name, alarmId);
                 }
 
-                final String alarmDate = mAlarmDate.getText().toString();
-                final String period = mPeriodSpinner.getSelectedItem().toString();
-                final String alarmTime = mAlarmTime.getText().toString();
-                Plant plant = new Plant(name, kind, imageName, imageUrl, intro, adoptionDate, alarm, alarmDate, period, alarmTime, alarmId, uid, userId, "");
-                database.getReference().child("plant").push().setValue(plant).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        if(mAlarm.isChecked()) {
-                            int pod = getPeriod(period);
-                            long intervalMillis = pod * 24 * 60 * 60 * 1000;
-                            long alarmTimeInMillis = getAlarmTimeInMillis(alarmDate, alarmTime, pod);
-                            AlarmService.INSTANCE.setAlarm(getApplicationContext(), alarmTimeInMillis, intervalMillis, name, alarmId);
-                        }
-
-                        String msg = "등록이 완료됐습니다.";
-                        showDialogAfterWork(msg);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(AddActivity.this, "식물 등록이 실패했습니다.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(AddActivity.this, "식물 등록이 실패했습니다.", Toast.LENGTH_SHORT).show();
-            }
-        });
+                String msg = "등록이 완료됐습니다.";
+                showDialogAfterWork(msg);
+            }).addOnFailureListener(e -> Toast.makeText(AddActivity.this, "식물 등록이 실패했습니다.", Toast.LENGTH_SHORT).show());
+        }).addOnFailureListener(exception -> Toast.makeText(AddActivity.this, "식물 등록이 실패했습니다.", Toast.LENGTH_SHORT).show());
     }
 
     private void showDialogAfterWork(String msg) {
         AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
-        ab.setPositiveButton("확인", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                Intent intent = new Intent(AddActivity.this, ListActivity.class);
-                startActivity(intent);
-                finish();
-            }
+        ab.setPositiveButton("확인", (dialog, which) -> {
+            dialog.dismiss();
+            Intent intent = new Intent(AddActivity.this, ListActivity.class);
+            startActivity(intent);
+            finish();
         });
+
         ab.setMessage(msg);
         ab.show();
     }
@@ -616,12 +595,7 @@ public class AddActivity extends AppCompatActivity {
         final String intro = mIntro.getText().toString();
 
         AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
-        ab.setPositiveButton("확인", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        ab.setPositiveButton("확인", (dialog, which) -> dialog.dismiss());
 
         if(imageView.getDrawable() == null) {
             ab.setMessage("사진을 등록해 주세요.");
@@ -771,15 +745,14 @@ public class AddActivity extends AppCompatActivity {
     }
 
     private int getPeriod(String period) {
-        int pod = 0;
+        int pod;
 
-        if("매일".equals(period)) {
+        if("매일".equals(period))
             pod = 1;
-        } else if("이틀".equals(period)) {
+        else if("이틀".equals(period))
             pod = 2;
-        } else {
+        else
             pod = Integer.parseInt(period.substring(0, period.length() - 1));
-        }
 
         return pod;
     }
@@ -789,20 +762,19 @@ public class AddActivity extends AppCompatActivity {
         int year = Integer.parseInt(alarmDateArr[0]);
         int month = Integer.parseInt(alarmDateArr[1]);
         int dayOfYear = Integer.parseInt(alarmDateArr[2]);
-
         int hourOfDay = Integer.parseInt(alarmTime.substring(0, alarmTime.indexOf("시")));
         int minute = Integer.parseInt(alarmTime.substring(alarmTime.indexOf("시") + 2, alarmTime.length() - 1));
 
         Calendar alarmCalendar = Calendar.getInstance();
         alarmCalendar.set(year, month - 1, dayOfYear, hourOfDay, minute);
-        LocalDate localDate = LocalDate.of(year, month, dayOfYear);
-
         long alarmTimeInMillis = alarmCalendar.getTimeInMillis();
         long nowTimeInMillis = Calendar.getInstance().getTimeInMillis();
+        //LocalDate localDate = LocalDate.of(year, month, dayOfYear);
 
-        while(alarmTimeInMillis < nowTimeInMillis) {
-            localDate.plusDays(pod);
-            alarmCalendar.set(localDate.getYear(), localDate.getMonth().getValue() - 1, localDate.getDayOfMonth(), hourOfDay, minute);
+        while(nowTimeInMillis > alarmTimeInMillis) {
+            alarmCalendar.add(Calendar.DATE, pod);
+/*            localDate.plusDays(pod);
+            alarmCalendar.set(localDate.getYear(), localDate.getMonth().getValue() - 1, localDate.getDayOfMonth(), hourOfDay, minute);*/
             alarmTimeInMillis = alarmCalendar.getTimeInMillis();
         }
 
