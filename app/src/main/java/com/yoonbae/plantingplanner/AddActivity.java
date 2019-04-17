@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -20,7 +19,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -30,13 +28,11 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
@@ -52,14 +48,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.concurrent.locks.ReentrantLock;
 
 import androidx.annotation.NonNull;
@@ -643,70 +637,51 @@ public class AddActivity extends AppCompatActivity {
         final int alarmId = intent.getExtras().getInt("alarmId");
         if(firebaseImagePath != null && !"".equals(firebaseImagePath)) {
             StorageReference storageRef = storage.getReferenceFromUrl("gs://planting-planner.appspot.com");
-            Task<Uri> uriTask = storageRef.child(firebaseImagePath).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    String imageUrl = uri.toString();
-                    String[] pathStrArr = uri.getPath().split("/");
-                    String imageName = pathStrArr[pathStrArr.length - 1];
-                    String adoptionDate = mAdoptionDate.getText().toString();
+            storageRef.child(firebaseImagePath).getDownloadUrl().addOnSuccessListener(uri -> {
+                String imageUrl = uri.toString();
+                String[] pathStrArr = uri.getPath().split("/");
+                String imageName = pathStrArr[pathStrArr.length - 1];
+                String adoptionDate = mAdoptionDate.getText().toString();
 
-                    String alarm = "N";
-                    if(mAlarm.isChecked()) {
-                        alarm = "Y";
+                String alarm = "N";
+                if (mAlarm.isChecked())
+                    alarm = "Y";
+
+                final String alarmDate1 = mAlarmDate.getText().toString();
+                final String period = mPeriodSpinner.getSelectedItem().toString();
+                final String alarmTime1 = mAlarmTime.getText().toString();
+                Intent intent1 = getIntent();
+
+                String key = intent1.getStringExtra("key");
+                Map<String, Object> updateMap = new HashMap<>();
+                updateMap.put("name", name);
+                updateMap.put("kind", kind);
+                updateMap.put("imageName", imageName);
+                updateMap.put("imageUrl", imageUrl);
+                updateMap.put("intro", intro);
+                updateMap.put("adoptionDate", adoptionDate);
+                updateMap.put("alarm", alarm);
+                updateMap.put("alarmDate", alarmDate1);
+                updateMap.put("period", period);
+                updateMap.put("alarmTime", alarmTime1);
+                database.getReference().child("plant").child(key).updateChildren(updateMap).addOnSuccessListener(aVoid -> {
+                    AlarmService.INSTANCE.cancelAlarm(getApplicationContext(), alarmId);
+                    if (mAlarm.isChecked()) {
+                        int pod = getPeriod(period);
+                        long intervalMillis = pod * 24 * 60 * 60 * 1000;
+                        long alarmTimeInMillis = getAlarmTimeInMillis(alarmDate1, alarmTime1, pod);
+                        AlarmService.INSTANCE.setAlarm(getApplicationContext(), alarmTimeInMillis, intervalMillis, name, alarmId);
                     }
 
-                    final String alarmDate = mAlarmDate.getText().toString();
-                    final String period = mPeriodSpinner.getSelectedItem().toString();
-                    final String alarmTime = mAlarmTime.getText().toString();
-                    Intent intent = getIntent();
-
-                    String key = intent.getStringExtra("key");
-                    Map<String, Object> updateMap = new HashMap<String, Object>();
-                    updateMap.put("name", name);
-                    updateMap.put("kind", kind);
-                    updateMap.put("imageName", imageName);
-                    updateMap.put("imageUrl", imageUrl);
-                    updateMap.put("intro", intro);
-                    updateMap.put("adoptionDate", adoptionDate);
-                    updateMap.put("alarm", alarm);
-                    updateMap.put("alarmDate", alarmDate);
-                    updateMap.put("period", period);
-                    updateMap.put("alarmTime", alarmTime);
-                    database.getReference().child("plant").child(key).updateChildren(updateMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            AlarmService.INSTANCE.cancelAlarm(getApplicationContext(), alarmId);
-                            if(mAlarm.isChecked()) {
-                                int pod = getPeriod(period);
-                                long intervalMillis = pod * 24 * 60 * 60 * 1000;
-                                long alarmTimeInMillis = getAlarmTimeInMillis(alarmDate, alarmTime, pod);
-                                AlarmService.INSTANCE.setAlarm(getApplicationContext(), alarmTimeInMillis, intervalMillis, name, alarmId);
-                            }
-
-                            String msg = "수정이 완료됐습니다.";
-                            showDialogAfterWork(msg);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(AddActivity.this, "식물 수정이 실패했습니다.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    Toast.makeText(AddActivity.this, "식물 수정이 실패했습니다.", Toast.LENGTH_SHORT).show();
-                }
-            });
+                    String msg = "수정이 완료됐습니다.";
+                    showDialogAfterWork(msg);
+                }).addOnFailureListener(e -> Toast.makeText(AddActivity.this, "식물 수정이 실패했습니다.", Toast.LENGTH_SHORT).show());
+            }).addOnFailureListener(exception -> Toast.makeText(AddActivity.this, "식물 수정이 실패했습니다.", Toast.LENGTH_SHORT).show());
         } else {
             String adoptionDate = mAdoptionDate.getText().toString();
-
             String alarm = "N";
-            if(mAlarm.isChecked()) {
+            if(mAlarm.isChecked())
                 alarm = "Y";
-            }
 
             //final String alarmDate = mAlarmDate.getText().toString();
             final String period = mPeriodSpinner.getSelectedItem().toString();
@@ -721,26 +696,18 @@ public class AddActivity extends AppCompatActivity {
             updateMap.put("alarmDate", alarmDate);
             updateMap.put("period", period);
             updateMap.put("alarmTime", alarmTime);
-            database.getReference().child("plant").child(key).updateChildren(updateMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    AlarmService.INSTANCE.cancelAlarm(getApplicationContext(), alarmId);
-                    if(mAlarm.isChecked()) {
-                        int pod = getPeriod(period);
-                        long intervalMillis = pod * 24 * 60 * 60 * 1000;
-                        long alarmTimeInMillis = getAlarmTimeInMillis(alarmDate, alarmTime, pod);
-                        AlarmService.INSTANCE.setAlarm(getApplicationContext(), alarmTimeInMillis, intervalMillis, name, alarmId);
-                    }
+            database.getReference().child("plant").child(key).updateChildren(updateMap).addOnSuccessListener(aVoid -> {
+                AlarmService.INSTANCE.cancelAlarm(getApplicationContext(), alarmId);
+                if(mAlarm.isChecked()) {
+                    int pod = getPeriod(period);
+                    long intervalMillis = pod * 24 * 60 * 60 * 1000;
+                    long alarmTimeInMillis = getAlarmTimeInMillis(alarmDate, alarmTime, pod);
+                    AlarmService.INSTANCE.setAlarm(getApplicationContext(), alarmTimeInMillis, intervalMillis, name, alarmId);
+                }
 
-                    String msg = "수정이 완료됐습니다.";
-                    showDialogAfterWork(msg);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(AddActivity.this, "식물 수정이 실패했습니다.", Toast.LENGTH_SHORT).show();
-                }
-            });
+                String msg = "수정이 완료됐습니다.";
+                showDialogAfterWork(msg);
+            }).addOnFailureListener(e -> Toast.makeText(AddActivity.this, "식물 수정이 실패했습니다.", Toast.LENGTH_SHORT).show());
         }
     }
 

@@ -60,12 +60,9 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
             .addApi(Auth.GOOGLE_SIGN_IN_API, googleSignInOptions)
             .build();
 
-        mSignInBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-                startActivityForResult(intent, SUCCESS);
-            }
+        mSignInBtn.setOnClickListener(v -> {
+            Intent intent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+            startActivityForResult(intent, SUCCESS);
         });
 
         // Initialize Facebook Login button
@@ -110,22 +107,18 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
 
     private void handleFacebookAccessToken(AccessToken token) {
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-        mAuth.signInWithCredential(credential)
-            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if(task.isSuccessful()) {
-                        //FirebaseUser user = mAuth.getCurrentUser();
-                        //updateUI(user);
-                        startActivity(new Intent(AuthActivity.this, MainActivity.class));
-                        finish();
-                    } else {
-                        Toast.makeText(AuthActivity.this, "인증에 실패하였습니다.", Toast.LENGTH_SHORT).show();
-                        Log.e("TAG", "onComplete: Failed=" + task.getException().getMessage());
-                        //updateUI(null);
-                    }
-                }
-            });
+        mAuth.signInWithCredential(credential).addOnCompleteListener(this, task -> {
+            if(task.isSuccessful()) {
+                //FirebaseUser user = mAuth.getCurrentUser();
+                //updateUI(user);
+                startActivity(new Intent(AuthActivity.this, MainActivity.class));
+                finish();
+            } else {
+                Toast.makeText(AuthActivity.this, "인증에 실패하였습니다.", Toast.LENGTH_SHORT).show();
+                Log.e("TAG", "onComplete: Failed=" + task.getException().getMessage());
+                //updateUI(null);
+            }
+        });
     }
 
     @Override
@@ -136,11 +129,10 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
         if(requestCode == SUCCESS) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             GoogleSignInAccount account = result.getSignInAccount();
-            if(result.isSuccess() && account != null) {
+            if(result.isSuccess() && account != null)
                 firebaseWithGoogle(account);
-            } else {
+            else
                 Toast.makeText(this, "인증에 실패하였습니다.", Toast.LENGTH_SHORT);
-            }
         }
     }
 
@@ -153,12 +145,9 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         Task<AuthResult> authResultTask = mFirebaseAuth.signInWithCredential(credential);
 
-        authResultTask.addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-            @Override
-            public void onSuccess(AuthResult authResult) {
-                startActivity(new Intent(AuthActivity.this, MainActivity.class));
-                finish();
-            }
+        authResultTask.addOnSuccessListener(authResult -> {
+            startActivity(new Intent(AuthActivity.this, MainActivity.class));
+            finish();
         });
     }
 

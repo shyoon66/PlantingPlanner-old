@@ -10,8 +10,6 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 
-import org.threeten.bp.LocalDate;
-
 public class OneDayDecorator implements DayViewDecorator {
 
     private CalendarDay date;

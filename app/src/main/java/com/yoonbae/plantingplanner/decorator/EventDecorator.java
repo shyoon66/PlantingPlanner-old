@@ -1,7 +1,6 @@
 package com.yoonbae.plantingplanner.decorator;
 
 import android.app.Activity;
-import android.graphics.drawable.Drawable;
 
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;

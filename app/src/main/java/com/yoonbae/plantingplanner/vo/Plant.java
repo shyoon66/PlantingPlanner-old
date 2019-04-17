@@ -16,6 +16,8 @@ public class Plant {
     private String userId;
     private String key;
 
+    public Plant() {}
+
     public Plant(String name, String kind, String imageName, String imageUrl, String intro, String adoptionDate, String alarm, String alarmDate, String period, String alarmTime, int alarmId, String uid, String userId, String key) {
         this.name = name;
         this.kind = kind;

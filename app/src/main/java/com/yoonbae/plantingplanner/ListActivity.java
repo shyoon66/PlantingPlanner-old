@@ -55,23 +55,20 @@ public class ListActivity extends AppCompatActivity {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavView);
         bottomNavigationView.setSelectedItemId(R.id.action_list);
         //BottomNavigationViewHelper.removeShiftMode(bottomNavigationView);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Intent intent = null;
-                switch (item.getItemId()) {
-                    case R.id.action_calendar:
-                        intent = new Intent(ListActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        break;
-                    case R.id.action_myInfo:
-                        intent = new Intent(ListActivity.this, MyInfoActivity.class);
-                        startActivity(intent);
-                        break;
-                }
-
-                return false;
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            Intent intent;
+            switch (item.getItemId()) {
+                case R.id.action_calendar:
+                    intent = new Intent(ListActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    break;
+                case R.id.action_myInfo:
+                    intent = new Intent(ListActivity.this, MyInfoActivity.class);
+                    startActivity(intent);
+                    break;
             }
+
+            return false;
         });
 
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -89,24 +86,8 @@ public class ListActivity extends AppCompatActivity {
                     if(value != null) {
                         String dUid = value.getUid();
 
-                        if(fUid.equals(dUid)) {
-/*                            Plant plant = new Plant();
-                            plant.setName(value.getName());
-                            plant.setKind(value.getKind());
-                            plant.setImageName(value.getImageName());
-                            plant.setImageUrl(value.getImageUrl());
-                            plant.setIntro(value.getIntro());
-                            plant.setAdoptionDate(value.getAdoptionDate());
-                            plant.setAlarm(value.getAlarm());
-                            plant.setAlarmDate(value.getAlarmDate());
-                            plant.setPeriod(value.getPeriod());
-                            plant.setAlarmTime(value.getAlarmTime());
-                            plant.setAlarmId(value.getAlarmId());
-                            plant.setUid(value.getUid());
-                            plant.setUserId(value.getUserId());
-                            plant.setKey(snapshot.getKey());*/
+                        if(fUid.equals(dUid))
                             plantList.add(value);
-                        }
                     }
                 }
 
@@ -137,13 +118,13 @@ public class ListActivity extends AppCompatActivity {
             case android.R.id.home: {
                 Intent intent = new Intent(ListActivity.this, MainActivity.class);
                 startActivity(intent);
-                return true;
+                break;
             }
             case R.id.action_insert: {
                 Intent intent = new Intent(ListActivity.this, AddActivity.class);
                 intent.putExtra("FLAG", "I");
                 startActivity(intent);
-                return true;
+                break;
             }
         }
 

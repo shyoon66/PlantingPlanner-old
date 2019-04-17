@@ -53,9 +53,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         ((RowCell)holder).kind.setText(plant.getKind());
         Glide.with(((RowCell) holder).imageView.getContext()).load(plant.getImageUrl()).into(((RowCell) holder).imageView);
 
-        ((RowCell)holder).imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        ((RowCell)holder).imageView.setOnClickListener(view -> {
             Intent intent = new Intent(context, ViewActivity.class);
             intent.putExtra("name", plant.getName());
             intent.putExtra("kind", plant.getKind());
@@ -69,43 +67,39 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             intent.putExtra("period", plant.getPeriod());
             intent.putExtra("key", plant.getKey());
             context.startActivity(intent);
-            }
         });
 
-        ((RowCell)holder).imageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String items[] = {"식물수정", "식물삭제", "취소"};
-                AlertDialog.Builder ab = new AlertDialog.Builder(context);
-                ab.setTitle("");
-                ab.setItems(items, new DialogInterface.OnClickListener() {    // 목록 클릭시 설정
-                    public void onClick(DialogInterface dialog, int index) {
-                        if(index == 0) {
-                            Intent intent = new Intent(context, AddActivity.class);
-                            intent.putExtra("FLAG", "U");
-                            intent.putExtra("name", plant.getName());
-                            intent.putExtra("kind", plant.getKind());
-                            intent.putExtra("intro", plant.getIntro());
-                            intent.putExtra("imageUrl", plant.getImageUrl());
-                            intent.putExtra("uid", plant.getUid());
-                            intent.putExtra("adoptionDate", plant.getAdoptionDate());
-                            intent.putExtra("alarm", plant.getAlarm());
-                            intent.putExtra("alarmDate", plant.getAlarmDate());
-                            intent.putExtra("alarmTime", plant.getAlarmTime());
-                            intent.putExtra("period", plant.getPeriod());
-                            intent.putExtra("alarmId", plant.getAlarmId());
-                            intent.putExtra("key", plant.getKey());
-                            context.startActivity(intent);
-                        } else if(index == 1) {
-                            deletePlant(position);
-                        }
+        ((RowCell)holder).imageButton.setOnClickListener(view -> {
+            String items[] = {"식물수정", "식물삭제", "취소"};
+            AlertDialog.Builder ab = new AlertDialog.Builder(context);
+            ab.setTitle("");
 
-                        dialog.dismiss();
-                    }
-                });
+            // 목록 클릭시 설정
+            ab.setItems(items, (dialog, index) -> {
+                if(index == 0) {
+                    Intent intent = new Intent(context, AddActivity.class);
+                    intent.putExtra("FLAG", "U");
+                    intent.putExtra("name", plant.getName());
+                    intent.putExtra("kind", plant.getKind());
+                    intent.putExtra("intro", plant.getIntro());
+                    intent.putExtra("imageUrl", plant.getImageUrl());
+                    intent.putExtra("uid", plant.getUid());
+                    intent.putExtra("adoptionDate", plant.getAdoptionDate());
+                    intent.putExtra("alarm", plant.getAlarm());
+                    intent.putExtra("alarmDate", plant.getAlarmDate());
+                    intent.putExtra("alarmTime", plant.getAlarmTime());
+                    intent.putExtra("period", plant.getPeriod());
+                    intent.putExtra("alarmId", plant.getAlarmId());
+                    intent.putExtra("key", plant.getKey());
+                    context.startActivity(intent);
+                } else if(index == 1) {
+                    deletePlant(position);
+                }
 
-                ab.show();
-            }
+                dialog.dismiss();
+            });
+
+            ab.show();
         });
     }
 
@@ -134,13 +128,13 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         String name = plantList.get(position).getName();
         ab.setTitle(name + "을(를) 삭제하시겠습니까?");
         String[] items = {"예", "아니오"};
-        ab.setItems(items, new DialogInterface.OnClickListener() {    // 목록 클릭시 설정
-            public void onClick(DialogInterface dialog, int index) {
-                if(index == 0)
-                    deletePlantProcess(position);
 
-                dialog.dismiss();
-            }
+        // 목록 클릭시 설정
+        ab.setItems(items, (dialog, index) -> {
+            if(index == 0)
+                deletePlantProcess(position);
+
+            dialog.dismiss();
         });
 
         ab.show();
@@ -150,30 +144,14 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         String key = plantList.get(position).getKey();
 
-        database.getReference().child("plant").child(key).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                String imageName = plantList.get(position).getImageName();
-                storage = FirebaseStorage.getInstance();
-                storage.getReference().child("images").child(imageName).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(context, "식물이 삭제됐습니다.", Toast.LENGTH_SHORT).show();
-                        int alarmId = plantList.get(position).getAlarmId();
-                        AlarmService.INSTANCE.cancelAlarm(context, alarmId);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(context, "식물 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(context, "식물 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show();
-            }
-        });
+        database.getReference().child("plant").child(key).removeValue().addOnSuccessListener(aVoid -> {
+            String imageName = plantList.get(position).getImageName();
+            storage = FirebaseStorage.getInstance();
+            storage.getReference().child("images").child(imageName).delete().addOnSuccessListener(aVoid1 -> {
+                Toast.makeText(context, "식물이 삭제됐습니다.", Toast.LENGTH_SHORT).show();
+                int alarmId = plantList.get(position).getAlarmId();
+                AlarmService.INSTANCE.cancelAlarm(context, alarmId);
+            }).addOnFailureListener(e -> Toast.makeText(context, "식물 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show());
+        }).addOnFailureListener(e -> Toast.makeText(context, "식물 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show());
     }
 }

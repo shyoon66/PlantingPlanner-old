@@ -80,22 +80,20 @@ public class MyInfoActivity extends AppCompatActivity {
     private void bottomNavigationView() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavView);
         bottomNavigationView.setSelectedItemId(R.id.action_myInfo);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Intent intent;
-                switch (item.getItemId()) {
-                    case R.id.action_calendar:
-                        intent = new Intent(MyInfoActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        break;
-                    case R.id.action_list:
-                        intent = new Intent(MyInfoActivity.this, ListActivity.class);
-                        startActivity(intent);
-                        break;
-                }
-                return false;
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            Intent intent;
+            switch (item.getItemId()) {
+                case R.id.action_calendar:
+                    intent = new Intent(MyInfoActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    break;
+                case R.id.action_list:
+                    intent = new Intent(MyInfoActivity.this, ListActivity.class);
+                    startActivity(intent);
+                    break;
             }
+
+            return false;
         });
     }
 
@@ -113,109 +111,101 @@ public class MyInfoActivity extends AppCompatActivity {
         listView.setAdapter(simpleAdapter);
 
         //onItemClickListener를 추가
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(position == 0) {
-                    String[] items = {"예", "아니오"};
-                    Context context = view.getContext();
-                    AlertDialog.Builder ab = new AlertDialog.Builder(context);
-                    ab.setTitle("로그아웃 하면 알람이 울리지 않습니다.\n로그아웃 하시겠습니까?");
-                    ab.setItems(items, new DialogInterface.OnClickListener() {    // 목록 클릭시 설정
-                        public void onClick(DialogInterface dialog, int index) {
-                            if(index == 0) {
-                                cancelAlarm();
-                                mFirebaseAuth.signOut();
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            if(position == 0) {
+                String[] items = {"예", "아니오"};
+                Context context = view.getContext();
+                AlertDialog.Builder ab = new AlertDialog.Builder(context);
+                ab.setTitle("로그아웃 하면 알람이 울리지 않습니다.\n로그아웃 하시겠습니까?");
 
-                                LoginManager loginManager = LoginManager.getInstance();
-                                if(loginManager != null)
-                                    loginManager.logOut();
+                // 목록 클릭시 설정
+                ab.setItems(items, (dialog, index) -> {
+                    if(index == 0) {
+                        cancelAlarm();
+                        mFirebaseAuth.signOut();
 
-                                Intent intent = new Intent(MyInfoActivity.this, AuthActivity.class);
-                                startActivity(intent);
-                            }
+                        LoginManager loginManager = LoginManager.getInstance();
+                        if(loginManager != null)
+                            loginManager.logOut();
 
-                            dialog.dismiss();
-                        }
-                    });
+                        Intent intent = new Intent(MyInfoActivity.this, AuthActivity.class);
+                        startActivity(intent);
+                    }
 
-                    ab.show();
-                } else if(position == 1) {
-                    String items[] = {"예", "아니오"};
-                    Context context = view.getContext();
-                    AlertDialog.Builder ab = new AlertDialog.Builder(context);
-                    ab.setTitle("계정을 삭제하면 식물정보도 모두 삭제됩니다. 계정을 삭제 하시겠습니까?");
-                    ab.setItems(items, new DialogInterface.OnClickListener() {    // 목록 클릭시 설정
-                        public void onClick(DialogInterface dialog, int index) {
-                            if(index == 0 && mFirebaseUser != null) {
-                                List<String> providers = mFirebaseUser.getProviders();
-                                if(providers != null && providers.size() > 0) {
-                                    final String provider = providers.get(0);
+                    dialog.dismiss();
+                });
 
-                                    if ("google.com".equals(provider)) {
-                                        token = "677847193937-qr7av5jubvngm6j73cc5oh6mebp2qcua.apps.googleusercontent.com";
-                                        credential = GoogleAuthProvider.getCredential(token, null);
+                ab.show();
+            } else if(position == 1) {
+                String items[] = {"예", "아니오"};
+                Context context = view.getContext();
+                AlertDialog.Builder ab = new AlertDialog.Builder(context);
+                ab.setTitle("계정을 삭제하면 식물정보가 모두 삭제됩니다. 계정을 삭제 하시겠습니까?");
+
+                // 목록 클릭시 설정
+                ab.setItems(items, (dialog, index) -> {
+                    if(index == 0 && mFirebaseUser != null) {
+                        cancelAlarm();
+                        List<String> providers = mFirebaseUser.getProviders();
+                        if(providers != null && providers.size() > 0) {
+                            final String provider = providers.get(0);
+
+                            if ("google.com".equals(provider)) {
+                                token = "677847193937-qr7av5jubvngm6j73cc5oh6mebp2qcua.apps.googleusercontent.com";
+                                credential = GoogleAuthProvider.getCredential(token, null);
 
 /*                                        mFirebaseUser.getIdToken(true).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
-                                        @Override
-                                        public void onSuccess(GetTokenResult getTokenResult) {
-                                            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11");
-                                            token = getTokenResult.getToken();
-                                            credential = GoogleAuthProvider.getCredential(token, null);
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(MyInfoActivity.this, "계정 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });*/
-                                    } else if ("facebook.com".equals(provider)) {
-                                        token = AccessToken.getCurrentAccessToken().getToken();
-                                        credential = FacebookAuthProvider.getCredential(token);
-                                    }
-
-                                    //final String uid = mFirebaseUser.getUid();
-                                    mFirebaseUser.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-/*                                        if("google.com".equals(provider)) {
-                                            //mFirebaseAuth.signOut();*/
-
-                                            if ("facebook.com".equals(provider)) {
-                                                //mFirebaseAuth.signOut();
-
-                                                LoginManager loginManager = LoginManager.getInstance();
-                                                if (loginManager != null)
-                                                    loginManager.logOut();
-                                            }
-
-                                            // 사용자 삭제
-                                            mFirebaseUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()) {
-                                                        if ("google.com".equals(provider))
-                                                            mFirebaseAuth.signOut();
-
-                                                        //deleteFirebaseStoarge(uid);
-                                                        //deleteFirebaseDataBase(uid);
-
-                                                        startActivity(new Intent(MyInfoActivity.this, AuthActivity.class));
-                                                        finish();
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    });
+                                @Override
+                                public void onSuccess(GetTokenResult getTokenResult) {
+                                    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11");
+                                    token = getTokenResult.getToken();
+                                    credential = GoogleAuthProvider.getCredential(token, null);
                                 }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(MyInfoActivity.this, "계정 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                                }
+                            });*/
+                            } else if ("facebook.com".equals(provider)) {
+                                token = AccessToken.getCurrentAccessToken().getToken();
+                                credential = FacebookAuthProvider.getCredential(token);
                             }
 
-                            dialog.dismiss();
-                        }
-                    });
+                            //final String uid = mFirebaseUser.getUid();
+                            mFirebaseUser.reauthenticate(credential).addOnCompleteListener(task -> {
+                                /* if("google.com".equals(provider)) {
+                                //mFirebaseAuth.signOut();*/
 
-                    ab.show();
-                }
+                                if ("facebook.com".equals(provider)) {
+                                    //mFirebaseAuth.signOut();
+
+                                    LoginManager loginManager = LoginManager.getInstance();
+                                    if (loginManager != null)
+                                        loginManager.logOut();
+                                }
+
+                                // 사용자 삭제
+                                mFirebaseUser.delete().addOnCompleteListener(task1 -> {
+                                    if (task1.isSuccessful()) {
+                                        if ("google.com".equals(provider))
+                                            mFirebaseAuth.signOut();
+
+                                        //deleteFirebaseStoarge(uid);
+                                        //deleteFirebaseDataBase(uid);
+
+                                        startActivity(new Intent(MyInfoActivity.this, AuthActivity.class));
+                                        finish();
+                                    }
+                                });
+                            });
+                        }
+                    }
+
+                    dialog.dismiss();
+                });
+
+                ab.show();
             }
         });
     }
@@ -226,10 +216,13 @@ public class MyInfoActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String fUid = mFirebaseUser.getUid();
+
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Plant plant = snapshot.getValue(Plant.class);
+
                     if(plant != null) {
                         String dUid = plant.getUid();
+
                         if(fUid.equals(dUid)) {
                             int alarmId = plant.getAlarmId();
                             AlarmService.INSTANCE.cancelAlarm(MyInfoActivity.this, alarmId);
@@ -261,18 +254,12 @@ public class MyInfoActivity extends AppCompatActivity {
                     if(uid.equals(dUid)) {
                         String imageUrl = plant.getImageUrl();
                         StorageReference desertRef = storageRef.child(imageUrl);
-                        desertRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
+                        desertRef.delete().addOnSuccessListener(aVoid -> {
 
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception exception) {
-                                // Uh-oh, an error occurred!
-                                Log.w("Hello", "Failed to delete value.");
-                                exception.printStackTrace();
-                            }
+                        }).addOnFailureListener(exception -> {
+                            // Uh-oh, an error occurred!
+                            Log.w("Hello", "Failed to delete value.");
+                            exception.printStackTrace();
                         });
                     }
                 }
