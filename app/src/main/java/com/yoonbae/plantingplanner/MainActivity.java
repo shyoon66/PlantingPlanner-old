@@ -44,7 +44,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
     private MaterialCalendarView materialCalendarView;
     private FirebaseDatabase firebaseDatabase;
-    private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
     private List<Plant> plantList;
     private List<CalendarDay> eventDayList = new ArrayList<>();
@@ -56,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
         firebaseDatabase = FirebaseDatabase.getInstance();
 
