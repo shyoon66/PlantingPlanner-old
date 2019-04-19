@@ -85,9 +85,10 @@ public class ListActivity extends AppCompatActivity {
 
                     if(value != null) {
                         String dUid = value.getUid();
-
-                        if(fUid.equals(dUid))
+                        if(fUid.equals(dUid)) {
+                            value.setKey(snapshot.getKey());
                             plantList.add(value);
+                        }
                     }
                 }
 

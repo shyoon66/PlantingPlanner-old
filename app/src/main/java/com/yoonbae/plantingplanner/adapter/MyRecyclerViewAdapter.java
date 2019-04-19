@@ -70,7 +70,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         });
 
         ((RowCell)holder).imageButton.setOnClickListener(view -> {
-            String items[] = {"식물수정", "식물삭제", "취소"};
+            String[] items = {"식물수정", "식물삭제", "취소"};
             AlertDialog.Builder ab = new AlertDialog.Builder(context);
             ab.setTitle("");
 

@@ -1,6 +1,7 @@
 package com.yoonbae.plantingplanner;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -127,10 +128,6 @@ public class AddActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.waterPeriod));
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        Bundle bundle = intent.getExtras();
-        if(bundle != null)
-            flag = intent.getExtras().getString("FLAG");
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -148,7 +145,7 @@ public class AddActivity extends AppCompatActivity {
         Button button = findViewById(R.id.imgAddButton);
         button.setOnClickListener(view -> {
             final Context context = view.getContext();
-            final String items[] = {"카메라로 찍기", "앨범에서 가져오기", "취소"};
+            final String[] items = {"카메라로 찍기", "앨범에서 가져오기", "취소"};
             AlertDialog.Builder ab = new AlertDialog.Builder(AddActivity.this);
             ab.setTitle("사진 선택");
             // 목록 클릭시 설정
@@ -176,7 +173,7 @@ public class AddActivity extends AppCompatActivity {
         mAdoptionDate.setText(adoptionDate);
         mAdoptionDate.setOnClickListener(view -> showDialog(mAdoptionDate));
 
-        String alarm = intent.getExtras().getString("alarm");
+        String alarm = intent.getStringExtra("alarm");
         if("I".equals(flag) || ("U".equals(flag) && "Y".equals(alarm)))
             mAlarm.setChecked(true);
 
@@ -186,19 +183,18 @@ public class AddActivity extends AppCompatActivity {
             Calendar calendar = Calendar.getInstance();
             alarmDate = calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DATE);
         } else {
-            alarmDate = intent.getExtras().getString("alarmDate");
+            alarmDate = intent.getStringExtra("alarmDate");
         }
 
         mAlarmDate.setText(alarmDate);
         mAlarmDate.setOnClickListener(view -> showDialog(mAlarmDate));
-
         mAlarmTime = findViewById(R.id.alarmTime);
         String alarmTime;
         if("I".equals(flag)) {
             Calendar calendar = Calendar.getInstance();
             alarmTime = calendar.get(Calendar.HOUR_OF_DAY) + "시 " + calendar.get(Calendar.MINUTE) + "분";
         } else {
-            alarmTime = intent.getExtras().getString("alarmTime");
+            alarmTime = intent.getStringExtra("alarmTime");
         }
 
         mAlarmTime.setText(alarmTime);
@@ -384,17 +380,9 @@ public class AddActivity extends AppCompatActivity {
         UploadTask uploadTask = riversRef.putFile(file);
 
         // Register observers to listen for when the download is done or if it fails
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(AddActivity.this, "사진 등록이 실패했습니다.", Toast.LENGTH_SHORT).show();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                cameraImageView(file, requestCode);
-                Toast.makeText(AddActivity.this, "사진 등록이 성공했습니다.", Toast.LENGTH_SHORT).show();
-            }
+        uploadTask.addOnFailureListener(exception -> Toast.makeText(AddActivity.this, "사진 등록이 실패했습니다.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(taskSnapshot -> {
+            cameraImageView(file, requestCode);
+            Toast.makeText(AddActivity.this, "사진 등록이 성공했습니다.", Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -411,7 +399,7 @@ public class AddActivity extends AppCompatActivity {
         // Create an image file name
         ReentrantLock criticObj = new ReentrantLock();
         criticObj.lock();
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp;
         criticObj.unlock();
 
@@ -420,17 +408,9 @@ public class AddActivity extends AppCompatActivity {
         UploadTask uploadTask = riversRef.putFile(file);
 
         // Register observers to listen for when the download is done or if it fails
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(AddActivity.this, "사진 등록이 실패했습니다.", Toast.LENGTH_SHORT).show();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                galleryImageView(uri, requestCode);
-                Toast.makeText(AddActivity.this, "사진 등록이 성공했습니다.", Toast.LENGTH_SHORT).show();
-            }
+        uploadTask.addOnFailureListener(exception -> Toast.makeText(AddActivity.this, "사진 등록이 실패했습니다.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(taskSnapshot -> {
+            galleryImageView(uri, requestCode);
+            Toast.makeText(AddActivity.this, "사진 등록이 성공했습니다.", Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -523,13 +503,14 @@ public class AddActivity extends AppCompatActivity {
         int year = Integer.parseInt(alarmDateArr[0]);
         int month = Integer.parseInt(alarmDateArr[1]) - 1;
         int day = Integer.parseInt(alarmDateArr[2]);
+
         String alarmTime = mAlarmTime.getText().toString();
         int hour = Integer.parseInt(alarmTime.substring(0, alarmTime.indexOf("시")));
         int minute = Integer.parseInt(alarmTime.substring(alarmTime.indexOf("시") + 2, alarmTime.length() - 1));
         Calendar alarmCal = Calendar.getInstance();
         alarmCal.set(year, month, day, hour, minute);
 
-        if(alarmCal.before(nowCal)) {
+        if(mAlarm.isChecked() && alarmCal.before(nowCal)) {
             ab.setMessage("알람시작일시는 현재시간 이후로 설정해 주세요.");
             ab.show();
             return;
@@ -628,7 +609,7 @@ public class AddActivity extends AppCompatActivity {
         Calendar alarmCal = Calendar.getInstance();
         alarmCal.set(year, month, day, hour, minute);
 
-        if(alarmCal.before(nowCal)) {
+        if(mAlarm.isChecked() && alarmCal.before(nowCal)) {
             ab.setMessage("알람시작일시는 현재시간 이후로 설정해 주세요.");
             ab.show();
             return;
@@ -684,11 +665,9 @@ public class AddActivity extends AppCompatActivity {
             if(mAlarm.isChecked())
                 alarm = "Y";
 
-            //final String alarmDate = mAlarmDate.getText().toString();
             final String period = mPeriodSpinner.getSelectedItem().toString();
-            //final String alarmTime = mAlarmTime.getText().toString();
             String key = intent.getStringExtra("key");
-            Map<String, Object> updateMap = new HashMap<String, Object>();
+            Map<String, Object> updateMap = new HashMap<>();
             updateMap.put("name", name);
             updateMap.put("kind", kind);
             updateMap.put("intro", intro);
@@ -700,6 +679,7 @@ public class AddActivity extends AppCompatActivity {
             database.getReference().child("plant").child(key).updateChildren(updateMap).addOnSuccessListener(aVoid -> {
                 AlarmService.INSTANCE.cancelAlarm(getApplicationContext(), alarmId);
                 if(mAlarm.isChecked()) {
+                    AlarmService.INSTANCE.cancelAlarm(getApplicationContext(), alarmId);
                     int pod = getPeriod(period);
                     long intervalMillis = pod * 24 * 60 * 60 * 1000;
                     long alarmTimeInMillis = getAlarmTimeInMillis(alarmDate, alarmTime, pod);
@@ -737,12 +717,9 @@ public class AddActivity extends AppCompatActivity {
         alarmCalendar.set(year, month - 1, dayOfYear, hourOfDay, minute);
         long alarmTimeInMillis = alarmCalendar.getTimeInMillis();
         long nowTimeInMillis = Calendar.getInstance().getTimeInMillis();
-        //LocalDate localDate = LocalDate.of(year, month, dayOfYear);
 
         while(nowTimeInMillis > alarmTimeInMillis) {
             alarmCalendar.add(Calendar.DATE, pod);
-/*            localDate.plusDays(pod);
-            alarmCalendar.set(localDate.getYear(), localDate.getMonth().getValue() - 1, localDate.getDayOfMonth(), hourOfDay, minute);*/
             alarmTimeInMillis = alarmCalendar.getTimeInMillis();
         }
 

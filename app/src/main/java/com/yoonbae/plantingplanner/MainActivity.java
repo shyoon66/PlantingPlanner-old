@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
         firebaseUser = firebaseAuth.getCurrentUser();
         firebaseDatabase = FirebaseDatabase.getInstance();
 
-        calendarView();
         CalendarThread calendarThread = new CalendarThread();
         calendarThread.start();
 
@@ -85,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
     private class CalendarThread extends Thread {
         @Override
         public void run() {
+            calendarView();
             getPlantList();
         }
     }
