@@ -107,6 +107,7 @@ public class AddActivity extends AppCompatActivity {
         mKind = findViewById(R.id.kind);
         TextView mToolbar_title = findViewById(R.id.toolbar_title);
         Intent intent = getIntent();
+        flag = intent.getStringExtra("FLAG");
 
         if("U".equals(flag)) {
             mToolbar_title.setText("식물수정");
