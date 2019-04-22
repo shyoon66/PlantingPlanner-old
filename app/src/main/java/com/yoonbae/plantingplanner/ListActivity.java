@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -122,14 +123,27 @@ public class ListActivity extends AppCompatActivity {
                 break;
             }
             case R.id.action_insert: {
-                Intent intent = new Intent(ListActivity.this, AddActivity.class);
-                intent.putExtra("FLAG", "I");
-                startActivity(intent);
+                if(chkPlantCnt()) {
+                    Intent intent = new Intent(ListActivity.this, AddActivity.class);
+                    intent.putExtra("FLAG", "I");
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getApplicationContext(), "식물은 10개까지 등록 가능합니다.", Toast.LENGTH_SHORT).show();
+                }
+
                 break;
             }
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean chkPlantCnt() {
+        boolean flag = false;
+        if(plantList.size() <= 10)
+            flag = true;
+
+        return flag;
     }
 
 }

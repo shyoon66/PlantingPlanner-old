@@ -1,28 +1,24 @@
 package com.yoonbae.plantingplanner;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.bumptech.glide.Glide;
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FacebookAuthProvider;
@@ -41,10 +37,6 @@ import com.yoonbae.plantingplanner.vo.Plant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 public class MyInfoActivity extends AppCompatActivity {
 
@@ -137,7 +129,7 @@ public class MyInfoActivity extends AppCompatActivity {
 
                 ab.show();
             } else if(position == 1) {
-                String items[] = {"예", "아니오"};
+                String[] items = {"예", "아니오"};
                 Context context = view.getContext();
                 AlertDialog.Builder ab = new AlertDialog.Builder(context);
                 ab.setTitle("계정을 삭제하면 식물정보가 모두 삭제됩니다. 계정을 삭제 하시겠습니까?");
@@ -174,8 +166,9 @@ public class MyInfoActivity extends AppCompatActivity {
 
                             //final String uid = mFirebaseUser.getUid();
                             mFirebaseUser.reauthenticate(credential).addOnCompleteListener(task -> {
-                                /* if("google.com".equals(provider)) {
-                                //mFirebaseAuth.signOut();*/
+/*                                String uid = mFirebaseUser.getUid();
+                                deleteFirebaseStoarge(uid);
+                                deleteFirebaseDataBase(uid);*/
 
                                 if ("facebook.com".equals(provider)) {
                                     //mFirebaseAuth.signOut();
@@ -190,9 +183,6 @@ public class MyInfoActivity extends AppCompatActivity {
                                     if (task1.isSuccessful()) {
                                         if ("google.com".equals(provider))
                                             mFirebaseAuth.signOut();
-
-                                        //deleteFirebaseStoarge(uid);
-                                        //deleteFirebaseDataBase(uid);
 
                                         startActivity(new Intent(MyInfoActivity.this, AuthActivity.class));
                                         finish();
