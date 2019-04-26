@@ -157,4 +157,11 @@
         <item>29일</item>
         <item>30일</item>
     </string-array>
+
+    <!-- test ad -->
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+
+    <!-- real ad -->
+    <!--<string name="banner_ad_unit_id">ca-app-pub-광고 단위 ID</string>-->
+
 </resources>
