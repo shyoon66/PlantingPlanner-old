@@ -27,14 +27,12 @@ public class SetWaterAlarm extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-
-        firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(firebaseUser != null) {
+        if(firebaseUser != null) {
+            FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+            firebaseDatabase.getReference().child("plant").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     String fUid = firebaseUser.getUid();
-
                     for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         Plant plant = snapshot.getValue(Plant.class);
 
@@ -52,14 +50,14 @@ public class SetWaterAlarm extends AppCompatActivity {
                         }
                     }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Failed to read value
-                Log.w("Hello", "Failed to read value.", databaseError.toException());
-            }
-        });
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // Failed to read value
+                    Log.w("Hello", "Failed to read value.", databaseError.toException());
+                }
+            });
+        }
     }
 
     private void setAlarm(String alarmDate, String alarmTime, int pod, String name, int alarmId) {

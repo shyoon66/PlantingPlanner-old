@@ -159,9 +159,9 @@
     </string-array>
 
     <!-- test ad -->
-    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <!--<string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>-->
 
     <!-- real ad -->
-    <!--<string name="banner_ad_unit_id">ca-app-pub-광고 단위 ID</string>-->
+    <string name="banner_ad_unit_id">ca-app-pub-2042016444405582/3239061495</string>
 
 </resources>

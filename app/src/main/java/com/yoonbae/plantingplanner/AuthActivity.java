@@ -41,6 +41,7 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
+
         SignInButton mSignInBtn = findViewById(R.id.signInButton);
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuth = FirebaseAuth.getInstance();

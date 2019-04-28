@@ -18,7 +18,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
     <com.facebook.login.widget.LoginButton
         android:id="@+id/facebookSignInButton"
         android:layout_width="190dp"
