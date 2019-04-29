@@ -88,7 +88,7 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
     private void chkLogin(FirebaseAuth firebaseAuth) {
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
         if(firebaseUser != null) {
-            Intent intent = new Intent(AuthActivity.this, MainActivity.class);
+            Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();
         }
@@ -108,10 +108,10 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
             if(task.isSuccessful()) {
                 //FirebaseUser user = mAuth.getCurrentUser();
                 //updateUI(user);
-                startActivity(new Intent(AuthActivity.this, MainActivity.class));
+                startActivity(new Intent(this, MainActivity.class));
                 finish();
             } else {
-                Toast.makeText(AuthActivity.this, "인증에 실패하였습니다.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "인증에 실패하였습니다.", Toast.LENGTH_SHORT).show();
                 Log.e("TAG", "onComplete: Failed=" + task.getException().getMessage());
                 //updateUI(null);
             }
@@ -143,7 +143,7 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
         Task<AuthResult> authResultTask = mFirebaseAuth.signInWithCredential(credential);
 
         authResultTask.addOnSuccessListener(authResult -> {
-            startActivity(new Intent(AuthActivity.this, MainActivity.class));
+            startActivity(new Intent(this, MainActivity.class));
             finish();
         });
     }

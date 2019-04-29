@@ -23,6 +23,22 @@
           }
         },
         {
+          "client_id": "677847193937-n116l57fhfokkkpregfkhcmu1i00qji7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yoonbae.plantingplanner",
+            "certificate_hash": "06e82e3b69c7b6d8d1801268044f0ad4fe3bc5fb"
+          }
+        },
+        {
+          "client_id": "677847193937-52aij41ha50jt3tss5mmv44oqhrp54c2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yoonbae.plantingplanner",
+            "certificate_hash": "5b016d8e031171d817cf9ca398b90040d41e43e9"
+          }
+        },
+        {
           "client_id": "677847193937-qr7av5jubvngm6j73cc5oh6mebp2qcua.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -33,22 +49,16 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
               "client_id": "677847193937-qr7av5jubvngm6j73cc5oh6mebp2qcua.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
         }
-      }
+      },
+      "admob_app_id": "ca-app-pub-2042016444405582~9860116643"
     }
   ],
   "configuration_version": "1"
