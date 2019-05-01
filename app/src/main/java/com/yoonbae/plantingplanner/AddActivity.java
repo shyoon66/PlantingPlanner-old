@@ -12,10 +12,13 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -31,9 +34,16 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.loader.content.CursorLoader;
+
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
@@ -56,16 +66,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.loader.content.CursorLoader;
 
 public class AddActivity extends AppCompatActivity {
 
@@ -363,9 +363,20 @@ public class AddActivity extends AppCompatActivity {
         final StorageReference storageRef = storage.getReferenceFromUrl("gs://planting-planner.appspot.com");
 
         Bitmap resizeBitmap = resizeImage(path);
-        final Uri file = getImageUri(this, resizeBitmap);
+        ExifInterface exif;
+        try {
+            exif = new ExifInterface(path);
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+            resizeBitmap = rotateBitmap(resizeBitmap, orientation);
+        } catch(Exception e) {
+            Log.d("TAG", e.getMessage());
+        }
 
-        //Uri file = Uri.fromFile(new File(mCurrentPhotoPath));
+        final Uri file;
+        if(resizeBitmap != null)
+            file = getImageUri(this, resizeBitmap);
+        else
+            file = null;
 
         // Create an image file name
         ReentrantLock criticObj = new ReentrantLock();
@@ -377,13 +388,59 @@ public class AddActivity extends AppCompatActivity {
         //firebaseImagePath = "images/" + file.getLastPathSegment();
         firebaseImagePath = "images/" + imageFileName;
         StorageReference riversRef = storageRef.child(firebaseImagePath);
-        UploadTask uploadTask = riversRef.putFile(file);
 
-        // Register observers to listen for when the download is done or if it fails
-        uploadTask.addOnFailureListener(exception -> Toast.makeText(AddActivity.this, "사진 등록이 실패했습니다.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(taskSnapshot -> {
-            cameraImageView(file, requestCode);
-            Toast.makeText(AddActivity.this, "사진 등록이 성공했습니다.", Toast.LENGTH_SHORT).show();
-        });
+        if(file != null) {
+            UploadTask uploadTask = riversRef.putFile(file);
+
+            // Register observers to listen for when the download is done or if it fails
+            uploadTask.addOnFailureListener(exception -> Toast.makeText(AddActivity.this, "사진 등록이 실패했습니다.", Toast.LENGTH_SHORT).show()).addOnSuccessListener(taskSnapshot -> {
+                cameraImageView(file, requestCode);
+                Toast.makeText(AddActivity.this, "사진 등록이 성공했습니다.", Toast.LENGTH_SHORT).show();
+            });
+        }
+    }
+
+    private Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_NORMAL:
+                return bitmap;
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.setScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.setRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.setRotate(180);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                matrix.setRotate(90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.setRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                matrix.setRotate(-90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.setRotate(-90);
+                break;
+            default:
+                return bitmap;
+        }
+
+        try {
+            Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            bitmap.recycle();
+            return bmRotated;
+        } catch (OutOfMemoryError e) {
+            Log.d("TAG", e.getMessage());
+            return null;
+        }
     }
 
     private void uploadGalleryImageByFirebase(String path, final Uri uri, final int requestCode) {
@@ -441,7 +498,7 @@ public class AddActivity extends AppCompatActivity {
             Glide.with(imageView.getContext()).load(uri).into(imageview);
     }
 
-    void takePicture() {
+    private void takePicture() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         try {
